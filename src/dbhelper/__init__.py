@@ -10,7 +10,7 @@ class Paths:
         self.working_dir = working_dir
         self.working_dir_root = working_dir_root
 
-        self.suppressed = ["working_dir_root"]
+        self._suppressed = ["working_dir_root"]
 
         # When working with streams, it helps to put all checkpoints in their
         # own directory relative the previously defined working_dir
@@ -39,7 +39,7 @@ class Paths:
             max_key_len = len(key) if len(key) > max_key_len else max_key_len
 
         for key in self.__dict__:
-            if key not in self.suppressed:
+            if key not in self._suppressed:
                 label = f"{padding}{self_name}paths.{key}: "
                 print(label.ljust(max_key_len + 13) + self.__dict__[key])
 
@@ -224,8 +224,8 @@ class DBAcademyHelper:
 
         # Automatically add all path attributes to the SQL context as well.
         for key in self.paths.__dict__:
-            value = self.paths.__dict__[key]
-            if key not in ["suppressed"]:
+            if not key.startswith("_"):
+                value = self.paths.__dict__[key]
                 self.spark.conf.set(f"da.paths.{key.lower()}", value)
                 self.spark.conf.set(f"DA.paths.{key.lower()}", value)
 
