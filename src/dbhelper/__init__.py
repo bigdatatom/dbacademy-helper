@@ -378,24 +378,25 @@ class DBAcademyHelper:
         start = int(time.time())
         local_files = self.list_r(self.paths.datasets)
 
+        errors = []
+
         for file in local_files:
             if file not in self.remote_files:
-                print(f"({int(time.time()) - start} seconds)")
                 what = "path" if file.endswith("/") else "file"
-                print(f"\n  - Found extra {what}: {file}")
-                # print(f"  - This problem can be fixed by reinstalling the datasets")
+                errors.append(f" - Extra {what}: {file}")
                 return False
 
         for file in self.remote_files:
             if file not in local_files:
-                print(f"({int(time.time()) - start} seconds)")
                 what = "path" if file.endswith("/") else "file"
-                print(f"\n  - Missing {what}: {file}")
-                # print(f"  - This problem can be fixed by reinstalling the datasets")
+                errors.append(f" - Missing {what}: {file}")
                 return False
 
         print(f"({int(time.time()) - start} seconds)")
-        return True
+        for error in errors:
+            print(error)
+
+        return len(errors) == 0
 
     def validate_datasets(self, fail_fast: bool):
         """
