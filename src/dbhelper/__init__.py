@@ -250,27 +250,28 @@ class DBAcademyHelper:
         """
         Install the datasets used by this course to DBFS.
 
-        This ensures that data and compute are in the same region which subsequently mitigates performance issues when the storage and compute are, for example, on opposite sides of the world.
+        This ensures that data and compute are in the same region which subsequently mitigates performance issues
+        when the storage and compute are, for example, on opposite sides of the world.
         """
         import time
+        from dbacademy import dbgems
 
-        if not repairing_dataset: print(f"\nThe source for the datasets is\n{self.data_source_uri}/")
+        # if not repairing_dataset: print(f"\nThe source for the datasets is\n{self.data_source_uri}/")
+#        if not repairing_dataset: print(f"\nYour local dataset directory is {self.paths.datasets}")
 
-        if not repairing_dataset: print(f"\nYour local dataset directory is {self.paths.datasets}")
-        existing = self.paths.exists(self.paths.datasets)
+        if Paths.exists(self.paths.datasets):
+            # It's already installed...
+            if reinstall_datasets:
+                if not repairing_dataset: print(f"\nRemoving previously installed datasets")
+                dbgems.get_dbutils().ls.fs.rm(self.paths.datasets, True)
 
-        if not reinstall_datasets and existing:
-            print(f"\nSkipping install of existing dataset.")
-            print()
-            self.validate_datasets(fail_fast=False)
-            return
+            if not reinstall_datasets:
+                print(f"\nSkipping install of existing datasets to {self.paths.datasets}")
+                self.validate_datasets(fail_fast=False)
+                return
 
-            # Remove old versions of the previously installed datasets
-        if existing:
-            print(f"\nRemoving previously installed datasets from{self.paths.datasets}")
-            dbutils.fs.rm(self.paths.datasets, True)
-
-        print(f"""\nInstalling the datasets to {self.paths.datasets}""")
+        print(f"\nInstalling datasets to ...\n   {self.paths.datasets}")
+        print(f"\nfrom...\n   {self.data_source_uri}/")
 
         print(f"""\nNOTE: The datasets that we are installing are located in Washington, USA - depending on the
               region that your workspace is in, this operation can take as little as {self.install_min_time} and 
@@ -299,7 +300,6 @@ class DBAcademyHelper:
 
         print(f"""\nThe install of the datasets completed successfully in {int(time.time()) - install_start} seconds.""")
 
-    # noinspection PyGlobalUndefined
     def print_copyrights(self):
         global displayHTML
 
