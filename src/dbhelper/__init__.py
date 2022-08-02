@@ -168,6 +168,9 @@ class DBAcademyHelper:
             self.spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             self.spark.sql(f"USE {self.db_name}")
 
+    def reset_environment(self):
+        return self.cleanup(validate_datasets=False)
+
     def cleanup(self, validate_datasets=True):
         """
         Cleans up the user environment by stopping any active streams, dropping the database created by the call to init() and removing the user's lesson-specific working directory and any assets created in that directory.
