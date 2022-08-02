@@ -166,7 +166,7 @@ class DBAcademyHelper:
             self.install_datasets()
 
         if create_db:
-            print(f"\nCreating the database \"{self.db_name}\"")
+            # print(f"\nCreating the database \"{self.db_name}\"")
             self.spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             self.spark.sql(f"USE {self.db_name}")
 
