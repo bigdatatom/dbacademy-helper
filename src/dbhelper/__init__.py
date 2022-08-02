@@ -279,8 +279,8 @@ class DBAcademyHelper:
                 return
 
         print(f"\nInstalling datasets...")
-        print(f" - from \"{self.data_source_uri}\"")
-        print(f" - to \"{self.paths.datasets}\"")
+        print(f"...from \"{self.data_source_uri}\"")
+        print(f"...to \"{self.paths.datasets}\"")
 
         print(f"""\nNOTE: The datasets that we are installing are located in Washington, USA - depending on the
               region that your workspace is in, this operation can take as little as {self.install_min_time} and 
@@ -382,13 +382,13 @@ class DBAcademyHelper:
         for file in local_files:
             if file not in self.remote_files:
                 what = "path" if file.endswith("/") else "file"
-                errors.append(f" - Extra {what}: {file}")
+                errors.append(f"...Extra {what}: {file}")
                 break
 
         for file in self.remote_files:
             if file not in local_files:
                 what = "path" if file.endswith("/") else "file"
-                errors.append(f" - Missing {what}: {file}")
+                errors.append(f"...Missing {what}: {file}")
                 break
 
         print(f"({int(time.time()) - start} seconds)")
