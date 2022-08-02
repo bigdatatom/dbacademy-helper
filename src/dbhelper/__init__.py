@@ -357,12 +357,6 @@ class DBAcademyHelper:
         start = int(time.time())
         local_files = self.list_r(self.paths.datasets)
 
-        print("-"*80)
-        print(f"Processing {len(local_files)} local files")
-        for file in local_files:
-            print(file)
-        print("-"*80)
-
         errors = []
 
         for file in local_files:
