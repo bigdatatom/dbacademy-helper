@@ -272,7 +272,7 @@ class DBAcademyHelper:
                 dbgems.get_dbutils().ls.fs.rm(self.paths.datasets, True)
 
             if not reinstall_datasets:
-                print(f"\nSkipping install of existing datasets to\n{self.paths.datasets}")
+                print(f"\nSkipping install of existing datasets to \"{self.paths.datasets}\"")
                 self.validate_datasets(fail_fast=False)
                 return
 
