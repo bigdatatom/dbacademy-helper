@@ -216,14 +216,14 @@ class DBAcademyHelper:
             self.spark.conf.set(f"da.paths.{key.lower()}", self.paths.__dict__[key])
             self.spark.conf.set(f"DA.paths.{key.lower()}", self.paths.__dict__[key])
 
-        print("\nPredefined Paths:")
-        self.paths.print(self_name="DA.")
-
         if self.create_db:
             print(f"\nPredefined tables in {self.db_name}:")
             tables = self.spark.sql(f"SHOW TABLES IN {self.db_name}").filter("isTemporary == false").select("tableName").collect()
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
+
+        print("\nPredefined Paths:")
+        self.paths.print(self_name="DA.")
 
         print(f"\nSetup completed in {int(time.time()) - self.start} seconds")
 
@@ -300,6 +300,7 @@ class DBAcademyHelper:
 
         print(f"""\nThe install of the datasets completed successfully in {int(time.time()) - install_start} seconds.""")
 
+    # noinspection PyGlobalUndefined
     def print_copyrights(self):
         global displayHTML
 
@@ -386,7 +387,7 @@ class DBAcademyHelper:
         """
         import time
         start = int(time.time())
-        print(f"Validating the local copy of the datsets", end="...")
+        print(f"\nValidating the local copy of the datsets", end="...")
 
         result = self.do_validate()
         print(f"({int(time.time()) - start} seconds)")
