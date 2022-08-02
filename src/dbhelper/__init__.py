@@ -331,7 +331,7 @@ class DBAcademyHelper:
         files = self.list_r(self.data_source_uri)
         files = "_remote_files = " + str(files).replace("'", "\"")
 
-        displayHTML(f"""
+        self.display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
             <textarea rows="10" style="width:100%">{files}</textarea>
         """)
@@ -343,7 +343,7 @@ class DBAcademyHelper:
         files = self.list_r(self.paths.datasets)
         files = "_remote_files = " + str(files).replace("'", "\"")
 
-        displayHTML(f"""
+        self.display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
             <textarea rows="10" style="width:100%">{files}</textarea>
         """)
