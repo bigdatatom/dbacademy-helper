@@ -384,13 +384,11 @@ class DBAcademyHelper:
             if file not in self.remote_files:
                 what = "path" if file.endswith("/") else "file"
                 errors.append(f" - Extra {what}: {file}")
-                return False
 
         for file in self.remote_files:
             if file not in local_files:
                 what = "path" if file.endswith("/") else "file"
                 errors.append(f" - Missing {what}: {file}")
-                return False
 
         print(f"({int(time.time()) - start} seconds)")
         for error in errors:
