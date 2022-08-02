@@ -329,7 +329,7 @@ class DBAcademyHelper:
         Development function used to enumerate the remote datasets for use in validate_datasets()
         """
         files = self.list_r(self.data_source_uri)
-        files = "_remote_files = " + str(files).replace("'", "\"")
+        files = "remote_files = " + str(files).replace("'", "\"")
 
         self.display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
@@ -341,7 +341,7 @@ class DBAcademyHelper:
         Development function used to enumerate the local datasets for use in validate_datasets()
         """
         files = self.list_r(self.paths.datasets)
-        files = "_remote_files = " + str(files).replace("'", "\"")
+        files = "remote_files = " + str(files).replace("'", "\"")
 
         self.display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
