@@ -176,23 +176,30 @@ class DBAcademyHelper:
         Cleans up the user environment by stopping any active streams, dropping the database created by the call to init() and removing the user's lesson-specific working directory and any assets created in that directory.
         """
 
-        # Clear any cached values from previus lessons
+        # Clear any cached values from previous lessons
         self.spark.catalog.clearCache()
 
+        active_streams = len(self.spark.streams.active) > 0
+        remove_wd = self.paths.exists(self.paths.working_dir)
+        drop_db = self.spark.sql(f"SHOW DATABASES").filter(f"databaseName == '{self.db_name}'").count() == 1
+
+        if drop_db or remove_wd or active_streams:
+            print("Resetting the learning environment...")
+
         for stream in self.spark.streams.active:
-            print(f"Stopping the stream \"{stream.name}\"")
+            print(f"...stopping the stream \"{stream.name}\"")
             stream.stop()
             try:
                 stream.awaitTermination()
             except:
                 pass  # Bury any exceptions
 
-        if self.spark.sql(f"SHOW DATABASES").filter(f"databaseName == '{self.db_name}'").count() == 1:
-            print(f"Dropping the database \"{self.db_name}\"")
+        if drop_db:
+            print(f"...dropping the database \"{self.db_name}\"")
             self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
 
-        if self.paths.exists(self.paths.working_dir):
-            print(f"Removing the working directory \"{self.paths.working_dir}\"")
+        if remove_wd:
+            print(f"...removing the working directory \"{self.paths.working_dir}\"")
             dbgems.get_dbutils().fs.rm(self.paths.working_dir, True)
 
         if validate_datasets:
