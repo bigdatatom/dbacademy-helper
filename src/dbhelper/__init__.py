@@ -272,7 +272,7 @@ class DBAcademyHelper:
                 dbgems.get_dbutils().ls.fs.rm(self.paths.datasets, True)
 
             if not reinstall_datasets:
-                print(f"\nSkipping install of existing datasets to {self.paths.datasets}")
+                print(f"\nSkipping install of existing datasets to\n{self.paths.datasets}")
                 self.validate_datasets(fail_fast=False)
                 return
 
@@ -394,7 +394,7 @@ class DBAcademyHelper:
         """
         import time
         start = int(time.time())
-        print(f"\nValidating the local copy of the datsets", end="...")
+        print(f"\nValidating the locally installed datasets", end="...")
 
         result = self.do_validate()
         print(f"({int(time.time()) - start} seconds)")
