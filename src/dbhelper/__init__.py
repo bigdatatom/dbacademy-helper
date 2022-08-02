@@ -409,7 +409,7 @@ class DBAcademyHelper:
             if fail_fast:
                 raise Exception("Validation failed - see previous messages for more information.")
             else:
-                print("\nAttempting to repair local dataset...\n")
+                print("\nAttempting to repair local dataset...")
                 self.install_datasets(reinstall_datasets=True, repairing_dataset=True)
 
     def run_high_availability_job(self, job_name, notebook_path):
