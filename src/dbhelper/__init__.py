@@ -304,7 +304,6 @@ class DBAcademyHelper:
             dbgems.get_dbutils().fs.cp(source_path, target_path, True)
             print(f"({int(time.time()) - start} seconds)")
 
-        print()
         self.validate_datasets(fail_fast=True)
 
         print(f"""\nThe install of the datasets completed successfully in {int(time.time()) - install_start} seconds.""")
@@ -409,7 +408,7 @@ class DBAcademyHelper:
             if fail_fast:
                 raise Exception("Validation failed - see previous messages for more information.")
             else:
-                print("\nAttempting to repair local dataset...")
+                print("\nAttempting to repair locally installed dataset...")
                 self.install_datasets(reinstall_datasets=True, repairing_dataset=True)
 
     def run_high_availability_job(self, job_name, notebook_path):
