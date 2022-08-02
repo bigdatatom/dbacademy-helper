@@ -275,7 +275,7 @@ class DBAcademyHelper:
 
             if not reinstall_datasets:
                 print(f"\nSkipping install of existing datasets to \"{self.paths.datasets}\"")
-                self.validate_datasets(fail_fast=False)
+                self.validate_datasets(fail_fast=False, repairing_dataset=False)
                 return
 
         print(f"\nInstalling datasets...")
