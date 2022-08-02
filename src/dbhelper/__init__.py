@@ -279,8 +279,8 @@ class DBAcademyHelper:
                 return
 
         print(f"\nInstalling datasets...")
-        print(f"from: {self.data_source_uri}/")
-        print(f"to:   {self.paths.datasets}")
+        print(f" - from \"{self.data_source_uri}\"")
+        print(f" - to \"{self.paths.datasets}\"")
 
         print(f"""\nNOTE: The datasets that we are installing are located in Washington, USA - depending on the
               region that your workspace is in, this operation can take as little as {self.install_min_time} and 
