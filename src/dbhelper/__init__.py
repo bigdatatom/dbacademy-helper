@@ -206,7 +206,7 @@ class DBAcademyHelper:
 
         if validate_datasets:
             print()
-            self.validate_datasets(fail_fast=False)
+            self.validate_datasets(fail_fast=False, repairing_dataset=False)
 
     def conclude_setup(self):
         """
@@ -235,25 +235,6 @@ class DBAcademyHelper:
         self.paths.print(self_name="DA.")
 
         print(f"\nSetup completed in {int(time.time()) - self.start} seconds")
-
-    @staticmethod
-    def block_until_stream_is_ready(query, min_batches=2):
-        """
-        A utility method used in streaming notebooks to block until the stream has processed n batches. This method serves one main purpose in two different usescase
-
-        The purpose is to block the current command until the state of the stream is ready and thus allowing the next command to execute against the properly initialized stream.
-
-        The first use case is in jobs where the stream is started in one cell but execution of subsequent cells start prematurely.
-
-        The second use case is to slow down students who likewise attempt to execute subsequent cells before the stream is in a valid state either by invoking subsequent cells directly or by execute the Run-All Command
-
-        Note: it is best to show the students this code the first time so that they understand what it is doing and why, but from that point forward, just call it via the DA object.
-        """
-        import time
-        while len(query.recentProgress) < min_batches:
-            time.sleep(5)  # Give it a couple of seconds
-
-        print(f"The stream has processed {len(query.recentProgress)} batches")
 
     def install_datasets(self, reinstall_datasets=False, repairing_dataset=False):
         """
@@ -413,7 +394,7 @@ class DBAcademyHelper:
             if fail_fast:
                 raise Exception("Validation failed - see previous messages for more information.")
             else:
-                print("...Attempting to repair locally installed dataset...")
+                print("...Attempting to repair locally installed dataset")
                 self.install_datasets(reinstall_datasets=True, repairing_dataset=True)
 
     def run_high_availability_job(self, job_name, notebook_path):
@@ -485,7 +466,7 @@ class DBAcademyHelper:
     @staticmethod
     def init_mlflow_as_job():
         """
-        Used to initialize MLflow with the job ID when ran under test. Because this is not user-facing, we do not monkey-patch it into DBAcademyHelper.
+        Used to initialize MLflow with the job ID when ran under test.
         """
         import mlflow
 
