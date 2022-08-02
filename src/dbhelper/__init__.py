@@ -9,6 +9,8 @@ class Paths:
         self.working_dir = working_dir
         self.working_dir_root = working_dir_root
 
+        self.suppressed = ["working_dir_root"]
+
         # When working with streams, it helps to put all checkpoints in their
         # own directory relative the previously defined working_dir
         if enable_streaming_support:
@@ -36,7 +38,7 @@ class Paths:
             max_key_len = len(key) if len(key) > max_key_len else max_key_len
 
         for key in self.__dict__:
-            if key not in ["working_dir_root"]:
+            if key not in self.suppressed:
                 label = f"{padding}{self_name}paths.{key}: "
                 print(label.ljust(max_key_len + 13) + self.__dict__[key])
 
