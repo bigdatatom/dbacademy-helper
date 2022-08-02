@@ -224,9 +224,10 @@ class DBAcademyHelper:
 
         # Automatically add all path attributes to the SQL context as well.
         for key in self.paths.__dict__:
+            value = self.paths.__dict__[key]
             if key not in ["suppressed"]:
-                self.spark.conf.set(f"da.paths.{key.lower()}", self.paths.__dict__[key])
-                self.spark.conf.set(f"DA.paths.{key.lower()}", self.paths.__dict__[key])
+                self.spark.conf.set(f"da.paths.{key.lower()}", value)
+                self.spark.conf.set(f"DA.paths.{key.lower()}", value)
 
         if self.create_db:
             print(f"\nPredefined tables in \"{self.db_name}\":")
