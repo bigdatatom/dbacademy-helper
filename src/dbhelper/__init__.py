@@ -271,7 +271,7 @@ class DBAcademyHelper:
             # It's already installed...
             if reinstall_datasets:
                 if not repairing_dataset: print(f"\nRemoving previously installed datasets")
-                dbgems.get_dbutils().ls.fs.rm(self.paths.datasets, True)
+                dbgems.get_dbutils().rm(self.paths.datasets, True)
 
             if not reinstall_datasets:
                 print(f"\nSkipping install of existing datasets to \"{self.paths.datasets}\"")
