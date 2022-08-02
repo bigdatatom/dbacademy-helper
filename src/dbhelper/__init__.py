@@ -2,6 +2,17 @@ from typing import Union
 from dbacademy import dbgems
 
 
+def display_html(html) -> None:
+    import inspect
+    caller_frame = inspect.currentframe().f_back
+    while caller_frame is not None:
+        caller_globals = caller_frame.f_globals
+        function = caller_globals.get("displayHTML")
+        if function:
+            return function(html)
+    raise ValueError("displayHTML not found in any caller frames.")
+
+
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
 
@@ -299,7 +310,7 @@ class DBAcademyHelper:
                 head = dbgems.get_dbutils().fs.head(readme_path)
                 lines = len(head.split("\n")) + 1
                 html = f"""<html><body><h1>{dataset}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll">{head}</textarea></body></html>"""
-                self.display_html(html)
+                display_html(html)
             except:
                 print(f"\nMISSING: {readme_path}")
 
@@ -331,7 +342,7 @@ class DBAcademyHelper:
         files = self.list_r(self.data_source_uri)
         files = "_remote_files = " + str(files).replace("'", "\"")
 
-        self.display_html(f"""
+        display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
             <textarea rows="10" style="width:100%">{files}</textarea>
         """)
@@ -343,7 +354,7 @@ class DBAcademyHelper:
         files = self.list_r(self.paths.datasets)
         files = "_remote_files = " + str(files).replace("'", "\"")
 
-        self.display_html(f"""
+        display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
             <textarea rows="10" style="width:100%">{files}</textarea>
         """)
@@ -471,14 +482,3 @@ class DBAcademyHelper:
 
         if dbgems.get_job_id():
             mlflow.set_experiment(f"/Curriculum/Experiments/{dbgems.get_job_id()}")
-
-    @staticmethod
-    def display_html(html) -> None:
-        import inspect
-        caller_frame = inspect.currentframe().f_back
-        while caller_frame is not None:
-            caller_globals = caller_frame.f_globals
-            function = caller_globals.get("displayHTML")
-            if function:
-                return function(html)
-        raise ValueError("displayHTML not found in any caller frames.")
