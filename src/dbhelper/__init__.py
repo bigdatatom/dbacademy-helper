@@ -301,7 +301,8 @@ class DBAcademyHelper:
                 html = f"""<html><body><h1>{dataset}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll">{head}</textarea></body></html>"""
                 self.display_html(html)
             except:
-                print(f"\nMISSING: {readme_path}")
+                html = f"""<html><body><h1>{dataset}</h1><textarea rows="2" style="width:100%; overflow-x:scroll">ERROR: README.md was not found</textarea></body></html>"""
+                self.display_html(html)
 
     def list_r(self, path, prefix=None, results=None):
         """
