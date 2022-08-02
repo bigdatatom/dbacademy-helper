@@ -205,7 +205,6 @@ class DBAcademyHelper:
             dbgems.get_dbutils().fs.rm(self.paths.working_dir, True)
 
         if validate_datasets:
-            print()
             self.validate_datasets(fail_fast=False, repairing_dataset=False)
 
     def conclude_setup(self):
