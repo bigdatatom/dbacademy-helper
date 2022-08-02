@@ -1,4 +1,5 @@
 from typing import Union
+from dbacademy import dbgems
 
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
@@ -22,7 +23,7 @@ class Paths:
         Returns true if the specified path exists else false.
         """
         try:
-            return len(dbutils.fs.ls(path)) >= 0
+            return len(dbgems.get_dbutils().fs.ls(path)) >= 0
         except Exception:
             return False
 
@@ -55,7 +56,6 @@ class DBAcademyHelper:
                  asynchronous=True):
 
         import re, time
-        from dbacademy import dbgems
         from dbacademy.dbrest import DBAcademyRestClient
 
         self.start = int(time.time())
@@ -193,7 +193,7 @@ class DBAcademyHelper:
 
         if self.paths.exists(self.paths.working_dir):
             print(f"Removing the working directory \"{self.paths.working_dir}\"")
-            dbutils.fs.rm(self.paths.working_dir, True)
+            dbgems.get_dbutils().fs.rm(self.paths.working_dir, True)
 
         if validate_datasets:
             print()
@@ -254,7 +254,6 @@ class DBAcademyHelper:
         when the storage and compute are, for example, on opposite sides of the world.
         """
         import time
-        from dbacademy import dbgems
 
         # if not repairing_dataset: print(f"\nThe source for the datasets is\n{self.data_source_uri}/")
 #        if not repairing_dataset: print(f"\nYour local dataset directory is {self.paths.datasets}")
@@ -280,7 +279,7 @@ class DBAcademyHelper:
 
         # Using data_source_uri is a temporary hack because it assumes we can actually
         # reach the remote repository - in cases where it's blocked, this will fail.
-        files = dbutils.fs.ls(self.data_source_uri)
+        files = dbgems.get_dbutils().fs.ls(self.data_source_uri)
 
         what = "dataset" if len(files) == 1 else "datasets"
         print(f"\nInstalling {len(files)} {what}: ")
@@ -293,7 +292,7 @@ class DBAcademyHelper:
             source_path = f"{self.data_source_uri}/{f.name}"
             target_path = f"{self.paths.datasets}/{f.name}"
 
-            dbutils.fs.cp(source_path, target_path, True)
+            dbgems.get_dbutils().fs.cp(source_path, target_path, True)
             print(f"({int(time.time()) - start} seconds)")
 
         print()
@@ -304,11 +303,11 @@ class DBAcademyHelper:
     def print_copyrights(self):
         global displayHTML
 
-        datasets = [f.path for f in dbutils.fs.ls(self.paths.datasets)]
+        datasets = [f.path for f in dbgems.get_dbutils().fs.ls(self.paths.datasets)]
         for dataset in datasets:
             readme_path = f"{dataset}README.md"
             try:
-                head = dbutils.fs.head(readme_path)
+                head = dbgems.get_dbutils().fs.head(readme_path)
                 lines = len(head.split("\n")) + 1
                 html = f"""<html><body><h1>{dataset}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll">{head}</textarea></body></html>"""
                 displayHTML(html)
@@ -323,7 +322,7 @@ class DBAcademyHelper:
         if results is None: results = list()
 
         try:
-            files = dbutils.fs.ls(path)
+            files = dbgems.get_dbutils().fs.ls(path)
         except:
             files = []
 
@@ -471,7 +470,6 @@ class DBAcademyHelper:
         Used to initialize MLflow with the job ID when ran under test. Because this is not user-facing, we do not monkey-patch it into DBAcademyHelper.
         """
         import mlflow
-        from dbacademy import dbgems
 
         if dbgems.get_job_id():
             mlflow.set_experiment(f"/Curriculum/Experiments/{dbgems.get_job_id()}")
