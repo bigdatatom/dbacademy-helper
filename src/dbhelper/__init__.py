@@ -8,9 +8,8 @@ class Paths:
         self.user_db = user_db
         self.datasets = datasets
         self.working_dir = working_dir
-        self.working_dir_root = working_dir_root
 
-        self._suppressed = ["working_dir_root"]
+        self._working_dir_root = working_dir_root
 
         # When working with streams, it helps to put all checkpoints in their
         # own directory relative the previously defined working_dir
@@ -36,10 +35,11 @@ class Paths:
         """
         max_key_len = 0
         for key in self.__dict__:
-            max_key_len = len(key) if len(key) > max_key_len else max_key_len
+            if not key.startswith("_"):
+                max_key_len = len(key) if len(key) > max_key_len else max_key_len
 
         for key in self.__dict__:
-            if key not in self._suppressed:
+            if not key.startswith("_"):
                 label = f"{padding}{self_name}paths.{key}: "
                 print(label.ljust(max_key_len + 13) + self.__dict__[key])
 
