@@ -10,6 +10,7 @@ def display_html(html) -> None:
         function = caller_globals.get("displayHTML")
         if function:
             return function(html)
+        caller_frame = caller_frame.f_back
     raise ValueError("displayHTML not found in any caller frames.")
 
 
