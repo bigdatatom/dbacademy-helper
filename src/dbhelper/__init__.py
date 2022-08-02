@@ -373,34 +373,36 @@ class DBAcademyHelper:
         """
         Utility method to compare local datasets to the registered list of remote files.
         """
+        import time
 
+        start = int(time.time())
         local_files = self.list_r(self.paths.datasets)
 
         for file in local_files:
             if file not in self.remote_files:
-                print(f"\n  - Found extra file: {file}")
-                print(f"  - This problem can be fixed by reinstalling the datasets")
+                print(f"({int(time.time()) - start} seconds)")
+                what = "path" if file.endswith("/") else "file"
+                print(f"\n  - Found extra {what}: {file}")
+                # print(f"  - This problem can be fixed by reinstalling the datasets")
                 return False
 
         for file in self.remote_files:
             if file not in local_files:
-                what = "directory" if file.endswith("/") else "file"
+                print(f"({int(time.time()) - start} seconds)")
+                what = "path" if file.endswith("/") else "file"
                 print(f"\n  - Missing {what}: {file}")
-                print(f"  - This problem can be fixed by reinstalling the datasets")
+                # print(f"  - This problem can be fixed by reinstalling the datasets")
                 return False
 
+        print(f"({int(time.time()) - start} seconds)")
         return True
 
     def validate_datasets(self, fail_fast: bool):
         """
         Validates the "install" of the datasets by recursively listing all files in the remote data repository as well as the local data repository, validating that each file exists but DOES NOT validate file size or checksum.
         """
-        import time
-        start = int(time.time())
         print(f"\nValidating the locally installed datasets", end="...")
-
         result = self.do_validate()
-        print(f"({int(time.time()) - start} seconds)")
 
         if not result:
             if fail_fast:
