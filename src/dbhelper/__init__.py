@@ -304,7 +304,7 @@ class DBAcademyHelper:
             dbgems.get_dbutils().fs.cp(source_path, target_path, True)
             print(f"({int(time.time()) - start} seconds)")
 
-        self.validate_datasets(fail_fast=True)
+        self.validate_datasets(fail_fast=True, repairing_dataset=repairing_dataset)
 
         print(f"""\nThe install of the datasets completed successfully in {int(time.time()) - install_start} seconds.""")
 
@@ -397,11 +397,16 @@ class DBAcademyHelper:
 
         return len(errors) == 0
 
-    def validate_datasets(self, fail_fast: bool):
+    def validate_datasets(self, fail_fast: bool, repairing_dataset: bool):
         """
         Validates the "install" of the datasets by recursively listing all files in the remote data repository as well as the local data repository, validating that each file exists but DOES NOT validate file size or checksum.
         """
-        print(f"\nValidating the locally installed datasets", end="...")
+
+        if repairing_dataset:
+            print(f"\nRevalidating the locally installed datasets", end="...")
+        else:
+            print(f"\nValidating the locally installed datasets", end="...")
+
         result = self.do_validate()
 
         if not result:
