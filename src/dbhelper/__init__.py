@@ -34,9 +34,11 @@ class Paths:
         max_key_len = 0
         for key in self.__dict__:
             max_key_len = len(key) if len(key) > max_key_len else max_key_len
+
         for key in self.__dict__:
-            label = f"{padding}{self_name}paths.{key}: "
-            print(label.ljust(max_key_len + 13) + self.__dict__[key])
+            if key not in ["working_dir_root"]:
+                label = f"{padding}{self_name}paths.{key}: "
+                print(label.ljust(max_key_len + 13) + self.__dict__[key])
 
     def __repr__(self):
         return self.__dict__.__repr__().replace(", ", ",\n").replace("{", "").replace("}", "").replace("'", "")
