@@ -226,7 +226,7 @@ class DBAcademyHelper:
             self.spark.conf.set(f"DA.paths.{key.lower()}", self.paths.__dict__[key])
 
         if self.create_db:
-            print(f"\nPredefined tables in {self.db_name}:")
+            print(f"\nPredefined tables in \"{self.db_name}\":")
             tables = self.spark.sql(f"SHOW TABLES IN {self.db_name}").filter("isTemporary == false").select("tableName").collect()
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
