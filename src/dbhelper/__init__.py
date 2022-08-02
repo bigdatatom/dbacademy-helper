@@ -384,7 +384,8 @@ class DBAcademyHelper:
 
         for file in self.remote_files:
             if file not in local_files:
-                print(f"\n  - Missing file: {file}")
+                what = "directory" if file.endswith("/") else "file"
+                print(f"\n  - Missing {what}: {file}")
                 print(f"  - This problem can be fixed by reinstalling the datasets")
                 return False
 
