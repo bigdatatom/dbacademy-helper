@@ -486,3 +486,10 @@ class DBAcademyHelper:
                 return function(html)
             caller_frame = caller_frame.f_back
         raise ValueError("displayHTML not found in any caller frames.")
+
+    @staticmethod
+    def clean_string(value):
+        import re
+        value = re.sub(r"[^a-zA-Z\d]", "_", str(value))
+        while "__" in value: value = value.replace("__", "_")
+        return value
