@@ -57,8 +57,8 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
-                 lesson=None,
-                 asynchronous=True):
+                 lesson: str = None,
+                 asynchronous: bool = True):
 
         import re, time
         from dbacademy.dbrest import DBAcademyRestClient
@@ -96,13 +96,10 @@ class DBAcademyHelper:
 
         # Create the database name prefix according to curriculum standards. This
         # is the value by which all databases in this course should start with.
-        # Besides, creating this lesson's database name, this value is used almost
-        # exclusively in the Rest notebook.
-        da_name, da_hash = self.get_username_hash()
-        self.db_name_prefix = f"da-{da_name}@{da_hash}-{self.course_code}"  # Composite all the values to create the "dirty" database name
-        self.db_name_prefix = re.sub(r"[^a-zA-Z\d]", "_", self.db_name_prefix)  # Replace all special characters with underscores (not digit or alpha)
-        while "__" in self.db_name_prefix:
-            self.db_name_prefix = self.db_name_prefix.replace("__", "_")  # Replace all double underscores with single underscores
+        # Besides, creating this lesson's database name
+
+        da_name, da_hash = self.to_username_hash(self.username, self.course_code)
+        self.db_name_prefix = self.to_database_name()
 
         # This is the location in our Azure data repository of the datasets for this lesson
         self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.data_source_name}/{self.data_source_version}"
@@ -137,12 +134,37 @@ class DBAcademyHelper:
             # self.hidden = Paths(working_dir, self.clean_lesson, enable_streaming_support)  # Create the "hidden" path
             self.db_name = f"{self.db_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
 
-    def get_username_hash(self):
+    @staticmethod
+    def to_database_name(username, course_code) -> str:
         """
-        Utility method to split the user's email address, dropping the domain, and then creating a hash based on the full email address and course_code. The primary usage of this function is in creating the user's database, but is also used in creating SQL Endpoints, DLT Piplines, etc - any place we need a short, student-specific name.
+        Given the specified username and course_code, creates a database name that follows the pattern "da-name_prefix@hash-course_code"
+        where name_prefix is the right hand of an email as in "john.doe" given "john.doe@example.com", hash is truncated hash based on
+        the full email address and course code.
+        :param username: The full username (e.g. email address) to compose the database name from.
+        :param course_code: The abbreviated version of the course's name
+        :return: Returns the name of the database for the given user and course.
         """
-        da_name = self.username.split("@")[0]  # Split the username, dropping the domain
-        da_hash = abs(hash(f"{self.username}-{self.course_code}")) % 10000  # Create a has from the full username and course code
+        import re
+        da_name, da_hash = DBAcademyHelper.to_username_hash(username, course_code)
+        db_name = f"da-{da_name}@{da_hash}-{course_code}"            # Composite all the values to create the "dirty" database name
+        db_name = re.sub(r"[^a-zA-Z\d]", "_", db_name)               # Replace all special characters with underscores (not digit or alpha)
+        while "__" in db_name: db_name = db_name.replace("__", "_")  # Replace all double underscores with single underscores
+        return db_name
+
+    @staticmethod
+    def to_username_hash(username: str, course_code: str) -> (str, str):
+        """
+        Utility method to split the specified user's email address, dropping the domain, and then creating a hash based on the
+        full email address and the specified course_code. The primary usage of this function is in creating the user's database,
+        but is also used in creating SQL Endpoints, DLT Piplines, etc - any place we need a short, student-specific name.
+
+        :param username: The full username (e.g. email address) to compose the hash from.
+        :param course_code: The abbreviated version of the course's name
+        :return: Returns (da_name:str, da_hash:str)
+        """
+
+        da_name = username.split("@")[0]  # Split the username, dropping the domain
+        da_hash = abs(hash(f"{username}-{course_code}")) % 10000  # Create a has from the full username and course code
         return da_name, da_hash
 
     @staticmethod
