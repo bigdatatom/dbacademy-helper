@@ -98,8 +98,7 @@ class DBAcademyHelper:
         # is the value by which all databases in this course should start with.
         # Besides, creating this lesson's database name
 
-        da_name, da_hash = self.to_username_hash(self.username, self.course_code)
-        self.db_name_prefix = self.to_database_name()
+        self.db_name_prefix = self.to_database_name(username=self.username, course_code=self.course_code)
 
         # This is the location in our Azure data repository of the datasets for this lesson
         self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.data_source_name}/{self.data_source_version}"
