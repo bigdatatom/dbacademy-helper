@@ -1,6 +1,5 @@
 import unittest
-from dbacademy.dbhelper import DBAcademyHelper
-
+from dbacademy_helper import DBAcademyHelper
 
 class MyTestCase(unittest.TestCase):
     def __init__(self):
