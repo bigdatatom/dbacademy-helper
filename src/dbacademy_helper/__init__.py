@@ -133,6 +133,13 @@ class DBAcademyHelper:
             # self.hidden = Paths(working_dir, self.clean_lesson, enable_streaming_support)  # Create the "hidden" path
             self.db_name = f"{self.db_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
 
+    def get_database_name(self):
+        """
+        Alias for DBAcademyHelper.to_database_name(self.username, self.course_code)
+        :return: Returns the name of the database for the current user and course.
+        """
+        return DBAcademyHelper.to_database_name(self.username, self.course_code)
+
     @staticmethod
     def to_database_name(username, course_code) -> str:
         """
