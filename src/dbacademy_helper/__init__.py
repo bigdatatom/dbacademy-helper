@@ -157,6 +157,13 @@ class DBAcademyHelper:
         while "__" in db_name: db_name = db_name.replace("__", "_")  # Replace all double underscores with single underscores
         return db_name
 
+    def get_username_hash(self):
+        """
+        Alias for DBAcademyHelper.to_username_hash(self.username, self.course_code)
+        :return: Returns (da_name:str, da_hash:str)
+        """
+        return DBAcademyHelper.to_username_hash(self.username, self.course_code)
+
     @staticmethod
     def to_username_hash(username: str, course_code: str) -> (str, str):
         """
