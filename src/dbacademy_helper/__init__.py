@@ -7,6 +7,8 @@ except ImportError: raise Exception("The runtime dependency dbrest was not found
 from typing import Union
 from dbacademy import dbgems
 
+from typing import Callable, List, TypeVar
+T=TypeVar('ReturnType')
 
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
@@ -84,6 +86,7 @@ class DBAcademyHelper:
         self.enable_streaming_support = enable_streaming_support
 
         self.client = DBAcademyRestClient()
+        self.usernames = None
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
@@ -197,7 +200,8 @@ class DBAcademyHelper:
         assert "self" in signature.parameters, f"""Missing the required parameter "self" in the function "{function_ref.__name__}()" """
 
         setattr(DBAcademyHelper, function_ref.__name__, function_ref)
-        if delete: del function_ref
+
+        return None if delete else function_ref
 
     def init(self, install_datasets, create_db):
         """
@@ -534,3 +538,18 @@ class DBAcademyHelper:
         value = re.sub(r"[^a-zA-Z\d]", "_", str(value))
         while "__" in value: value = value.replace("__", "_")
         return value
+
+    @staticmethod
+    def sql(sql, echo=True):
+        if echo:
+            # Thread safe printing.
+            print(" -- " + sql + ";\n", end="")
+        return dbgems.get_spark_session().sql(sql)
+
+    def do_for_all_users(self, f: Callable[[str], T]) -> List[T]:
+        if self.usernames is None:
+            raise ValueError("DBAcademyHelper.usernames must be defined before calling DBAcademyHelper.do_for_all_users()")
+
+        from multiprocessing.pool import ThreadPool
+        with ThreadPool(len(self.usernames)) as pool:
+            return pool.map(f, self.usernames)
