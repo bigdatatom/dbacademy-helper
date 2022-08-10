@@ -546,9 +546,14 @@ class DBAcademyHelper:
             print(" -- " + sql + ";\n", end="")
         return dbgems.get_spark_session().sql(sql)
 
+    def load_all_usernames(self):
+        self.usernames = [r.get("userName") for r in self.client.scim().users().list()]
+        self.usernames.sort()
+        return self.usernames
+
     def do_for_all_users(self, f: Callable[[str], T]) -> List[T]:
         if self.usernames is None:
-            raise ValueError("DBAcademyHelper.usernames must be defined before calling DBAcademyHelper.do_for_all_users()")
+            raise ValueError("DBAcademyHelper.usernames must be defined before calling DBAcademyHelper.do_for_all_users(). See also DBAcademyHelper.load_all_usernames()")
 
         from multiprocessing.pool import ThreadPool
         with ThreadPool(len(self.usernames)) as pool:
