@@ -558,3 +558,11 @@ class DBAcademyHelper:
         from multiprocessing.pool import ThreadPool
         with ThreadPool(len(self.usernames)) as pool:
             return pool.map(f, self.usernames)
+
+    @staticmethod
+    def is_smoke_test():
+        """
+        Helper method to indentify when we are running as a smoke test
+        :return: Returns true if the notebook is running as a smoke test.
+        """
+        return dbgems.get_spark_session().conf.get("dbacademy.smoke-test", "false").lower() == "true"
