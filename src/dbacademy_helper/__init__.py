@@ -91,9 +91,7 @@ class DBAcademyHelper:
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
         # use one working directory and one database, but under test, we can use many
-        is_smoke_test = (self.spark.conf.get("dbacademy.smoke-test", "false").lower() == "true")
-
-        if lesson is None and asynchronous and is_smoke_test:
+        if lesson is None and asynchronous and self.is_smoke_test():
             # The developer did not define a lesson, we can run asynchronous, and this
             # is a smoke test, so we can define a lesson here for the sake of testing
             lesson = str(abs(hash(dbgems.get_notebook_path())) % 10000)
