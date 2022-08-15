@@ -516,7 +516,7 @@ class DBAcademyHelper:
         import mlflow
 
         if dbgems.get_job_id():
-            mlflow.set_experiment(f"/Curriculum/Experiments/{dbgems.get_job_id()}")
+            mlflow.set_experiment(f"/Curriculum/Test Results/Experiments/{dbgems.get_job_id()}")
 
     @staticmethod
     def display_html(html) -> None:
