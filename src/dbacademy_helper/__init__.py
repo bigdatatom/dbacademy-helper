@@ -605,7 +605,11 @@ class DBAcademyHelper:
         :param delay_seconds: The amount of delay in seconds between each test.
         :return:
         """
-        import time
+        import time, pyspark
+
+        assert streaming_query is None or type(streaming_query) == pyspark.sql.streaming.StreamingQuery, f"Expected streaming_query to be of type pyspark.sql.streaming.StreamingQuery, found {type(streaming_query)}"
+        assert query_name is None or type(query_name) == str, f"Expected streaming_query to be of type str, found {type(query_name)}"
+
         query = DBAcademyHelper._get_or_find_query(streaming_query=streaming_query, query_name=query_name, delay_seconds=delay_seconds)
 
         while len(query.recentProgress) < min_batches:

@@ -1,2 +1,3 @@
 mlflow
+pyspark
 git+https://github.com/databricks-academy/dbacademy-rest
