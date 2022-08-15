@@ -4,11 +4,12 @@ except ImportError: raise Exception("The runtime dependency dbgems was not found
 try: import dbacademy.dbrest
 except ImportError: raise Exception("The runtime dependency dbrest was not found. Please install https://github.com/databricks-academy/dbacademy-rest")
 
+import pyspark
 from typing import Union
 from dbacademy import dbgems
 
 from typing import Callable, List, TypeVar
-T=TypeVar('ReturnType')
+T=TypeVar("ReturnType")
 
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
@@ -569,27 +570,28 @@ class DBAcademyHelper:
         return dbgems.get_spark_session().conf.get(self.is_smoke_test_key, "false").lower() == "true"
 
     @staticmethod
-    def _get_or_find_query(streaming_query, query_name: str, delay_seconds: int):
+    def _get_or_find_query(query: Union[str, pyspark.sql.streaming.StreamingQuery], delay_seconds: int):
         import time
 
-        if streaming_query is not None:
-            return streaming_query
+        if type(query) == pyspark.sql.streaming.StreamingQuery:
+            return query
 
-        queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query_name]
+        queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query]
 
         while len(queries) == 0:
             print("The query is not yet active...")
-            time.sleep(delay_seconds)  # Give it a couple of seconds
 
-            queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query_name]
+        time.sleep(delay_seconds)  # Give it a couple of seconds
 
-            if len(queries) == 1:
-                return queries[0]
-            elif len(queries) > 1:
-                raise ValueError(f"More than one spark query was found named {query_name}")
+        queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query]
+
+        if len(queries) == 1:
+            return queries[0]
+        elif len(queries) > 1:
+            raise ValueError(f"More than one spark query was found named {query}")
 
     @staticmethod
-    def block_until_stream_is_ready(streaming_query=None, query_name: str = None, min_batches: int = 2, delay_seconds: int = 5):
+    def block_until_stream_is_ready(query: Union[str, pyspark.sql.streaming.StreamingQuery], min_batches: int = 2, delay_seconds: int = 5):
         """
         A utility method used in streaming notebooks to block until the stream has processed n batches. This method serves one main purpose in two different use cases.
 
@@ -599,22 +601,21 @@ class DBAcademyHelper:
 
         The second use case is to slow down students who likewise attempt to execute subsequent cells before the stream is in a valid state either by invoking subsequent cells directly or by execute the Run-All Command
 
-        :param streaming_query: An instance of a query object - should not be used with query_name
-        :param query_name: The name of a query - should not be used with streaming_query
+        :param query: An instance of a query object or the name of the query
         :param min_batches: The minimum number of batches to be processed before allowing execution to continue.
         :param delay_seconds: The amount of delay in seconds between each test.
         :return:
         """
-        import time, pyspark
+        import time
 
-        assert streaming_query is None or type(streaming_query) == pyspark.sql.streaming.StreamingQuery, f"Expected streaming_query to be of type pyspark.sql.streaming.StreamingQuery, found {type(streaming_query)}"
-        assert query_name is None or type(query_name) == str, f"Expected streaming_query to be of type str, found {type(query_name)}"
+        if query is None:
+            raise ValueError(f"Expected the parameter query to be of type str or pyspark.sql.streaming.StreamingQuery, found {type(query)}")
 
-        query = DBAcademyHelper._get_or_find_query(streaming_query=streaming_query, query_name=query_name, delay_seconds=delay_seconds)
+        q = DBAcademyHelper._get_or_find_query(query=query, delay_seconds=delay_seconds)
 
-        while len(query.recentProgress) < min_batches:
-            count = len(query.recentProgress)
-            if not query.isActive():
+        while len(q.recentProgress) < min_batches:
+            count = len(q.recentProgress)
+            if not q.isActive():
                 print("The query is no longer active...")
                 break
             elif count < min_batches:
@@ -622,5 +623,5 @@ class DBAcademyHelper:
 
             time.sleep(delay_seconds)  # Give it a couple of seconds
 
-        count = len(query.recentProgress)
+        count = len(q.recentProgress)
         print(f"The stream is now active with {count} batches having been processed.")
