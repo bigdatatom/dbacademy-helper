@@ -586,7 +586,7 @@ class DBAcademyHelper:
                 raise ValueError(f"More than one spark query was found named {query_name}")
 
     @staticmethod
-    def block_until_stream_is_ready(streaming_query=None, query_name:str = None, min_batches:int = 2, delay_seconds:int = 5):
+    def block_until_stream_is_ready(streaming_query=None, query_name: str = None, min_batches: int = 2, delay_seconds: int = 5):
         """
         A utility method used in streaming notebooks to block until the stream has processed n batches. This method serves one main purpose in two different use cases.
 
