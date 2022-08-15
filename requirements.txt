@@ -1,1 +1,2 @@
+mlflow
 git+https://github.com/databricks-academy/dbacademy-rest

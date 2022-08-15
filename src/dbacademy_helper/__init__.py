@@ -566,9 +566,29 @@ class DBAcademyHelper:
         return dbgems.get_spark_session().conf.get("dbacademy.smoke-test", "false").lower() == "true"
 
     @staticmethod
-    def block_until_stream_is_ready(query, min_batches=2):
+    def _get_or_find_query(streaming_query, query_name:str, delay_seconds:int):
+        import time
+
+        if streaming_query is not None:
+            return [streaming_query]
+
+        queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query_name]
+
+        while len(queries) == 0:
+            print("The query is not yet active...")
+            time.sleep(delay_seconds)  # Give it a couple of seconds
+
+            queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query_name]
+
+            if len(queries) == 1:
+                return queries[0]
+            elif len(queries) > 1:
+                raise ValueError(f"More than one spark query was found named {query_name}")
+
+    @staticmethod
+    def block_until_stream_is_ready(streaming_query=None, query_name:str = None, min_batches:int = 2, delay_seconds:int = 5):
         """
-        A utility method used in streaming notebooks to block until the stream has processed n batches. This method serves one main purpose in two different usescase
+        A utility method used in streaming notebooks to block until the stream has processed n batches. This method serves one main purpose in two different use cases.
 
         The purpose is to block the current command until the state of the stream is ready and thus allowing the next command to execute against the properly initialized stream.
 
@@ -576,10 +596,24 @@ class DBAcademyHelper:
 
         The second use case is to slow down students who likewise attempt to execute subsequent cells before the stream is in a valid state either by invoking subsequent cells directly or by execute the Run-All Command
 
-        Note: it is best to show the students this code the first time so that they understand what it is doing and why, but from that point forward, just call it via the DA object.
+        :param streaming_query: An instance of a query object - should not be used with query_name
+        :param query_name: The name of a query - should not be used with streaming_query
+        :param min_batches: The minimum number of batches to be processed before allowing execution to continue.
+        :param delay_seconds: The amount of delay in seconds between each test.
+        :return:
         """
         import time
-        while len(query.recentProgress) < min_batches:
-            time.sleep(5)  # Give it a couple of seconds
+        query = DBAcademyHelper._get_or_find_query(streaming_query=streaming_query, query_name=query_name, delay_seconds=delay_seconds)
 
-        print(f"The stream has processed {len(query.recentProgress)} batches")
+        while len(query.recentProgress) < min_batches:
+            count = len(query.recentProgress)
+            if not query.isActive():
+                print("The query is no longer active...")
+                break
+            elif count < min_batches:
+                print(f"Processed {count} of {min_batches} batches...")
+
+            time.sleep(delay_seconds)  # Give it a couple of seconds
+
+        count = len(query.recentProgress)
+        print(f"The stream is now active with {count} batches having been processed.")
