@@ -573,7 +573,7 @@ class DBAcademyHelper:
         import time
 
         if streaming_query is not None:
-            return [streaming_query]
+            return streaming_query
 
         queries = [q for q in dbgems.get_spark_session().streams.active if q.name == query_name]
 
