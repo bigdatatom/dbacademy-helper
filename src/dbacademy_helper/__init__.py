@@ -615,7 +615,7 @@ class DBAcademyHelper:
 
         while len(q.recentProgress) < min_batches:
             count = len(q.recentProgress)
-            if not q.isActive():
+            if not q.isActive:
                 print("The query is no longer active...")
                 break
             elif count < min_batches:
