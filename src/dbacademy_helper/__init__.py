@@ -564,3 +564,22 @@ class DBAcademyHelper:
         :return: Returns true if the notebook is running as a smoke test.
         """
         return dbgems.get_spark_session().conf.get("dbacademy.smoke-test", "false").lower() == "true"
+
+    @staticmethod
+    def block_until_stream_is_ready(query, min_batches=2):
+        """
+        A utility method used in streaming notebooks to block until the stream has processed n batches. This method serves one main purpose in two different usescase
+
+        The purpose is to block the current command until the state of the stream is ready and thus allowing the next command to execute against the properly initialized stream.
+
+        The first use case is in jobs where the stream is started in one cell but execution of subsequent cells start prematurely.
+
+        The second use case is to slow down students who likewise attempt to execute subsequent cells before the stream is in a valid state either by invoking subsequent cells directly or by execute the Run-All Command
+
+        Note: it is best to show the students this code the first time so that they understand what it is doing and why, but from that point forward, just call it via the DA object.
+        """
+        import time
+        while len(query.recentProgress) < min_batches:
+            time.sleep(5)  # Give it a couple of seconds
+
+        print(f"The stream has processed {len(query.recentProgress)} batches")
