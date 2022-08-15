@@ -557,16 +557,19 @@ class DBAcademyHelper:
         with ThreadPool(len(self.usernames)) as pool:
             return pool.map(f, self.usernames)
 
-    @staticmethod
-    def is_smoke_test():
+    @property
+    def is_smoke_test_key(self):
+        return "dbacademy.smoke-test"
+
+    def is_smoke_test(self):
         """
         Helper method to indentify when we are running as a smoke test
         :return: Returns true if the notebook is running as a smoke test.
         """
-        return dbgems.get_spark_session().conf.get("dbacademy.smoke-test", "false").lower() == "true"
+        return dbgems.get_spark_session().conf.get(self.is_smoke_test_key, "false").lower() == "true"
 
     @staticmethod
-    def _get_or_find_query(streaming_query, query_name:str, delay_seconds:int):
+    def _get_or_find_query(streaming_query, query_name: str, delay_seconds: int):
         import time
 
         if streaming_query is not None:
