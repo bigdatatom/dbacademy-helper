@@ -619,7 +619,7 @@ class DBAcademyHelper:
                 print("The query is no longer active...")
                 break
             elif count < min_batches:
-                print(f"Processed {count} of {min_batches} batches...")
+                print(f"Processed {count+1} of {min_batches} batches...")
 
             time.sleep(delay_seconds)  # Give it a couple of seconds
 
