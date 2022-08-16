@@ -354,11 +354,11 @@ class DBAcademyHelper:
                     lines = len(contents.split("\n")) + 1
 
                     html = f"""<html><body><h1>{dataset.path}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll; white-space:nowrap">{contents}</textarea></body></html>"""
+                    self.display_html(html)
 
             except FileNotFoundError:
                 html = f"""<html><body><h1>{dataset.path}</h1><textarea rows="3" style="width:100%; overflow-x:scroll; white-space:nowrap">**ERROR**\n{readme_file} was not found</textarea></body></html>"""
-
-        self.display_html(html)
+                self.display_html(html)
 
     def list_r(self, path, prefix=None, results=None):
         """
