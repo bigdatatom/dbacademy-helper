@@ -610,16 +610,18 @@ class DBAcademyHelper:
 
         if query is None:
             raise ValueError(f"Expected the parameter query to be of type str or pyspark.sql.streaming.StreamingQuery, found {type(query)}")
+        else:
+            q = DBAcademyHelper._get_or_find_query(query=query, delay_seconds=delay_seconds)
 
-        q = DBAcademyHelper._get_or_find_query(query=query, delay_seconds=delay_seconds)
-
-        while len(q.recentProgress) < min_batches:
+        while True:
             count = len(q.recentProgress)
+            print(f"Processed {count + 1} of {min_batches} batches...")
+
             if not q.isActive:
                 print("The query is no longer active...")
                 break
-            elif count < min_batches:
-                print(f"Processed {count+1} of {min_batches} batches...")
+            elif count >= min_batches:
+                break
 
             time.sleep(delay_seconds)  # Give it a couple of seconds
 
