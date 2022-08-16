@@ -615,7 +615,7 @@ class DBAcademyHelper:
 
         while True:
             count = len(q.recentProgress)
-            print(f"Processed {count + 1} of {min_batches} batches...")
+            print(f"Processed {count} of {min_batches} batches...")
 
             if not q.isActive:
                 print("The query is no longer active...")
