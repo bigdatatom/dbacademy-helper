@@ -337,17 +337,25 @@ class DBAcademyHelper:
 
         print(f"""\nThe install of the datasets completed successfully in {int(time.time()) - install_start} seconds.""")
 
-    def print_copyrights(self):
-        datasets = [f.path for f in dbgems.get_dbutils().fs.ls(self.paths.datasets)]
+    def print_copyrights(self, mappings: dict = None):
+        import sys
+
+        if mappings is None:
+            mappings = dict()
+
+        datasets = [f for f in dbgems.get_dbutils().fs.ls(self.paths.datasets)]
+
         for dataset in datasets:
-            readme_path = f"{dataset}README.md"
+            readme_file = mappings.get(dataset.name, "README.md")
+            readme_path = f"{dataset.path}{readme_file}"
             try:
-                head = dbgems.get_dbutils().fs.head(readme_path)
-                lines = len(head.split("\n")) + 1
-                html = f"""<html><body><h1>{dataset}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll">{head}</textarea></body></html>"""
-                self.display_html(html)
-            except:
-                html = f"""<html><body><h1>{dataset}</h1><textarea rows="3" style="width:100%; overflow-x:scroll">**ERROR**\nREADME.md was not found</textarea></body></html>"""
+                with open(readme_path.replace("dbfs:/", "/dbfs/")) as f:
+                    head = lines = f.read()
+                    lines = len(head.split("\n")) + 1
+                    html = f"""<html><body><h1>{dataset.path}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll; white-space:nowrap">{head}</textarea></body></html>"""
+                    self.display_html(html)
+            except FileNotFoundError:
+                html = f"""<html><body><h1>{dataset.path}</h1><textarea rows="3" style="width:100%; overflow-x:scroll; white-space:nowrap">**ERROR**\n{readme_file} was not found</textarea></body></html>"""
                 self.display_html(html)
 
     def list_r(self, path, prefix=None, results=None):
