@@ -328,6 +328,8 @@ class DBAcademyHelper:
         install_start = int(time.time())
         for f in files:
             if f.name not in self.excluded_datasets:
+                print(f"{f.name} vs {self.excluded_datasets}")
+
                 start = int(time.time())
                 print(f"Copying /{f.name[:-1]}", end="...")
 
