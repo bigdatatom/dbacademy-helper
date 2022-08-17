@@ -67,7 +67,8 @@ class DBAcademyHelper:
                  enable_streaming_support: bool,
                  remote_files: list,
                  lesson: str = None,
-                 asynchronous: bool = True):
+                 asynchronous: bool = True,
+                 excluded_datasets: list = None):
 
         import re, time
         from dbacademy.dbrest import DBAcademyRestClient
@@ -85,6 +86,8 @@ class DBAcademyHelper:
         self.data_source_name = data_source_name
         self.data_source_version = data_source_version
         self.enable_streaming_support = enable_streaming_support
+
+        self.excluded_datasets = [] if excluded_datasets is None else excluded_datasets
 
         self.client = DBAcademyRestClient()
         self.usernames = None
@@ -324,14 +327,15 @@ class DBAcademyHelper:
 
         install_start = int(time.time())
         for f in files:
-            start = int(time.time())
-            print(f"Copying /{f.name[:-1]}", end="...")
+            if f.name not in self.excluded_datasets:
+                start = int(time.time())
+                print(f"Copying /{f.name[:-1]}", end="...")
 
-            source_path = f"{self.data_source_uri}/{f.name}"
-            target_path = f"{self.paths.datasets}/{f.name}"
+                source_path = f"{self.data_source_uri}/{f.name}"
+                target_path = f"{self.paths.datasets}/{f.name}"
 
-            dbgems.get_dbutils().fs.cp(source_path, target_path, True)
-            print(f"({int(time.time()) - start} seconds)")
+                dbgems.get_dbutils().fs.cp(source_path, target_path, True)
+                print(f"({int(time.time()) - start} seconds)")
 
         self.validate_datasets(fail_fast=True, repairing_dataset=repairing_dataset)
 
