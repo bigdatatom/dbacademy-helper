@@ -141,7 +141,8 @@ class DBAcademyHelper:
             # self.hidden = Paths(working_dir, self.clean_lesson, enable_streaming_support)  # Create the "hidden" path
             self.db_name = f"{self.db_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
 
-    def get_unique_name(self):
+    @property
+    def unique_name(self):
         """
         Generates a unique, user-specific name for databases, models, jobs, pipelines, etc,
         :return: Returns a unique name for the current user and course.
