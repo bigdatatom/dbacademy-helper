@@ -289,6 +289,7 @@ class DBAcademyHelper:
 
     @staticmethod
     def _cleanup_experiments():
+        pass
         # import mlflow
         # experiments = []
         # for experiment in mlflow.list_experiments(max_results=999999):
