@@ -566,15 +566,14 @@ class DBAcademyHelper:
         print()
         print("Update completed successfully.")
 
-    @staticmethod
-    def init_mlflow_as_job():
+    def init_mlflow_as_job(self):
         """
         Used to initialize MLflow with the job ID when ran under test.
         """
         import mlflow
 
         if dbgems.get_job_id():
-            mlflow.set_experiment(f"/Curriculum/Test Results/Experiments/{dbgems.get_job_id()}")
+            mlflow.set_experiment(f"/Curriculum/Test Results/Experiments/{self.unique_name}-{dbgems.get_job_id()}")
 
     @staticmethod
     def display_html(html) -> None:
