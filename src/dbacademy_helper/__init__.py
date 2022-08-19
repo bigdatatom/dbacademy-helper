@@ -262,6 +262,41 @@ class DBAcademyHelper:
         if validate_datasets:
             self.validate_datasets(fail_fast=False, repairing_dataset=False)
 
+    def _cleanup_feature_store_tables(self):
+        # noinspection PyUnresolvedReferences,PyPackageRequirements
+        from databricks import feature_store
+
+        # noinspection PyUnresolvedReferences
+        fs = feature_store.FeatureStoreClient()
+
+        for table in self.client.feature_store.search_tables(max_results=1000000):
+            if table.get("name").startswith(self.unique_name):
+                fs.drop_table(table.get("name"))
+
+    def _cleanup_mlflow_models(self):
+        import mlflow
+
+        # noinspection PyCallingNonCallable
+        for rm in mlflow.list_registered_models(max_results=1000):
+            if rm.name.startswith(self.unique_name):
+                for mv in rm.latest_versions:
+                    if mv.current_stage in ["Staging", "Production"]:
+                        # noinspection PyUnresolvedReferences
+                        mlflow.transition_model_version_stage(name=rm.name, version=mv.version, stage="Archived")
+
+                # noinspection PyUnresolvedReferences
+                mlflow.delete_registered_model(rm.name)
+
+    @staticmethod
+    def _cleanup_experiments():
+        # import mlflow
+        # experiments = []
+        # for experiment in mlflow.list_experiments(max_results=999999):
+        #     try:
+        #         mlflow.delete_experiment(experiment.experiment_id)
+        #     except Exception as e:
+        #         print(f"Skipping \"{experiment.name}\"")
+
     def conclude_setup(self):
         """
         Concludes the setup of DBAcademyHelper by advertising to the student the new state of the environment such as predefined path variables, databases and tables created on behalf of the student and the total setup time. Additionally, all path attributes are pushed to the Spark context for reference in SQL statements.
