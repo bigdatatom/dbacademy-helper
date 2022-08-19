@@ -270,8 +270,10 @@ class DBAcademyHelper:
         fs = feature_store.FeatureStoreClient()
 
         for table in self.client.feature_store.search_tables(max_results=1000000):
-            if table.get("name").startswith(self.unique_name):
-                fs.drop_table(table.get("name"))
+            name = table.get("name")
+            if name.startswith(self.unique_name):
+                print(f"Dropping feature store table {name}")
+                fs.drop_table(name)
 
     def _cleanup_mlflow_models(self):
         import mlflow
@@ -279,6 +281,7 @@ class DBAcademyHelper:
         # noinspection PyCallingNonCallable
         for rm in mlflow.list_registered_models(max_results=1000):
             if rm.name.startswith(self.unique_name):
+                print(f"Deleting registered model {rm.name}")
                 for mv in rm.latest_versions:
                     if mv.current_stage in ["Staging", "Production"]:
                         # noinspection PyUnresolvedReferences
