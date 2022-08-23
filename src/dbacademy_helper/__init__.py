@@ -71,6 +71,9 @@ class DBAcademyHelper:
 
         import re, time
         from dbacademy.dbrest import DBAcademyRestClient
+        from .workspace_helper import WorkspaceHelper
+        
+        self.workspace = WorkspaceHelper(self)
 
         self.start = int(time.time())
         self.spark = dbgems.get_spark_session()
@@ -688,8 +691,3 @@ class DBAcademyHelper:
 
         count = len(q.recentProgress)
         print(f"The stream is now active with {count} batches having been processed.")
-
-    @property
-    def workspace(self):
-        from dbacademy_helper.workspace_helper import WorkspaceHelper
-        return WorkspaceHelper(self)
