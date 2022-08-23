@@ -21,15 +21,6 @@ class WorkspaceHelper:
         self._usernames = None
         self._existing_databases = None
 
-        try:
-            self.workspace_name = dbgems.get_browser_host_name()
-            if not self.workspace_name: self.workspace_name = dbgems.get_notebooks_api_endpoint()
-        except:
-            self.workspace_name = dbgems.get_notebooks_api_endpoint()
-
-        try: self.org_id = dbgems.get_tag("orgId", "unknown")
-        except: self.org_id = "unknown"
-
         self.configure_for_options = ["", ALL_USERS, MISSING_USERS_ONLY, CURRENT_USER_ONLY]
         self.valid_configure_for_options = self.configure_for_options[1:]  # all but empty-string
 

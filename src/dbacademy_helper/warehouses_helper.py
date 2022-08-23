@@ -1,4 +1,5 @@
 from typing import Union
+from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 
@@ -15,6 +16,23 @@ class WarehousesHelper:
     @property
     def autoscale_max(self):
         return 1 if self.da.is_smoke_test() else 20  # math.ceil(self.students_count / 5)
+
+    @property
+    def org_id(self):
+        try:
+            return dbgems.get_tag("orgId", "unknown")
+        except:
+            # dbgems.get_tags() can throw exceptions in some secure contexts
+            return "unknown"
+
+    @property
+    def workspace_name(self):
+        try:
+            workspace_name = dbgems.get_browser_host_name()
+            return dbgems.get_notebooks_api_endpoint() if workspace_name is None else workspace_name
+        except:
+            # dbgems.get_tags() can throw exceptions in some secure contexts
+            return dbgems.get_notebooks_api_endpoint()
 
     def delete_sql_warehouses_for(self, username):
         name = self.da.to_database_name(username=username,
@@ -64,8 +82,8 @@ class WarehousesHelper:
             tags={
                 "dbacademy.event_name": self.da.clean_string(self.workspaces.event_name),
                 "dbacademy.students_count": self.da.clean_string(self.workspaces.student_count),
-                "dbacademy.workspace": self.da.clean_string(self.workspaces.workspace_name),
-                "dbacademy.org_id": self.da.clean_string(self.workspaces.org_id),
+                "dbacademy.workspace": self.da.clean_string(self.workspace_name),
+                "dbacademy.org_id": self.da.clean_string(self.org_id),
                 "dbacademy.course": self.da.clean_string(self.da.course_name),  # Tag the name of the course
                 "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name),
             })
