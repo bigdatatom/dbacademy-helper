@@ -274,8 +274,13 @@ class DBAcademyHelper:
         # noinspection PyProtectedMember
         working_dir_root = self.paths._working_dir_root
         if Paths.exists(working_dir_root):
-            print(f"Removing {working_dir_root}")
-            dbutils.fs.rm(working_dir_root, True)
+            print(f"Removing the directory \"{working_dir_root}\"")
+            dbgems.get_dbutils().fs.rm(working_dir_root, True)
+
+    def cleanup_datasets(self):
+        if Paths.exists(self.paths.datasets):
+            print(f"Removing datasets from \"{self.paths.datasets}\"")
+            dbgems.get_dbutils().fs.rm(self.paths.datasets, True)
 
     def _cleanup_feature_store_tables(self):
         # noinspection PyUnresolvedReferences,PyPackageRequirements
