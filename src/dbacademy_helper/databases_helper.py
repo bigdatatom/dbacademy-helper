@@ -1,11 +1,11 @@
 from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
-from dbacademy_helper.workspaces_helper import WorkspacesHelper
-from typing import Callable, List, TypeVar
+from dbacademy_helper.workspace_helper import WorkspaceHelper
+from typing import Callable, TypeVar
 T=TypeVar("T")
 
 class DatabasesHelper:
-    def __init__(self, workspaces: WorkspacesHelper, da: DBAcademyHelper):
+    def __init__(self, workspaces: WorkspaceHelper, da: DBAcademyHelper):
         self.da = da
         self.client = da.client
         self.workspaces = workspaces
@@ -16,7 +16,7 @@ class DatabasesHelper:
                                                                                    post_create_init=post_create_init))
         # Clear the list of databases (and derived users) to force a refresh
         self.workspaces._usernames = None
-        self.workspaces._databases = None
+        self.workspaces._existing_databases = None
 
     def create_database_for(self, username: str, drop_existing: bool, post_create_init: Callable[[str], None]):
         db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)

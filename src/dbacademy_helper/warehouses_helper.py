@@ -1,9 +1,9 @@
 from typing import Union
 from dbacademy_helper import DBAcademyHelper
-from dbacademy_helper.workspaces_helper import WorkspacesHelper
+from dbacademy_helper.workspace_helper import WorkspaceHelper
 
 class WarehousesHelper:
-    def __init__(self, workspaces: WorkspacesHelper, da: DBAcademyHelper):
+    def __init__(self, workspaces: WorkspaceHelper, da: DBAcademyHelper):
         self.da = da
         self.client = da.client
         self.workspaces = workspaces

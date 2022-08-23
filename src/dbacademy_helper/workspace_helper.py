@@ -7,7 +7,7 @@ ALL_USERS = "All Users"
 MISSING_USERS_ONLY = "Missing Users Only"
 CURRENT_USER_ONLY = "Current User Only"
 
-class WorkspacesHelper:
+class WorkspaceHelper:
 
     def __init__(self, da: DBAcademyHelper):
         from dbacademy_helper.warehouses_helper import WarehousesHelper
@@ -19,7 +19,7 @@ class WorkspacesHelper:
         self.databases = DatabasesHelper(self, da)
 
         self._usernames = None
-        self._databases = None
+        self._existing_databases = None
 
         self.workspace_name = dbgems.get_browser_host_name()
         if not self.workspace_name: self.workspace_name = dbgems.get_notebooks_api_endpoint()
@@ -60,7 +60,7 @@ class WorkspacesHelper:
             missing_users = []
             for user in self.usernames:
                 db_name = self.da.get_database_name()
-                if db_name not in self.databases:
+                if db_name not in self.existing_databases:
                     missing_users.append(user)
 
             missing_users.sort()
@@ -69,11 +69,11 @@ class WorkspacesHelper:
         return self._usernames
 
     @property
-    def databases(self):
-        if self._databases is None:
-            databases = dbgems.get_spark_session().sql("SHOW DATABASES").collect()
-            self._databases = {d[0] for d in databases}
-        return self._databases
+    def existing_databases(self):
+        if self.existing_databases is None:
+            existing = dbgems.get_spark_session().sql("SHOW DATABASES").collect()
+            self._existing_databases = {d[0] for d in existing}
+        return self._existing_databases
 
     def do_for_all_users(self, f: Callable[[str], T]) -> List[T]:
         from multiprocessing.pool import ThreadPool
@@ -102,4 +102,3 @@ class WorkspacesHelper:
         students_count = int(students_count) if students_count.isnumeric() else 0
         students_count = max(students_count, len(self.usernames))
         return students_count
-

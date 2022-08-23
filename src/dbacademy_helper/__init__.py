@@ -68,7 +68,7 @@ class DBAcademyHelper:
 
         import re, time
         from dbacademy.dbrest import DBAcademyRestClient
-        from .workspaces_helper import WorkspacesHelper
+        from .workspace_helper import WorkspaceHelper
 
         self.start = int(time.time())
         self.spark = dbgems.get_spark_session()
@@ -85,7 +85,7 @@ class DBAcademyHelper:
         self.enable_streaming_support = enable_streaming_support
 
         self.client = DBAcademyRestClient()
-        self.workspaces = WorkspacesHelper(self)
+        self.workspaces = WorkspaceHelper(self)
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
