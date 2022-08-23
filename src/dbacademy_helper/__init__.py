@@ -8,7 +8,7 @@ import pyspark
 from typing import Union
 from dbacademy import dbgems
 
-from typing import Callable, List, TypeVar
+from typing import TypeVar
 T=TypeVar("ReturnType")
 
 class Paths:
@@ -72,7 +72,7 @@ class DBAcademyHelper:
         import re, time
         from dbacademy.dbrest import DBAcademyRestClient
         from .workspace_helper import WorkspaceHelper
-        
+
         self.workspace = WorkspaceHelper(self)
 
         self.start = int(time.time())
