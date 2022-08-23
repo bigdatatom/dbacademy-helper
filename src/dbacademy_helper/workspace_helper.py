@@ -152,7 +152,7 @@ class WorkspaceHelper:
         print(f"  Event Name:        {self.event_name}")
         print(f"  Student Count:     {self.student_count}")
         print(f"  Provisioning:      {len(self.usernames)}")
-        print(f"  Autoscale minimum: {self.sql_warehouse_autoscale_min}")
-        print(f"  Autoscale maximum: {self.sql_warehouse_autoscale_max}")
+        print(f"  Autoscale minimum: {min_num_clusters}")
+        print(f"  Autoscale maximum: {max_num_clusters}")
         if self.da.is_smoke_test:
             print(f"  Smoke Test:        {self.da.is_smoke_test()} ")
