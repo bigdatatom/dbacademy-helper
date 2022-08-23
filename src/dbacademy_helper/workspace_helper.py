@@ -107,6 +107,14 @@ class WorkspaceHelper:
     def sql_warehouse_autoscale_max(self):
         return 1 if self.da.is_smoke_test() else 20  # math.ceil(self.students_count / 5)
 
+    def delete_sql_warehouses_for(self, username):
+        name = self.da.to_database_name(username=username,
+                                        course_code=self.da.course_code)
+        self.client.sql.endpoints.delete_by_name(name=name)
+
+    def delete_sql_warehouses(self, auto_stop_mins=120, enable_serverless_compute=False):
+        self.do_for_all_users(lambda username: self.delete_sql_warehouses_for(username=username))
+
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
     def create_sql_warehouses(self, auto_stop_mins=120, enable_serverless_compute=False):
         self.do_for_all_users(lambda username: self.create_sql_warehouse_for(username=username,
