@@ -5,18 +5,32 @@ from typing import Callable, TypeVar
 T=TypeVar("T")
 
 class DatabasesHelper:
-    def __init__(self, workspaces: WorkspaceHelper, da: DBAcademyHelper):
+    def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):
         self.da = da
         self.client = da.client
-        self.workspaces = workspaces
+        self.workspace = workspace
+
+    def _drop_databases_for(self, username: str):
+        db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
+        if db_name in self.workspace.existing_databases:
+            print(f"Dropping the database \"{db_name}\" for {username}")
+        else:
+            print(f"Skipping database drop for {username}")
+
+    def drop_databases(self):
+        self.workspace.do_for_all_users(lambda username: self._drop_databases_for(username=username))
+
+        # Clear the list of databases (and derived users) to force a refresh
+        self.workspace._usernames = None
+        self.workspace._existing_databases = None
 
     def create_databases(self, drop_existing: bool, post_create_init: Callable[[], None] = None):
-        self.workspaces.do_for_all_users(lambda username: self.create_database_for(username=username,
+        self.workspace.do_for_all_users(lambda username: self.create_database_for(username=username,
                                                                                    drop_existing=drop_existing,
                                                                                    post_create_init=post_create_init))
         # Clear the list of databases (and derived users) to force a refresh
-        self.workspaces._usernames = None
-        self.workspaces._existing_databases = None
+        self.workspace._usernames = None
+        self.workspace._existing_databases = None
 
     def create_database_for(self, username: str, drop_existing: bool, post_create_init: Callable[[str], None] = None):
         db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
