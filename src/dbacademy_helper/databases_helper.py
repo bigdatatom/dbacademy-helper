@@ -14,6 +14,7 @@ class DatabasesHelper:
         db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
         if db_name in self.workspace.existing_databases:
             print(f"Dropping the database \"{db_name}\" for {username}")
+            dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
         else:
             print(f"Skipping database drop for {username}")
 
@@ -37,7 +38,7 @@ class DatabasesHelper:
         db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_name}/database.db"
 
         if db_name in self.da.workspace.existing_databases and drop_existing:
-            print(f"Dropping database \"{db_name}\" for {username}")
+            print(f"Dropping the database \"{db_name}\" for {username}")
             dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
 
         print(f"Creating database \"{db_name}\" for {username}")
