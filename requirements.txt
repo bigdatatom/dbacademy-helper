@@ -1,3 +1,4 @@
 mlflow
 pyspark
+git+https://github.com/databricks-academy/dbacademy-gems
 git+https://github.com/databricks-academy/dbacademy-rest

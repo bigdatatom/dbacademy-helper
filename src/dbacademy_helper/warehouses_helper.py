@@ -1,12 +1,12 @@
 from typing import Union
 from dbacademy_helper import DBAcademyHelper
-from dbacademy_helper.workspace_helper import WorkspaceHelper
+from dbacademy_helper.workspaces_helper import WorkspacesHelper
 
-class WarehouseHelper:
-    def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):
+class WarehousesHelper:
+    def __init__(self, workspaces: WorkspacesHelper, da: DBAcademyHelper):
         self.da = da
         self.client = da.client
-        self.workspace = workspace
+        self.workspaces = workspaces
 
     @property
     def autoscale_min(self):
@@ -22,13 +22,13 @@ class WarehouseHelper:
         self.client.sql.endpoints.delete_by_name(name=name)
 
     def delete_sql_warehouses(self):
-        self.workspace.do_for_all_users(lambda username: self.delete_sql_warehouses_for(username=username))
+        self.workspaces.do_for_all_users(lambda username: self.delete_sql_warehouses_for(username=username))
 
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
     def create_sql_warehouses(self, auto_stop_mins=120, enable_serverless_compute=False):
-        self.workspace.do_for_all_users(lambda username: self.create_sql_warehouse_for(username=username,
-                                                                                       auto_stop_mins=auto_stop_mins,
-                                                                                       enable_serverless_compute=enable_serverless_compute))
+        self.workspaces.do_for_all_users(lambda username: self.create_sql_warehouse_for(username=username,
+                                                                                        auto_stop_mins=auto_stop_mins,
+                                                                                        enable_serverless_compute=enable_serverless_compute))
 
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
     def create_sql_warehouse_for(self, username, auto_stop_mins=120, enable_serverless_compute=False):
@@ -62,10 +62,10 @@ class WarehouseHelper:
             spot_instance_policy=RELIABILITY_OPTIMIZED,
             channel=CHANNEL_NAME_CURRENT,
             tags={
-                "dbacademy.event_name": self.da.clean_string(self.workspace.event_name),
-                "dbacademy.students_count": self.da.clean_string(self.workspace.student_count),
-                "dbacademy.workspace": self.da.clean_string(self.workspace.workspace_name),
-                "dbacademy.org_id": self.da.clean_string(self.workspace.org_id),
+                "dbacademy.event_name": self.da.clean_string(self.workspaces.event_name),
+                "dbacademy.students_count": self.da.clean_string(self.workspaces.student_count),
+                "dbacademy.workspace": self.da.clean_string(self.workspaces.workspace_name),
+                "dbacademy.org_id": self.da.clean_string(self.workspaces.org_id),
                 "dbacademy.course": self.da.clean_string(self.da.course_name),  # Tag the name of the course
                 "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name),
             })
@@ -79,10 +79,10 @@ class WarehouseHelper:
             print(f"Created warehouse \"{name}\" ({warehouse_id}) for {username}")
             self.client.permissions.warehouses.update_user(warehouse_id, username, "CAN_USE")
 
-        print(f"  Configured for:    {self.workspace.configure_for}")
-        print(f"  Event Name:        {self.workspace.event_name}")
-        print(f"  Student Count:     {self.workspace.student_count}")
-        print(f"  Provisioning:      {len(self.workspace.usernames)}")
+        print(f"  Configured for:    {self.workspaces.configure_for}")
+        print(f"  Event Name:        {self.workspaces.event_name}")
+        print(f"  Student Count:     {self.workspaces.student_count}")
+        print(f"  Provisioning:      {len(self.workspaces.usernames)}")
         print(f"  Autoscale minimum: {min_num_clusters}")
         print(f"  Autoscale maximum: {max_num_clusters}")
         if self.da.is_smoke_test:

@@ -1,4 +1,4 @@
-try: import dbacademy.dbgems
+try: import dbacademy_gems.dbgems
 except ImportError: raise Exception("The runtime dependency dbgems was not found. Please install https://github.com/databricks-academy/dbacademy-gems")
 
 try: import dbacademy.dbrest
@@ -6,7 +6,7 @@ except ImportError: raise Exception("The runtime dependency dbrest was not found
 
 import pyspark
 from typing import Union
-from dbacademy import dbgems
+from dbacademy_gems import dbgems
 
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
@@ -68,7 +68,7 @@ class DBAcademyHelper:
 
         import re, time
         from dbacademy.dbrest import DBAcademyRestClient
-        from .workspace_helper import WorkspaceHelper
+        from .workspaces_helper import WorkspacesHelper
 
         self.start = int(time.time())
         self.spark = dbgems.get_spark_session()
@@ -85,7 +85,7 @@ class DBAcademyHelper:
         self.enable_streaming_support = enable_streaming_support
 
         self.client = DBAcademyRestClient()
-        self.workspace = WorkspaceHelper(self)
+        self.workspaces = WorkspacesHelper(self)
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can

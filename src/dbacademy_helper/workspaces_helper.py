@@ -1,21 +1,22 @@
-from dbacademy import dbgems
+from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
-from typing import Callable, List
-from typing import TypeVar
+from typing import Callable, List, TypeVar
 T=TypeVar("T")
 
 ALL_USERS = "All Users"
 MISSING_USERS_ONLY = "Missing Users Only"
 CURRENT_USER_ONLY = "Current User Only"
 
-class WorkspaceHelper:
+class WorkspacesHelper:
 
     def __init__(self, da: DBAcademyHelper):
-        from dbacademy_helper.warehouse_helper import WarehouseHelper
+        from dbacademy_helper.warehouses_helper import WarehousesHelper
+        from dbacademy_helper.databases_helper import DatabasesHelper
 
         self.da = da
         self.client = da.client
-        self.warehouses = WarehouseHelper(self, da)
+        self.warehouses = WarehousesHelper(self, da)
+        self.databases = DatabasesHelper(self, da)
 
         self._usernames = None
         self._databases = None
