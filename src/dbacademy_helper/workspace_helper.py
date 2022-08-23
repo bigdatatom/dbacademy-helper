@@ -27,7 +27,8 @@ class WorkspaceHelper:
         except:
             self.workspace_name = dbgems.get_notebooks_api_endpoint()
 
-        self.org_id = dbgems.get_tag("orgId", "unknown")
+        try: self.org_id = dbgems.get_tag("orgId", "unknown")
+        except: self.org_id = "unknown"
 
         self.configure_for_options = ["", ALL_USERS, MISSING_USERS_ONLY, CURRENT_USER_ONLY]
         self.valid_configure_for_options = self.configure_for_options[1:]  # all but empty-string
