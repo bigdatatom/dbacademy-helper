@@ -691,5 +691,5 @@ class DBAcademyHelper:
 
     @property
     def workspace(self):
-        from workspace_helper import WorkspaceHelper
+        from dbacademy_helper.workspace_helper import WorkspaceHelper
         return WorkspaceHelper(self)
