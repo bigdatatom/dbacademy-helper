@@ -106,7 +106,13 @@ class WorkspaceHelper:
         return 1 if self.da.is_smoke_test() else 20  # math.ceil(self.students_count / 5)
 
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
-    def create_sql_warehouses_for(self, username, auto_stop_mins=120, enable_serverless_compute=False):
+    def create_sql_warehouses(self, auto_stop_mins=120, enable_serverless_compute=False):
+        self.do_for_all_users(lambda username: self.create_sql_warehouse_for(username=username,
+                                                                             auto_stop_mins=auto_stop_mins,
+                                                                             enable_serverless_compute=enable_serverless_compute))
+
+    # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
+    def create_sql_warehouse_for(self, username, auto_stop_mins=120, enable_serverless_compute=False):
         return self._create_sql_warehouse(name=self.da.to_database_name(username=username, course_code=self.da.course_code),
                                           auto_stop_mins=auto_stop_mins,
                                           min_num_clusters=1,
