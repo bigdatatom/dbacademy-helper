@@ -26,8 +26,8 @@ class DatabasesHelper:
 
     def create_databases(self, drop_existing: bool, post_create_init: Callable[[], None] = None):
         self.workspace.do_for_all_users(lambda username: self.create_database_for(username=username,
-                                                                                   drop_existing=drop_existing,
-                                                                                   post_create_init=post_create_init))
+                                                                                  drop_existing=drop_existing,
+                                                                                  post_create_init=post_create_init))
         # Clear the list of databases (and derived users) to force a refresh
         self.workspace._usernames = None
         self.workspace._existing_databases = None
@@ -37,9 +37,10 @@ class DatabasesHelper:
         db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_name}/database.db"
 
         if db_name in self.da.workspace.existing_databases and drop_existing:
+            print(f"Dropping database \"{db_name}\" for {username}")
             dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
 
-        # Create the database
+        print(f"Creating database \"{db_name}\" for {username}")
         dbgems.get_spark_session().sql(f"CREATE DATABASE IF NOT EXISTS {db_name} LOCATION '{db_path}';")
 
         if post_create_init:
