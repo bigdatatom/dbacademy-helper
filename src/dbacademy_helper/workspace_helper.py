@@ -70,7 +70,7 @@ class WorkspaceHelper:
 
     @property
     def existing_databases(self):
-        if self.existing_databases is None:
+        if self._existing_databases is None:
             existing = dbgems.get_spark_session().sql("SHOW DATABASES").collect()
             self._existing_databases = {d[0] for d in existing}
         return self._existing_databases
