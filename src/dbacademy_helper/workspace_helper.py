@@ -1,5 +1,5 @@
 from dbacademy import dbgems
-from dbacademy_helper import DBAcademyHelper, Paths
+from dbacademy_helper import DBAcademyHelper
 from typing import Callable, List
 from typing import TypeVar
 T=TypeVar("T")
@@ -11,8 +11,11 @@ CURRENT_USER_ONLY = "Current User Only"
 class WorkspaceHelper:
 
     def __init__(self, da: DBAcademyHelper):
+        from dbacademy_helper.warehouse_helper import WarehouseHelper
+
         self.da = da
         self.client = da.client
+        self.warehouses = WarehouseHelper(self, da)
 
         self._usernames = None
         self._databases = None
@@ -99,76 +102,3 @@ class WorkspaceHelper:
         students_count = max(students_count, len(self.usernames))
         return students_count
 
-    @property
-    def sql_warehouse_autoscale_min(self):
-        return 1 if self.da.is_smoke_test() else 2  # math.ceil(self.students_count / 20)
-
-    @property
-    def sql_warehouse_autoscale_max(self):
-        return 1 if self.da.is_smoke_test() else 20  # math.ceil(self.students_count / 5)
-
-    def delete_sql_warehouses_for(self, username):
-        name = self.da.to_database_name(username=username,
-                                        course_code=self.da.course_code)
-        self.client.sql.endpoints.delete_by_name(name=name)
-
-    def delete_sql_warehouses(self, auto_stop_mins=120, enable_serverless_compute=False):
-        self.do_for_all_users(lambda username: self.delete_sql_warehouses_for(username=username))
-
-    # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
-    def create_sql_warehouses(self, auto_stop_mins=120, enable_serverless_compute=False):
-        self.do_for_all_users(lambda username: self.create_sql_warehouse_for(username=username,
-                                                                             auto_stop_mins=auto_stop_mins,
-                                                                             enable_serverless_compute=enable_serverless_compute))
-
-    # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
-    def create_sql_warehouse_for(self, username, auto_stop_mins=120, enable_serverless_compute=False):
-        return self._create_sql_warehouse(name=self.da.to_database_name(username=username, course_code=self.da.course_code),
-                                          auto_stop_mins=auto_stop_mins,
-                                          min_num_clusters=1,
-                                          max_num_clusters=1,
-                                          enable_serverless_compute=enable_serverless_compute)
-
-    def create_shared_sql_warehouse(self, name: str = "Starter Warehouse", auto_stop_mins=120, enable_serverless_compute=False):
-        return self._create_sql_warehouse(name=name,
-                                          auto_stop_mins=auto_stop_mins,
-                                          min_num_clusters=self.sql_warehouse_autoscale_min,
-                                          max_num_clusters=self.sql_warehouse_autoscale_max,
-                                          enable_serverless_compute=enable_serverless_compute)
-
-    # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
-    def _create_sql_warehouse(self, name: str, auto_stop_mins: int, min_num_clusters, max_num_clusters, enable_serverless_compute: bool):
-        from dbacademy.dbrest.sql.endpoints import RELIABILITY_OPTIMIZED, CHANNEL_NAME_CURRENT, CLUSTER_SIZE_2X_SMALL
-
-        warehouse = self.client.sql.endpoints.create_or_update(
-            name=name,
-            cluster_size=CLUSTER_SIZE_2X_SMALL,
-            enable_serverless_compute=enable_serverless_compute,
-            min_num_clusters=min_num_clusters,
-            max_num_clusters=max_num_clusters,
-            auto_stop_mins=auto_stop_mins,
-            enable_photon=True,
-            spot_instance_policy=RELIABILITY_OPTIMIZED,
-            channel=CHANNEL_NAME_CURRENT,
-            tags={
-                "dbacademy.event_name": self.da.clean_string(self.event_name),
-                "dbacademy.students_count": self.da.clean_string(self.student_count),
-                "dbacademy.workspace": self.da.clean_string(self.workspace_name),
-                "dbacademy.org_id": self.da.clean_string(self.org_id),
-                "dbacademy.course": self.da.clean_string(self.da.course_name),  # Tag the name of the course
-                "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name),
-            })
-        warehouse_id = warehouse.get("id")
-
-        # With the warehouse created, make sure that all users can attach to it.
-        self.client.permissions.warehouses.update_group(warehouse_id, "users", "CAN_USE")
-
-        print(f"Created warehouse \"{name}\" ({warehouse_id})")
-        print(f"  Configured for:    {self.configure_for}")
-        print(f"  Event Name:        {self.event_name}")
-        print(f"  Student Count:     {self.student_count}")
-        print(f"  Provisioning:      {len(self.usernames)}")
-        print(f"  Autoscale minimum: {min_num_clusters}")
-        print(f"  Autoscale maximum: {max_num_clusters}")
-        if self.da.is_smoke_test:
-            print(f"  Smoke Test:        {self.da.is_smoke_test()} ")
