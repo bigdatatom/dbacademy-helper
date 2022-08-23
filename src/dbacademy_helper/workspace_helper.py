@@ -83,7 +83,7 @@ class WorkspaceHelper:
         import re
 
         event_name = "Smoke Test" if self.da.is_smoke_test() else dbgems.get_parameter("event_name")
-        assert self.event_name is not None and len(event_name) >= 3, f"The parameter event_name must be specified with min-length of 3, found \"{event_name}\"."
+        assert event_name is not None and len(event_name) >= 3, f"The parameter event_name must be specified with min-length of 3, found \"{event_name}\"."
 
         event_name = re.sub(r"[^a-zA-Z\d]", "_", event_name)
         while "__" in event_name: event_name = event_name.replace("__", "_")
