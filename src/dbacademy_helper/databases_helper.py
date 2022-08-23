@@ -10,6 +10,13 @@ class DatabasesHelper:
         self.client = da.client
         self.workspace = workspace
 
+    def drop_databases(self):
+        self.workspace.do_for_all_users(lambda username: self._drop_databases_for(username=username))
+
+        # Clear the list of databases (and derived users) to force a refresh
+        self.workspace._usernames = None
+        self.workspace._existing_databases = None
+
     def _drop_databases_for(self, username: str):
         db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
         if db_name in self.workspace.existing_databases:
@@ -18,22 +25,15 @@ class DatabasesHelper:
         else:
             print(f"Skipping database drop for {username}")
 
-    def drop_databases(self):
-        self.workspace.do_for_all_users(lambda username: self._drop_databases_for(username=username))
-
-        # Clear the list of databases (and derived users) to force a refresh
-        self.workspace._usernames = None
-        self.workspace._existing_databases = None
-
     def create_databases(self, drop_existing: bool, post_create: Callable[[], None] = None):
-        self.workspace.do_for_all_users(lambda username: self.create_database_for(username=username,
+        self.workspace.do_for_all_users(lambda username: self._create_database_for(username=username,
                                                                                   drop_existing=drop_existing,
                                                                                   post_create=post_create))
         # Clear the list of databases (and derived users) to force a refresh
         self.workspace._usernames = None
         self.workspace._existing_databases = None
 
-    def create_database_for(self, username: str, drop_existing: bool, post_create: Callable[[str], None] = None):
+    def _create_database_for(self, username: str, drop_existing: bool, post_create: Callable[[str], None] = None):
         db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
         db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_name}/database.db"
 

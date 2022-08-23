@@ -21,8 +21,11 @@ class WorkspaceHelper:
         self._usernames = None
         self._existing_databases = None
 
-        self.workspace_name = dbgems.get_browser_host_name()
-        if not self.workspace_name: self.workspace_name = dbgems.get_notebooks_api_endpoint()
+        try:
+            self.workspace_name = dbgems.get_browser_host_name()
+            if not self.workspace_name: self.workspace_name = dbgems.get_notebooks_api_endpoint()
+        except:
+            self.workspace_name = dbgems.get_notebooks_api_endpoint()
 
         self.org_id = dbgems.get_tag("orgId", "unknown")
 
