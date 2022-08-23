@@ -270,6 +270,13 @@ class DBAcademyHelper:
                 print(f"Dropping the database \"{db_name}\"")
                 dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE")
 
+    def cleanup_working_dir(self):
+        # noinspection PyProtectedMember
+        working_dir_root = self.paths._working_dir_root
+        if Paths.exists(working_dir_root):
+            print(f"Removing {working_dir_root}")
+            dbutils.fs.rm(working_dir_root, True)
+
     def _cleanup_feature_store_tables(self):
         # noinspection PyUnresolvedReferences,PyPackageRequirements
         from databricks import feature_store
