@@ -262,6 +262,14 @@ class DBAcademyHelper:
         if validate_datasets:
             self.validate_datasets(fail_fast=False, repairing_dataset=False)
 
+    def cleanup_databases(self):
+        rows = dbgems.get_spark_session().sql(f"show databases").collect()
+        for row in rows:
+            db_name = row[0]
+            if db_name.startswith(self.db_name_prefix):
+                print(f"Dropping the database \"{db_name}\"")
+                dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE")
+
     def _cleanup_feature_store_tables(self):
         # noinspection PyUnresolvedReferences,PyPackageRequirements
         from databricks import feature_store
