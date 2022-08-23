@@ -1,4 +1,4 @@
-import dbacademy.dbgems
+from dbacademy import dbgems
 from dbacademy_helper import DBAcademyHelper, Paths
 
 ALL_USERS = "All Users"
