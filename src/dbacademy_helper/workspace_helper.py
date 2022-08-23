@@ -32,7 +32,9 @@ class WorkspaceHelper:
             configure_for = CURRENT_USER_ONLY
         else:
             # Default to missing users only when called by a job (e.g. workspace automation)
-            default_value = MISSING_USERS_ONLY if dbgems.is_job() else None
+            try: default_value = MISSING_USERS_ONLY if dbgems.is_job() else None
+            except: default_value = None  # get_tags throws an exception in some secure contexts
+
             configure_for = dbgems.get_parameter("configure_for", default_value)
 
         assert configure_for in self.valid_configure_for_options, f"Who the workspace is being configured for must be specified, found \"{configure_for}\". Options include {self.valid_configure_for_options}"
