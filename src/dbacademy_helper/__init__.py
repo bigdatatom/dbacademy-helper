@@ -8,9 +8,6 @@ import pyspark
 from typing import Union
 from dbacademy import dbgems
 
-from typing import TypeVar
-T=TypeVar("ReturnType")
-
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
 
@@ -73,8 +70,6 @@ class DBAcademyHelper:
         from dbacademy.dbrest import DBAcademyRestClient
         from .workspace_helper import WorkspaceHelper
 
-        self.workspace = WorkspaceHelper(self)
-
         self.start = int(time.time())
         self.spark = dbgems.get_spark_session()
 
@@ -90,6 +85,7 @@ class DBAcademyHelper:
         self.enable_streaming_support = enable_streaming_support
 
         self.client = DBAcademyRestClient()
+        self.workspace = WorkspaceHelper(self)
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can

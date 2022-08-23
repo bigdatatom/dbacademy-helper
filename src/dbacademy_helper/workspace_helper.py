@@ -1,5 +1,8 @@
 from dbacademy import dbgems
 from dbacademy_helper import DBAcademyHelper, Paths
+from typing import Callable, List
+from typing import TypeVar
+T=TypeVar("T")
 
 ALL_USERS = "All Users"
 MISSING_USERS_ONLY = "Missing Users Only"
