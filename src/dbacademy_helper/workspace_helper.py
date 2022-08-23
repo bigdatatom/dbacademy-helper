@@ -26,17 +26,8 @@ class WorkspaceHelper:
 
     @property
     def configure_for(self):
-
-        if self.da.is_smoke_test():
-            # Under test, we are always configured for the current user only
-            configure_for = CURRENT_USER_ONLY
-        else:
-            # Default to missing users only when called by a job (e.g. workspace automation)
-            try: default_value = MISSING_USERS_ONLY if dbgems.is_job() else None
-            except: default_value = None  # get_tags throws an exception in some secure contexts
-
-            configure_for = dbgems.get_parameter("configure_for", default_value)
-
+        # Under test, we are always configured for the current user only
+        configure_for = CURRENT_USER_ONLY if self.da.is_smoke_test() else dbgems.get_parameter("configure_for")
         assert configure_for in self.valid_configure_for_options, f"Who the workspace is being configured for must be specified, found \"{configure_for}\". Options include {self.valid_configure_for_options}"
         return configure_for
 
