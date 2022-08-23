@@ -107,10 +107,7 @@ class WorkspaceHelper:
 
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
     def create_sql_warehouses_for(self, username, auto_stop_mins=120, enable_serverless_compute=False):
-        """Creates one warehouse per user"""
-        from dbacademy.dbrest.sql.endpoints import RELIABILITY_OPTIMIZED, CHANNEL_NAME_CURRENT, CLUSTER_SIZE_2X_SMALL
-
-        return self._create_sql_warehouse(name=self.da.unique_name,
+        return self._create_sql_warehouse(name=self.da.to_database_name(username=username, course_code=self.da.course_code),
                                           auto_stop_mins=auto_stop_mins,
                                           min_num_clusters=1,
                                           max_num_clusters=1,
