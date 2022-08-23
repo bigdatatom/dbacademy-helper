@@ -79,7 +79,6 @@ class WarehouseHelper:
             print(f"Created warehouse \"{name}\" ({warehouse_id}) for {username}")
             self.client.permissions.warehouses.update_user(warehouse_id, username, "CAN_USE")
 
-        print(f"Created warehouse \"{name}\" ({warehouse_id})")
         print(f"  Configured for:    {self.workspace.configure_for}")
         print(f"  Event Name:        {self.workspace.event_name}")
         print(f"  Student Count:     {self.workspace.student_count}")
