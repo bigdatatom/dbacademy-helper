@@ -110,34 +110,29 @@ class WorkspaceHelper:
         """Creates one warehouse per user"""
         from dbacademy.dbrest.sql.endpoints import RELIABILITY_OPTIMIZED, CHANNEL_NAME_CURRENT, CLUSTER_SIZE_2X_SMALL
 
-        warehouse = self.client.sql.endpoints.create_or_update(
-            name=self.da.unique_name,
-            cluster_size=CLUSTER_SIZE_2X_SMALL,
-            enable_serverless_compute=enable_serverless_compute,
-            #min_num_clusters=self.sql_warehouse_autoscale_min,
-            #max_num_clusters=self.sql_warehouse_autoscale_max,
-            auto_stop_mins=auto_stop_mins,
-            enable_photon=True,
-            spot_instance_policy=RELIABILITY_OPTIMIZED,
-            channel=CHANNEL_NAME_CURRENT,
-            tags={
-                "dbacademy.event_name": self.da.clean_string(self.event_name),
-                "dbacademy.workspace": self.da.clean_string(self.workspace_name),
-                "dbacademy.org_id": self.da.clean_string(self.org_id),
-                "dbacademy.course": self.da.clean_string(self.da.course_name),  # Tag the name of the course
-                "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name),
-            })
+        return self._create_sql_warehouse(name=self.da.unique_name,
+                                          auto_stop_mins=auto_stop_mins,
+                                          min_num_clusters=1,
+                                          max_num_clusters=1,
+                                          enable_serverless_compute=enable_serverless_compute)
+
+    def create_shared_sql_warehouse(self, name: str = "Starter Warehouse", auto_stop_mins=120, enable_serverless_compute=False):
+        return self._create_sql_warehouse(name=name,
+                                          auto_stop_mins=auto_stop_mins,
+                                          min_num_clusters=self.sql_warehouse_autoscale_min,
+                                          max_num_clusters=self.sql_warehouse_autoscale_max,
+                                          enable_serverless_compute=enable_serverless_compute)
 
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
-    def create_shared_sql_warehouse(self, name: str = "Starter Warehouse", auto_stop_mins=120, enable_serverless_compute=False):
+    def _create_sql_warehouse(self, name: str, auto_stop_mins: int, min_num_clusters, max_num_clusters, enable_serverless_compute: bool):
         from dbacademy.dbrest.sql.endpoints import RELIABILITY_OPTIMIZED, CHANNEL_NAME_CURRENT, CLUSTER_SIZE_2X_SMALL
 
         warehouse = self.client.sql.endpoints.create_or_update(
             name=name,
             cluster_size=CLUSTER_SIZE_2X_SMALL,
             enable_serverless_compute=enable_serverless_compute,
-            min_num_clusters=self.sql_warehouse_autoscale_min,
-            max_num_clusters=self.sql_warehouse_autoscale_max,
+            min_num_clusters=min_num_clusters,
+            max_num_clusters=max_num_clusters,
             auto_stop_mins=auto_stop_mins,
             enable_photon=True,
             spot_instance_policy=RELIABILITY_OPTIMIZED,
