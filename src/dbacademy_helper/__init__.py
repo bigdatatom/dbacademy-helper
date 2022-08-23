@@ -85,7 +85,7 @@ class DBAcademyHelper:
         self.enable_streaming_support = enable_streaming_support
 
         self.client = DBAcademyRestClient()
-        self.workspaces = WorkspaceHelper(self)
+        self.workspace = WorkspaceHelper(self)
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can

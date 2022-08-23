@@ -22,7 +22,7 @@ class DatabasesHelper:
         db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
         db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_name}/database.db"
 
-        if db_name in self.da.workspaces.databases and drop_existing:
+        if db_name in self.da.workspace.databases and drop_existing:
             dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
 
         # Create the database
