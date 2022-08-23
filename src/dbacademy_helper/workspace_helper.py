@@ -44,10 +44,11 @@ class WorkspaceHelper:
         if self._usernames is None:
             users = self.client.scim().users().list()
             self._usernames = [r.get("userName") for r in users]
+            self._usernames.sort()
 
         if self.configure_for == CURRENT_USER_ONLY:
             # Override for the current user only
-            self._usernames = [self.da.username]
+            return [self.da.username]
 
         elif self.configure_for == MISSING_USERS_ONLY:
             # The presumption here is that if the user doesn't have their own
@@ -57,9 +58,10 @@ class WorkspaceHelper:
                 db_name = self.da.get_database_name()
                 if db_name not in self.databases:
                     missing_users.append(user)
-            self._usernames = missing_users
 
-        self._usernames.sort()
+            missing_users.sort()
+            return missing_users
+
         return self._usernames
 
     @property
