@@ -12,17 +12,49 @@ class WorkspaceHelper:
     def __init__(self, da: DBAcademyHelper):
         from dbacademy_helper.warehouses_helper import WarehousesHelper
         from dbacademy_helper.databases_helper import DatabasesHelper
+        from dbacademy_helper.clusters_helper import ClustersHelper
 
         self.da = da
         self.client = da.client
         self.warehouses = WarehousesHelper(self, da)
         self.databases = DatabasesHelper(self, da)
+        self.clusters = ClustersHelper(self, da)
 
         self._usernames = None
         self._existing_databases = None
 
         self.configure_for_options = ["", ALL_USERS, MISSING_USERS_ONLY, CURRENT_USER_ONLY]
         self.valid_configure_for_options = self.configure_for_options[1:]  # all but empty-string
+
+    def add_entitlement_databricks_sql_access(self):
+        group = self.client.scim.groups.get_by_name("users")
+        self.client.scim.groups.add_entitlement(group.get("id"), "databricks-sql-access")
+
+    def do_for_all_users(self, f: Callable[[str], T]) -> List[T]:
+        from multiprocessing.pool import ThreadPool
+
+        # if self.usernames is None:
+        #     raise ValueError("DBAcademyHelper.workspace.usernames must be defined before calling DBAcademyHelper.workspace.do_for_all_users(). See also DBAcademyHelper.workspace.load_all_usernames()")
+
+        with ThreadPool(len(self.usernames)) as pool:
+            return pool.map(f, self.usernames)
+
+    @property
+    def org_id(self):
+        try:
+            return dbgems.get_tag("orgId", "unknown")
+        except:
+            # dbgems.get_tags() can throw exceptions in some secure contexts
+            return "unknown"
+
+    @property
+    def workspace_name(self):
+        try:
+            workspace_name = dbgems.get_browser_host_name()
+            return dbgems.get_notebooks_api_endpoint() if workspace_name is None else workspace_name
+        except:
+            # dbgems.get_tags() can throw exceptions in some secure contexts
+            return dbgems.get_notebooks_api_endpoint()
 
     @property
     def configure_for(self):
@@ -62,15 +94,6 @@ class WorkspaceHelper:
             existing = dbgems.get_spark_session().sql("SHOW DATABASES").collect()
             self._existing_databases = {d[0] for d in existing}
         return self._existing_databases
-
-    def do_for_all_users(self, f: Callable[[str], T]) -> List[T]:
-        from multiprocessing.pool import ThreadPool
-
-        # if self.usernames is None:
-        #     raise ValueError("DBAcademyHelper.workspace.usernames must be defined before calling DBAcademyHelper.workspace.do_for_all_users(). See also DBAcademyHelper.workspace.load_all_usernames()")
-
-        with ThreadPool(len(self.usernames)) as pool:
-            return pool.map(f, self.usernames)
 
     @property
     def event_name(self):
