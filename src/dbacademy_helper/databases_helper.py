@@ -101,6 +101,7 @@ class DatabasesHelper:
         else:
             cluster_params["node_type_id"] = self.client.clusters().get_current_node_type_id()
             if dbgems.get_cloud() == "AWS":
+                # noinspection PyTypeChecker
                 cluster_params["aws_attributes"] = {"availability": "ON_DEMAND"}
 
         create_response = self.client.jobs().create(params)
