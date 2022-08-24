@@ -50,7 +50,7 @@ class DatabasesHelper:
 
         return f"Created database {db_name}"
 
-    def configure_permissions(self, notebook_name="Configure-Permissions"):
+    def configure_permissions(self, notebook_name):
 
         job_name = f"DA-{self.da.course_code}-{notebook_name}"
         print(f"Starting job \"{job_name}\" to catalog and schema specific permissions")
