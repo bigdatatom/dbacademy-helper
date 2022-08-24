@@ -122,6 +122,8 @@ class ClustersHelper:
     def configure_permissions(self, notebook_name="Configure-Permissions"):
 
         job_name = f"DA-{self.da.course_code}-{notebook_name}"
+        print(f"Starting job \"{job_name}\" to catalog and schema specific permissions")
+
         self.client.jobs().delete_by_name(job_name, success_only=False)
 
         notebook_path = f"{dbgems.get_notebook_dir()}/{notebook_name}"
