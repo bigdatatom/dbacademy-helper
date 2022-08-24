@@ -53,7 +53,7 @@ class DatabasesHelper:
     def configure_permissions(self, notebook_name):
 
         job_name = f"""DA-{self.da.course_code.upper()}-{notebook_name.split("/")[-1]}"""
-        print(f"Starting job \"{job_name}\" to catalog and schema specific permissions")
+        print(f"Starting job \"{job_name}\" to update catalog and schema specific permissions")
 
         self.client.jobs().delete_by_name(job_name, success_only=False)
 
