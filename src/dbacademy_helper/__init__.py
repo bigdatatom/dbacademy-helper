@@ -230,6 +230,7 @@ class DBAcademyHelper:
         """
         Cleans up the user environment by stopping any active streams, dropping the database created by the call to init() and removing the user's lesson-specific working directory and any assets created in that directory.
         """
+        import time
 
         # Clear any cached values from previous lessons
         self.spark.catalog.clearCache()
@@ -242,20 +243,24 @@ class DBAcademyHelper:
             print("Resetting the learning environment...")
 
         for stream in self.spark.streams.active:
-            print(f"...stopping the stream \"{stream.name}\"")
+            start = int(time.time())
+            print(f"...stopping the stream \"{stream.name}\"", end="...")
             stream.stop()
-            try:
-                stream.awaitTermination()
-            except:
-                pass  # Bury any exceptions
+            try: stream.awaitTermination()
+            except: pass  # Bury any exceptions
+            print(f"({int(time.time())-start} seconds)")
 
         if drop_db:
-            print(f"...dropping the database \"{self.db_name}\"")
+            start = int(time.time())
+            print(f"...dropping the database \"{self.db_name}\"", end="...")
             self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
+            print(f"({int(time.time())-start} seconds)")
 
         if remove_wd:
-            print(f"...removing the working directory \"{self.paths.working_dir}\"")
+            start = int(time.time())
+            print(f"...removing the working directory \"{self.paths.working_dir}\"", end="...")
             dbgems.get_dbutils().fs.rm(self.paths.working_dir, True)
+            print(f"({int(time.time())-start} seconds)")
 
         if validate_datasets:
             self.validate_datasets(fail_fast=False, repairing_dataset=False)
