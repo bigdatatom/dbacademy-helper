@@ -117,4 +117,4 @@ class DatabasesHelper:
 
         print()
         print("Update completed successfully.")
-        return job_name
+        return job_name, job_id, run_id
