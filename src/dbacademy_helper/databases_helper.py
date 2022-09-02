@@ -116,5 +116,5 @@ class DatabasesHelper:
         assert final_state == "SUCCESS", f"Expected the final state to be SUCCESS, found {final_state}"
 
         print()
-        print("Update completed successfully.")
-        return job_name, job_id, run_id
+        print(f"Completed \"{job_name}\" ({job_id}) successfully.")
+        return job_id
