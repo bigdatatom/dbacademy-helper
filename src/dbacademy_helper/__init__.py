@@ -423,11 +423,11 @@ class DBAcademyHelper:
                     lines = len(contents.split("\n")) + 1
 
                     html = f"""<html><body><h1>{dataset.path}</h1><textarea rows="{lines}" style="width:100%; overflow-x:scroll; white-space:nowrap">{contents}</textarea></body></html>"""
-                    self.display_html(html)
+                    dbgems.display_html(html)
 
             except FileNotFoundError:
                 html = f"""<html><body><h1>{dataset.path}</h1><textarea rows="3" style="width:100%; overflow-x:scroll; white-space:nowrap">**ERROR**\n{readme_file} was not found</textarea></body></html>"""
-                self.display_html(html)
+                dbgems.display_html(html)
 
     def list_r(self, path, prefix=None, results=None):
         """
@@ -457,7 +457,7 @@ class DBAcademyHelper:
         files = self.list_r(self.data_source_uri)
         files = "remote_files = " + str(files).replace("'", "\"")
 
-        self.display_html(f"""
+        dbgems.display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
             <textarea rows="10" style="width:100%">{files}</textarea>
         """)
@@ -469,7 +469,7 @@ class DBAcademyHelper:
         files = self.list_r(self.paths.datasets)
         files = "remote_files = " + str(files).replace("'", "\"")
 
-        self.display_html(f"""
+        dbgems.display_html(f"""
             <p>Copy the following output and paste it in its entirety into cell of the _utility-functions notebook.</p>
             <textarea rows="10" style="width:100%">{files}</textarea>
         """)
@@ -598,31 +598,12 @@ class DBAcademyHelper:
             mlflow.set_experiment(f"/Curriculum/Test Results/{self.unique_name}-{dbgems.get_job_id()}")
 
     @staticmethod
-    def display_html(html) -> None:
-        import inspect
-        caller_frame = inspect.currentframe().f_back
-        while caller_frame is not None:
-            caller_globals = caller_frame.f_globals
-            function = caller_globals.get("displayHTML")
-            if function:
-                return function(html)
-            caller_frame = caller_frame.f_back
-        raise ValueError("displayHTML not found in any caller frames.")
-
-    @staticmethod
     def clean_string(value, replacement: str = "_"):
         import re
         replacement_2x = replacement+replacement
         value = re.sub(r"[^a-zA-Z\d]", replacement, str(value))
         while replacement_2x in value: value = value.replace(replacement_2x, replacement)
         return value
-
-    @staticmethod
-    def sql(sql, echo=True):
-        if echo:
-            # Thread safe printing.
-            print(" -- " + sql + ";\n", end="")
-        return dbgems.get_spark_session().sql(sql)
 
     @property
     def is_smoke_test_key(self):

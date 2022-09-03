@@ -27,8 +27,8 @@ class DatabasesHelper:
 
     def create_databases(self, drop_existing: bool, post_create: Callable[[], None] = None):
         self.workspace.do_for_all_users(lambda username: self._create_database_for(username=username,
-                                                                                  drop_existing=drop_existing,
-                                                                                  post_create=post_create))
+                                                                                   drop_existing=drop_existing,
+                                                                                   post_create=post_create))
         # Clear the list of databases (and derived users) to force a refresh
         self.workspace._usernames = None
         self.workspace._existing_databases = None
@@ -93,7 +93,7 @@ class DatabasesHelper:
                 },
             ],
         }
-        cluster_params = params.get("tasks")[0].get("new_cluster") # Photon currently is not supported on these cluster types
+        cluster_params = params.get("tasks")[0].get("new_cluster")  # Photon currently is not supported on these cluster types
         cluster_params["spark_version"] = self.client.clusters().get_current_spark_version().replace("-photon-", "-")
 
         if self.client.clusters().get_current_instance_pool_id() is not None:

@@ -1,7 +1,6 @@
-from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
-from typing import Callable, TypeVar
+from typing import TypeVar
 T=TypeVar("T")
 
 class ClustersHelper:
