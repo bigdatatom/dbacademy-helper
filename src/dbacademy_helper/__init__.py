@@ -336,6 +336,8 @@ class DBAcademyHelper:
 
         # Inject the user's database name
         # Add custom attributes to the SQL context here.
+        self.spark.conf.set("da.username", self.username)
+        self.spark.conf.set("DA.username", self.username)
         self.spark.conf.set("da.db_name", self.db_name)
         self.spark.conf.set("DA.db_name", self.db_name)
 
