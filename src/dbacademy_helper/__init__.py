@@ -273,7 +273,7 @@ class DBAcademyHelper:
             db_name = row[0]
             if db_name.startswith(self.db_name_prefix):
                 print(f"Dropping the database \"{db_name}\"")
-                dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE")
+                dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {db_name} CASCADE")
 
     def cleanup_working_dir(self):
         # noinspection PyProtectedMember
