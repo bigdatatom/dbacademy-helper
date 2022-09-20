@@ -25,8 +25,6 @@ class TestSuite(object):
         failed_tests = set()
         test_results = list()
 
-        print("-"*80)
-
         for test in self.test_cases:
             skip = any(test_id in failed_tests for test_id in test.depends_on)
             result = TestResult(test, skip)
