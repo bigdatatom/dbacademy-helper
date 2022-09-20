@@ -3,6 +3,8 @@ class TestCase(object):
 
     __slots__ = ('description', 'test_function', 'test_case_id', 'unique_id', 'depends_on', 'escape_html', 'points', 'hint')
 
+    _LAST_ID = 0
+
     def __init__(self,
                  *,
                  suite,
@@ -21,9 +23,12 @@ class TestCase(object):
         expected_type = "<class 'dbacademy_helper.reality_checks.test_suite_class.TestSuite'>"
         assert str(type(suite)) == expected_type, f"Expected the parameter \"suite\" to be of type TestSuite, found {type(suite)}"
 
-        test_case_id = test_case_id or uuid.uuid4()
+        if test_case_id is None:
+            TestCase._LAST_ID += 1
+            test_case_id = str(TestCase._LAST_ID)
+            
         self.test_case_id = f"{suite.name}-{test_case_id}"
-        
+
         self.hint = hint
         self.points = points
         self.escape_html = escape_html
