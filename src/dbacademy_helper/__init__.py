@@ -114,7 +114,8 @@ class DBAcademyHelper:
         # is the value by which all databases in this course should start with.
         # Besides, creating this lesson's database name
 
-        self.db_name_prefix = self.to_database_name(username=self.username, course_code=self.course_code)
+        self.schema_name_prefix = self.to_database_name(username=self.username, course_code=self.course_code)
+        self.db_name_prefix = self.schema_name_prefix
 
         # This is the location in our Azure data repository of the datasets for this lesson
         self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.data_source_name}/{self.data_source_version}"
@@ -141,7 +142,7 @@ class DBAcademyHelper:
                                user_db=f"{working_dir}/database.db",
                                enable_streaming_support=enable_streaming_support)
             # self.hidden = Paths(working_dir, None, enable_streaming_support)  # Create the "hidden" path
-            self.db_name = self.db_name_prefix  # No lesson, database name is the same as prefix
+            self.schema_name = self.schema_name_prefix  # No lesson, database name is the same as prefix
         else:
             working_dir = f"{working_dir_root}/{self.lesson}"           # Working directory now includes the lesson name
             self.clean_lesson = self.clean_string(self.lesson.lower())  # Replace all special characters with underscores
@@ -151,7 +152,9 @@ class DBAcademyHelper:
                                user_db=f"{working_dir}/{self.clean_lesson}.db",
                                enable_streaming_support=enable_streaming_support)
             # self.hidden = Paths(working_dir, self.clean_lesson, enable_streaming_support)  # Create the "hidden" path
-            self.db_name = f"{self.db_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
+            self.schema_name = f"{self.schema_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
+
+        self.db_name = self.schema_name
 
     @property
     def unique_name(self):
@@ -290,7 +293,7 @@ class DBAcademyHelper:
     def cleanup_databases(self):
         db_names = [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]
         for db_name in db_names:
-            if db_name.startswith(self.db_name_prefix):
+            if db_name.startswith(self.schema_name_prefix):
                 print(f"Dropping the database \"{db_name}\"")
                 dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {db_name} CASCADE")
 
