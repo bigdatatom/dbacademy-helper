@@ -291,7 +291,9 @@ class DBAcademyHelper:
 
                 print(f"...dropping all database in \"{self.catalog_name}\"")
                 for db_name in [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]:
-                    if db_name not in ["default", "information_schema"]:
+                    if db_name in ["default", "information_schema"]:
+                        print(f"...keeping the database \"{db_name}\".")
+                    else:
                         start = int(time.time())
                         print(f"...dropping the database \"{db_name}\"", end="...")
                         dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {db_name} CASCADE")
