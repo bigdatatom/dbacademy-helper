@@ -9,7 +9,6 @@ class TestSuite(object):
     def __init__(self, name) -> None:
         self.name = name
         self.ids = set()
-        self.score = 0
         self.test_cases = list()
         self.test_results = None
 
@@ -72,7 +71,7 @@ class TestSuite(object):
 
     def grade(self) -> int:
         self._display("grade")
-        return self.score
+        return self.score()
 
     @lazy_property
     def score(self) -> int:
@@ -84,7 +83,8 @@ class TestSuite(object):
 
     @lazy_property
     def percentage(self) -> int:
-        return 0 if self.max_score == 0 else int(100.0 * self.score / self.max_score())
+        max_score = self.max_score()
+        return 0 if max_score == 0 else int(100.0 * self.score() / max_score)
 
     @lazy_property
     def passed(self) -> bool:
