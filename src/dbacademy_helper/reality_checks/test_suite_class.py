@@ -25,6 +25,8 @@ class TestSuite(object):
         failed_tests = set()
         test_results = list()
 
+        print("-"*80)
+
         for test in self.test_cases:
             print(f"Test #{test.test_case_id}: {test.depends_on}")
 
@@ -98,8 +100,9 @@ class TestSuite(object):
         return "-n/a-" if len(self.test_cases) == 0 else self.test_cases[-1].test_case_id
 
     def add_test(self, test_case: TestCase):
-        if not test_case.test_case_id: raise ValueError("The test cases' id must be specified")
-        if test_case.test_case_id in self.ids: raise ValueError(f"Duplicate test case id: {test_case.test_case_id}")
+        assert test_case.test_case_id is not None, "The test_case_id must be specified"
+        assert test_case.test_case_id not in self.ids, f"Duplicate test case id: {test_case.test_case_id}"
+
         self.test_cases.append(test_case)
         self.ids.add(test_case.test_case_id)
         return self

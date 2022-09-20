@@ -40,4 +40,9 @@ class TestCase(object):
         print(f"suite.last_test_id(): {suite.last_test_id()} | {type(suite.last_test_id())}")
         depends_on = depends_on or [suite.last_test_id()]
 
-        self.depends_on = depends_on if type(depends_on) is List else [depends_on]
+        if type(depends_on) is List:
+            print(f"Type is {type(depends_on)}")
+            self.depends_on = depends_on
+        else:
+            print(f"Type is {type(depends_on)}")
+            self.depends_on = [depends_on]
