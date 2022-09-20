@@ -115,71 +115,77 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=True,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
                                       test_function=test_function))
 
-    def test_equals(self, value_a, value_b, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+    def test_equals(self, actual_value, expected_value, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
-                                      test_function=lambda: value_a == value_b))
+                                      test_function=lambda: actual_value == expected_value))
 
-    def test_true(self, value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+    def test_true(self, actual_value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
-                                      test_function=lambda: value is True))
+                                      test_function=lambda: actual_value is True))
 
-    def test_false(self, value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+    def test_false(self, actual_value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
-                                      test_function=lambda: value is False))
+                                      test_function=lambda: actual_value is False))
 
-    def test_is_none(self, value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+    def test_is_none(self, actual_value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
-                                      test_function=lambda: value is None))
+                                      test_function=lambda: actual_value is None))
 
-    def test_not_none(self, value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+    def test_not_none(self, actual_value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
-                                      test_function=lambda: value is not None))
+                                      test_function=lambda: actual_value is not None))
 
     def fail_pre_req(self, *, test_case_id: str, e: Exception, depends_on: Iterable[str] = None):
         self.fail(test_case_id=test_case_id,
@@ -194,54 +200,59 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=False,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       test_function=lambda: False))
 
-    def test_floats(self, value_a, value_b, description: str, *, test_case_id: str = None, tolerance=0.01, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
+    def test_floats(self, actual_value, expected_value, description: str, *, test_case_id: str = None, tolerance=0.01, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
-                                      test_function=lambda: self.compare_floats(value_a, value_b, tolerance)))
+                                      test_function=lambda: self.compare_floats(actual_value, expected_value, tolerance)))
 
-    def test_rows(self, row_a: pyspark.sql.Row, row_b: pyspark.sql.Row, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
+    def test_rows(self, actual_value: pyspark.sql.Row, expected_value: pyspark.sql.Row, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
-                                      test_function=lambda: self.compare_rows(row_a, row_b)))
+                                      test_function=lambda: self.compare_rows(actual_value, expected_value)))
 
-    def test_data_frames(self, df_a: pyspark.sql.DataFrame, df_b: pyspark.sql.DataFrame, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
+    def test_data_frames(self, actual_value: pyspark.sql.DataFrame, expected_value: pyspark.sql.DataFrame, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
-                                      test_function=lambda: self.compare_data_frames(df_a, df_b)))
+                                      test_function=lambda: self.compare_data_frames(actual_value, expected_value)))
 
-    def test_contains(self, value: Any, list_of_values: List[Any], description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
+    def test_contains(self, actual_value: Any, list_of_values: List[Any], description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
         from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
+                                      actual_value=actual_value,
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
-                                      test_function=lambda: value in list_of_values))
+                                      test_function=lambda: actual_value in list_of_values))
 
     @staticmethod
     def compare_floats(value_a: float, value_b: float, tolerance: float = 0.01):
