@@ -1,9 +1,9 @@
 # noinspection PyPep8Naming
 import builtins as BI
+from dbacademy_helper.reality_checks.test_result_class import TestResult
+
 
 class __TestResultsAggregator(object):
-
-    from dbacademy_helper.reality_checks.test_result_class import TestResult
 
     testResults = dict()
 

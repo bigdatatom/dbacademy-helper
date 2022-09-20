@@ -1,6 +1,7 @@
+from dbacademy_helper.reality_checks.test_suite_class import TestSuite
+
 class TestCase(object):
     from typing import Callable, Any, Iterable
-    from dbacademy_helper.reality_checks.test_suite_class import TestSuite
 
     __slots__ = ('description', 'test_function', 'test_case_id', 'unique_id', 'depends_on', 'escape_html', 'points', 'hint')
 
