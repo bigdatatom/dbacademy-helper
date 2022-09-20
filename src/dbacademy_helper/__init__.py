@@ -245,6 +245,7 @@ class DBAcademyHelper:
         return self.cleanup(validate_datasets=False)
 
     def cleanup(self, validate_datasets=True):
+        import pyspark.sql.functions as F
         """
         Cleans up the user environment by stopping any active streams, dropping the database created by the call to init() and removing the user's lesson-specific working directory and any assets created in that directory.
         """
@@ -270,9 +271,10 @@ class DBAcademyHelper:
 
         if drop_db:
             start = int(time.time())
-            print(f"...dropping the database \"{self.db_name}\"", end="...")
-            self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
-            print(f"({int(time.time())-start} seconds)")
+            if dbgems.get_spark_session().sql(f"show databases").filter(F.col("databaseName") == self.db_name).count() > 0:
+                print(f"...dropping the database \"{self.db_name}\"", end="...")
+                self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
+                print(f"({int(time.time())-start} seconds)")
 
         if remove_wd:
             start = int(time.time())
@@ -284,9 +286,8 @@ class DBAcademyHelper:
             self.validate_datasets(fail_fast=False, repairing_dataset=False)
 
     def cleanup_databases(self):
-        rows = dbgems.get_spark_session().sql(f"show databases").collect()
-        for row in rows:
-            db_name = row[0]
+        db_names = [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]
+        for db_name in db_names:
             if db_name.startswith(self.db_name_prefix):
                 print(f"Dropping the database \"{db_name}\"")
                 dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {db_name} CASCADE")
