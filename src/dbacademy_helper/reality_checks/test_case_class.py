@@ -35,6 +35,7 @@ class TestCase(object):
         self.description = description
         self.test_function = test_function
 
+        print(f"-"*80)
         print(f"Depends On:           {depends_on} | {type(depends_on)}")
         print(f"suite.last_test_id(): {suite.last_test_id()} | {type(suite.last_test_id())}")
         depends_on = depends_on or [suite.last_test_id()]
