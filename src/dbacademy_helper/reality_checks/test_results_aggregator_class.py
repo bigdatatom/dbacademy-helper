@@ -3,7 +3,7 @@ import builtins as BI
 
 class __TestResultsAggregator(object):
 
-    from .test_result_class import TestResult
+    from dbacademy_helper.reality_checks.test_result_class import TestResult
 
     testResults = dict()
 

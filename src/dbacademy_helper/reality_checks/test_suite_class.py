@@ -3,9 +3,9 @@ class TestSuite(object):
     import pyspark
     from pyspark.sql import DataFrame, Row
     from typing import List, Callable, Iterable, Any
-    from . import lazy_property
-    from .test_result_class import TestResult
-    from .test_case_class import TestCase
+    from dbacademy_helper.reality_checks import lazy_property
+    from dbacademy_helper.reality_checks.test_result_class import TestResult
+    from dbacademy_helper.reality_checks.test_case_class import TestCase
 
     def __init__(self, name) -> None:
         self.name = name
@@ -19,8 +19,8 @@ class TestSuite(object):
         return self.run_tests()
 
     def run_tests(self) -> List[TestResult]:
-        from .test_result_class import TestResult
-        from .test_results_aggregator_class import TestResultsAggregator
+        from dbacademy_helper.reality_checks.test_result_class import TestResult
+        from dbacademy_helper.reality_checks.test_results_aggregator_class import TestResultsAggregator
 
         failed_tests = set()
         test_results = list()
@@ -102,7 +102,7 @@ class TestSuite(object):
         return self
 
     def test(self, test_function: Callable[[], Any], *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -114,7 +114,7 @@ class TestSuite(object):
                                       test_function=test_function))
 
     def test_equals(self, value_a, value_b, *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -126,7 +126,7 @@ class TestSuite(object):
                                       test_function=lambda: value_a == value_b))
 
     def test_is_none(self, value: Any, *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -138,7 +138,7 @@ class TestSuite(object):
                                       test_function=lambda: value is None))
 
     def test_not_none(self, value: Any, *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -157,7 +157,7 @@ class TestSuite(object):
                   description=f"""<div>Execute prerequisites.</div><div style='max-width: 1024px; overflow-x:auto'>{e}</div>""")
 
     def fail(self, *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -168,7 +168,7 @@ class TestSuite(object):
                                       test_function=lambda: False))
 
     def test_floats(self, value_a, value_b, *, test_case_id: str = None, description: str = None, tolerance=0.01, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -179,7 +179,7 @@ class TestSuite(object):
                                       test_function=lambda: self.compare_floats(value_a, value_b, tolerance)))
 
     def test_rows(self, row_a: pyspark.sql.Row, row_b: pyspark.sql.Row, *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -190,7 +190,7 @@ class TestSuite(object):
                                       test_function=lambda: self.compare_rows(row_a, row_b)))
 
     def test_data_frames(self, df_a: pyspark.sql.DataFrame, df_b: pyspark.sql.DataFrame, *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -201,7 +201,7 @@ class TestSuite(object):
                                       test_function=lambda: self.compare_data_frames(df_a, df_b)))
 
     def test_contains(self, value: Any, list_of_values: List[Any], *, test_case_id: str = None, description: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from .test_case_class import TestCase
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,

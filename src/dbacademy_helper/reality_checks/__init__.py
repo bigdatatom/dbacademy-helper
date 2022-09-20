@@ -8,7 +8,7 @@ class RealityChecksHelper:
 
     # noinspection PyMethodMayBeStatic
     def new(self, name):
-        from .test_suite_class import TestSuite
+        from dbacademy_helper.reality_checks.test_suite_class import TestSuite
         return TestSuite(name)
 
 # Decorator to lazy evaluate - used by TestSuite
