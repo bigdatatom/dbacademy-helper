@@ -360,8 +360,8 @@ class DBAcademyHelper:
         self.spark.conf.set("da.db_name", self.db_name)
         self.spark.conf.set("DA.db_name", self.db_name)
 
-        self.spark.conf.set("da.catalog", self.catalog_name)
-        self.spark.conf.set("DA.catalog", self.catalog_name)
+        self.spark.conf.set("da.catalog_name", self.catalog_name)
+        self.spark.conf.set("DA.catalog_name", self.catalog_name)
 
         # Automatically add all path attributes to the SQL context as well.
         for key in self.paths.__dict__:
