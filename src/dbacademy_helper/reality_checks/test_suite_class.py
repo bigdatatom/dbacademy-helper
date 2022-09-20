@@ -127,6 +127,30 @@ class TestSuite(object):
                                       hint=hint,
                                       test_function=lambda: value_a == value_b))
 
+    def test_true(self, value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
+
+        return self.add_test(TestCase(suite=self,
+                                      test_case_id=test_case_id,
+                                      description=description,
+                                      depends_on=depends_on,
+                                      escape_html=escape_html,
+                                      points=points,
+                                      hint=hint,
+                                      test_function=lambda: value is True))
+
+    def test_false(self, value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
+
+        return self.add_test(TestCase(suite=self,
+                                      test_case_id=test_case_id,
+                                      description=description,
+                                      depends_on=depends_on,
+                                      escape_html=escape_html,
+                                      points=points,
+                                      hint=hint,
+                                      test_function=lambda: value is False))
+
     def test_is_none(self, value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.reality_checks.test_case_class import TestCase
 
