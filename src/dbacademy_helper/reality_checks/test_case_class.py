@@ -14,8 +14,9 @@ class TestCase(object):
                  hint=None):
 
         from typing import List
+        import uuid
 
-        self.test_case_id = test_case_id
+        self.test_case_id = test_case_id or uuid.uuid4()
         self.hint = hint
         self.points = points
         self.escape_html = escape_html
