@@ -234,12 +234,12 @@ class DBAcademyHelper:
             self.install_datasets()
 
         if create_catalog:
-            self.spark.sql(f"CREATE CATALOG IF NOT EXISTS ${self.catalog}")
-            self.spark.sql(f"USE CATALOG {self.catalog}")
+            dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog}")
+            dbgems.sql(f"USE CATALOG {self.catalog}")
 
         if create_db:
-            self.spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
-            self.spark.sql(f"USE {self.db_name}")
+            dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
+            dbgems.sql(f"USE {self.db_name}")
 
     def reset_environment(self):
         return self.cleanup(validate_datasets=False)
