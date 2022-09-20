@@ -41,4 +41,7 @@ class TestCase(object):
 
     def update_hint(self):
         self.hint = self.hint.replace("[[ACTUAL_VALUE]]", str(self.actual_value))
-        self.hint = self.hint.replace("[[LEN_ACTUAL_VALUE]]", str(len(self.actual_value)))
+        try:
+            self.hint = self.hint.replace("[[LEN_ACTUAL_VALUE]]", str(len(self.actual_value)))
+        except:
+            self.hint = self.hint.replace("[[LEN_ACTUAL_VALUE]]", str(self.actual_value))
