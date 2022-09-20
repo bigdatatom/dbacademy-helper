@@ -1,5 +1,5 @@
 class TestResult(object):
-    from dbacademy_helper.reality_checks.test_case_class import TestCase
+    from dbacademy_helper.tests.test_case_class import TestCase
 
     __slots__ = ('test', 'skipped', 'passed', 'status', 'points', 'exception', 'message')
 
@@ -18,12 +18,14 @@ class TestResult(object):
                 self.points = self.test.points
             self.exception = None
             self.message = ""
+
         except AssertionError as e:
             self.status = "failed"
             self.passed = False
             self.points = 0
             self.exception = e
             self.message = ""
+
         except Exception as e:
             self.status = "failed"
             self.passed = False

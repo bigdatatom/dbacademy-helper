@@ -3,12 +3,12 @@ from typing import List, Callable, Iterable, Any
 class TestSuite(object):
     import pyspark
     from pyspark.sql import DataFrame, Row
-    from dbacademy_helper.reality_checks import lazy_property
-    from dbacademy_helper.reality_checks.test_result_class import TestResult
-    from dbacademy_helper.reality_checks.test_case_class import TestCase
+    from dbacademy_helper.tests import lazy_property
+    from dbacademy_helper.tests.test_result_class import TestResult
+    from dbacademy_helper.tests.test_case_class import TestCase
 
     def __init__(self, name) -> None:
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         self.name = name
         self.ids = set()
@@ -19,14 +19,15 @@ class TestSuite(object):
         return self.run_tests()
 
     def run_tests(self) -> List[TestResult]:
-        from dbacademy_helper.reality_checks.test_result_class import TestResult
-        from dbacademy_helper.reality_checks.test_results_aggregator_class import TestResultsAggregator
+        from dbacademy_helper.tests.test_result_class import TestResult
+        from dbacademy_helper.tests.test_results_aggregator_class import TestResultsAggregator
 
         failed_tests = set()
         test_results = list()
 
         for test in self.test_cases:
             skip = any(test_id in failed_tests for test_id in test.depends_on)
+            test.update_hint()
             result = TestResult(test, skip)
 
             if not result.passed and test.test_case_id is not None:
@@ -40,11 +41,12 @@ class TestSuite(object):
     def _display(self, css_class: str = "results") -> None:
         from html import escape
         from dbacademy_gems import dbgems
-        from dbacademy_helper.reality_checks import _TEST_RESULTS_STYLE
+        from dbacademy_helper.tests import _TEST_RESULTS_STYLE
         lines = [_TEST_RESULTS_STYLE,
                  "<table class='" + css_class + "'>",
                  "  <tr><th class='points'>Points</th><th class='test'>Test</th><th class='result'>Result</th></tr>"]
 
+        # noinspection PyTypeChecker
         for result in self.test_results:
             description_html = escape(str(result.test.description)) if result.test.escape_html else str(result.test.description)
             lines.append(f"<tr>")
@@ -74,18 +76,22 @@ class TestSuite(object):
 
     def grade(self) -> int:
         self._display("grade")
+        # noinspection PyTypeChecker
         return self.score
 
     @lazy_property
     def score(self) -> int:
+        # noinspection PyTypeChecker
         return sum(map(lambda result: result.points, self.test_results))
 
     @lazy_property
     def max_score(self) -> int:
+        # noinspection PyTypeChecker
         return sum(map(lambda result: result.test.points, self.test_results))
 
     @lazy_property
     def percentage(self) -> int:
+        # noinspection PyTypeChecker
         return 0 if self.max_score == 0 else int(100.0 * self.score / self.max_score)
 
     @lazy_property
@@ -104,7 +110,7 @@ class TestSuite(object):
         return self
 
     def test(self, test_function: Callable[[], Any], description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -116,7 +122,7 @@ class TestSuite(object):
                                       test_function=test_function))
 
     def test_equals(self, value_a, value_b, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -128,7 +134,7 @@ class TestSuite(object):
                                       test_function=lambda: value_a == value_b))
 
     def test_true(self, value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -140,7 +146,7 @@ class TestSuite(object):
                                       test_function=lambda: value is True))
 
     def test_false(self, value: bool, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -152,7 +158,7 @@ class TestSuite(object):
                                       test_function=lambda: value is False))
 
     def test_is_none(self, value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -164,7 +170,7 @@ class TestSuite(object):
                                       test_function=lambda: value is None))
 
     def test_not_none(self, value: Any, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -183,7 +189,7 @@ class TestSuite(object):
                   description=f"""<div>Execute prerequisites.</div><div style='max-width: 1024px; overflow-x:auto'>{e}</div>""")
 
     def fail(self, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -194,7 +200,7 @@ class TestSuite(object):
                                       test_function=lambda: False))
 
     def test_floats(self, value_a, value_b, description: str, *, test_case_id: str = None, tolerance=0.01, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -205,7 +211,7 @@ class TestSuite(object):
                                       test_function=lambda: self.compare_floats(value_a, value_b, tolerance)))
 
     def test_rows(self, row_a: pyspark.sql.Row, row_b: pyspark.sql.Row, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -216,7 +222,7 @@ class TestSuite(object):
                                       test_function=lambda: self.compare_rows(row_a, row_b)))
 
     def test_data_frames(self, df_a: pyspark.sql.DataFrame, df_b: pyspark.sql.DataFrame, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -227,7 +233,7 @@ class TestSuite(object):
                                       test_function=lambda: self.compare_data_frames(df_a, df_b)))
 
     def test_contains(self, value: Any, list_of_values: List[Any], description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
-        from dbacademy_helper.reality_checks.test_case_class import TestCase
+        from dbacademy_helper.tests.test_case_class import TestCase
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,

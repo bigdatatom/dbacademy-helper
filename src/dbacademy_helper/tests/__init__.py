@@ -1,4 +1,4 @@
-class RealityChecksHelper:
+class TestHelper:
     from dbacademy_helper import DBAcademyHelper
 
     def __init__(self, da: DBAcademyHelper):
@@ -8,7 +8,7 @@ class RealityChecksHelper:
 
     # noinspection PyMethodMayBeStatic
     def new(self, name):
-        from dbacademy_helper.reality_checks.test_suite_class import TestSuite
+        from dbacademy_helper.tests.test_suite_class import TestSuite
         return TestSuite(name)
 
 # Decorator to lazy evaluate - used by TestSuite

@@ -4,7 +4,7 @@ import unittest
 class MyTestCase(unittest.TestCase):
 
     def test_suite(self):
-        from dbacademy_helper.reality_checks.test_suite_class import TestSuite
+        from dbacademy_helper.tests.test_suite_class import TestSuite
         suite = TestSuite("Whatever")
 
         pipeline_name = "Actual value"
