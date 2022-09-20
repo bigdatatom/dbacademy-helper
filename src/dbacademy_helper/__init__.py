@@ -236,13 +236,18 @@ class DBAcademyHelper:
         if install_datasets:
             self.install_datasets()
 
-        if create_catalog:
-            print(f"Creating the catalog {self.catalog_name}")
+        if create_catalog and create_db:
+            print(f"\nCreating the catalog and schema {self.catalog_name}.{self.db_name}")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
-
-        if create_db:
-            print(f"Creating the database {self.db_name}")
+            dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
+            dbgems.sql(f"USE {self.db_name}")
+        elif create_catalog:
+            print(f"\nCreating the catalog {self.db_name}")
+            dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
+            dbgems.sql(f"USE CATALOG {self.catalog_name}")
+        elif create_db:
+            print(f"\nCreating the schema {self.db_name}")
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             dbgems.sql(f"USE {self.db_name}")
 
