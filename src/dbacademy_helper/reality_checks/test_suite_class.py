@@ -122,6 +122,28 @@ class TestSuite(object):
                                       hint=hint,
                                       test_function=lambda: value_a == value_b))
 
+    def test_is_none(self, test_case_id: str, description: str, value: Any, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+        from .test_case_class import TestCase
+
+        return self.add_test(TestCase(test_case_id=test_case_id,
+                                      description=description,
+                                      depends_on=depends_on or list(),
+                                      escape_html=escape_html,
+                                      points=points,
+                                      hint=hint,
+                                      test_function=lambda: value is None))
+
+    def test_not_none(self, test_case_id: str, description: str, value: Any, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+        from .test_case_class import TestCase
+
+        return self.add_test(TestCase(test_case_id=test_case_id,
+                                      description=description,
+                                      depends_on=depends_on or list(),
+                                      escape_html=escape_html,
+                                      points=points,
+                                      hint=hint,
+                                      test_function=lambda: value is not None))
+
     def fail_pre_req(self, test_case_id: str, e: Exception, depends_on: Iterable[str] = None):
         self.fail(test_case_id=test_case_id,
                   points=1,
