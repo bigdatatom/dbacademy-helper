@@ -1,5 +1,5 @@
 class TestCase(object):
-    from typing import Callable, Any, Iterable
+    from typing import Callable, Any, List
 
     __slots__ = ('description', 'test_function', 'test_case_id', 'unique_id', 'depends_on', 'escape_html', 'points', 'hint')
 
@@ -11,7 +11,7 @@ class TestCase(object):
                  test_function: Callable[[], Any],
                  description: str = None,
                  test_case_id: str = None,
-                 depends_on: Iterable[str] = None,
+                 depends_on: List[str] = None,
                  escape_html: bool = False,
                  points: int = 1,
                  hint=None):
@@ -35,5 +35,8 @@ class TestCase(object):
         self.description = description
         self.test_function = test_function
 
+        print(f"Depends On:           {depends_on}")
+        print(f"suite.last_test_id(): {suite.last_test_id()}")
         depends_on = depends_on or [suite.last_test_id()]
+
         self.depends_on = depends_on if type(depends_on) is List else [depends_on]
