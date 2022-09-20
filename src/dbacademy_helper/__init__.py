@@ -64,11 +64,12 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
-                 catalog: str = None,
+                 catalog: str = "hive_metastore",
+                 per_user_catalog: bool = False,
                  lesson: str = None,
                  asynchronous: bool = True):
 
-        import re, time
+        import time
         from dbacademy.dbrest import DBAcademyRestClient
         from .workspace_helper import WorkspaceHelper
         from .dev_helper import DevHelper
@@ -79,6 +80,7 @@ class DBAcademyHelper:
 
         self.create_db = None
         self.catalog = catalog
+        self.per_user_catalog = per_user_catalog
         self.course_code = course_code
         self.course_name = course_name
         self.remote_files = remote_files
@@ -122,7 +124,7 @@ class DBAcademyHelper:
         # students. Used almost exclusively in the Rest notebook.
         working_dir_root = f"dbfs:/mnt/dbacademy-users/{self.username}/{self.course_name}"
 
-        # This is where the datasets will be downloaded to and should be treated as read-only for all pratical purposes
+        # This is where the datasets will be downloaded to and should be treated as read-only for all practical purposes
         datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.data_source_name}/{self.data_source_version}"
 
         if self.lesson is None:
@@ -134,16 +136,18 @@ class DBAcademyHelper:
                                user_db=f"{working_dir}/database.db",
                                enable_streaming_support=enable_streaming_support)
             # self.hidden = Paths(working_dir, None, enable_streaming_support)  # Create the "hidden" path
+            self.catalog = self.catalog if not per_user_catalog else self.clean_string(f"{self.unique_name}")
             self.db_name = self.db_name_prefix  # No lesson, database name is the same as prefix
         else:
-            working_dir = f"{working_dir_root}/{self.lesson}"  # Working directory now includes the lesson name
-            self.clean_lesson = re.sub(r"[^a-zA-Z\d]", "_", self.lesson.lower())  # Replace all special characters with underscores
+            working_dir = f"{working_dir_root}/{self.lesson}"           # Working directory now includes the lesson name
+            self.clean_lesson = self.clean_string(self.lesson.lower())  # Replace all special characters with underscores
             self.paths = Paths(working_dir_root=working_dir_root,
                                working_dir=working_dir,
                                datasets=datasets_path,
                                user_db=f"{working_dir}/{self.clean_lesson}.db",
                                enable_streaming_support=enable_streaming_support)
             # self.hidden = Paths(working_dir, self.clean_lesson, enable_streaming_support)  # Create the "hidden" path
+            self.catalog = self.catalog if not per_user_catalog else self.clean_string(f"{self.unique_name}_{self.lesson}")
             self.db_name = f"{self.db_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
 
     @property
