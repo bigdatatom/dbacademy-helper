@@ -26,7 +26,7 @@ class TestCase(object):
         if test_case_id is None:
             TestCase._LAST_ID += 1
             test_case_id = str(TestCase._LAST_ID)
-            
+
         self.test_case_id = f"{suite.name}-{test_case_id}"
 
         self.hint = hint

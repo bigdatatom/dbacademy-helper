@@ -26,7 +26,9 @@ class TestSuite(object):
         test_results = list()
 
         for test in self.test_cases:
-            skip = any(testId in failed_tests for testId in test.depends_on)
+            print(f"Test #{test.test_case_id}: test.depends_on")
+
+            skip = any(test_id in failed_tests for test_id in test.depends_on)
             result = TestResult(test, skip)
 
             if not result.passed and test.test_case_id is not None:
