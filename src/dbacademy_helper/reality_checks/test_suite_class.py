@@ -10,7 +10,6 @@ class TestSuite(object):
         self.name = name
         self.ids = set()
         self.test_cases = list()
-        self.test_results = None
 
     @lazy_property
     def test_results(self) -> List[TestResult]:
@@ -43,7 +42,7 @@ class TestSuite(object):
                  "<table class='" + css_class + "'>",
                  "  <tr><th class='points'>Points</th><th class='test'>Test</th><th class='result'>Result</th></tr>"]
 
-        for result in self.test_results:
+        for result in self.test_results():
             description_html = escape(str(result.test.description)) if result.test.escape_html else str(result.test.description)
             lines.append(f"<tr>")
             lines.append(f"  <td class='points'>{str(result.points)}</td>")
@@ -75,11 +74,11 @@ class TestSuite(object):
 
     @lazy_property
     def score(self) -> int:
-        return sum(map(lambda result: result.points, self.test_results))
+        return sum(map(lambda result: result.points, self.test_results()))
 
     @lazy_property
     def max_score(self) -> int:
-        return sum(map(lambda result: result.test.points, self.test_results))
+        return sum(map(lambda result: result.test.points, self.test_results()))
 
     @lazy_property
     def percentage(self) -> int:
