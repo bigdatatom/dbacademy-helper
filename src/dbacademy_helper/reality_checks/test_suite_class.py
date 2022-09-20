@@ -79,16 +79,15 @@ class TestSuite(object):
 
     @lazy_property
     def score(self) -> int:
-        return sum(map(lambda result: result.points, self.test_results()))
+        return sum(map(lambda result: result.points, self.test_results))
 
     @lazy_property
     def max_score(self) -> int:
-        return sum(map(lambda result: result.test.points, self.test_results()))
+        return sum(map(lambda result: result.test.points, self.test_results))
 
     @lazy_property
     def percentage(self) -> int:
-        max_score = self.max_score()
-        return 0 if max_score == 0 else int(100.0 * self.score() / max_score)
+        return 0 if self.max_score == 0 else int(100.0 * self.score() / self.max_score)
 
     @lazy_property
     def passed(self) -> bool:
