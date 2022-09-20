@@ -187,6 +187,19 @@ class TestSuite(object):
                                       hint=hint,
                                       test_function=lambda: actual_value is not None))
 
+    def test_length(self, actual_value: Any, expected_length: int, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+        from dbacademy_helper.tests.test_case_class import TestCase
+
+        return self.add_test(TestCase(suite=self,
+                                      test_case_id=test_case_id,
+                                      description=description,
+                                      actual_value=actual_value,
+                                      depends_on=depends_on,
+                                      escape_html=escape_html,
+                                      points=points,
+                                      hint=hint,
+                                      test_function=lambda: len(actual_value) == expected_length))
+
     def fail_pre_req(self, *, test_case_id: str, e: Exception, depends_on: Iterable[str] = None):
         self.fail(test_case_id=test_case_id,
                   points=1,
