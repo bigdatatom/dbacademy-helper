@@ -47,7 +47,7 @@ class TestSuite(object):
                  "<table class='" + css_class + "'>",
                  "  <tr><th class='points'>Points</th><th class='test'>Test</th><th class='result'>Result</th></tr>"]
 
-        for result in self.test_results():
+        for result in self.test_results:
             description_html = escape(str(result.test.description)) if result.test.escape_html else str(result.test.description)
             lines.append(f"<tr>")
             lines.append(f"  <td class='points'>{str(result.points)}</td>")
