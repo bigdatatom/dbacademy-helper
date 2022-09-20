@@ -231,6 +231,7 @@ class DBAcademyHelper:
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
+        import time
 
         self.create_catalog = create_catalog  # Flag to indicate if we are creating the schema or not
         self.create_db = create_db          # Flag to indicate if we are creating the database or not
@@ -241,20 +242,24 @@ class DBAcademyHelper:
         if not self.uc_enabled and create_catalog:
             raise Exception(f"Unity Catalog is not enabled but create_catalog was set to True")
 
+        start = int(time.time())
         if create_catalog and create_db:
-            print(f"\nCreating the catalog and schema {self.catalog_name}.{self.db_name}")
+            print(f"\nCreating the catalog and schema {self.catalog_name}.{self.db_name}", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             dbgems.sql(f"USE {self.db_name}")
+            print(f"({int(time.time()) - start} seconds)")
         elif create_catalog:
-            print(f"\nCreating the catalog {self.db_name}")
+            print(f"\nCreating the catalog {self.db_name}", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
+            print(f"({int(time.time()) - start} seconds)")
         elif create_db:
-            print(f"\nCreating the schema {self.db_name}")
+            print(f"\nCreating the schema {self.db_name}", end="...")
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             dbgems.sql(f"USE {self.db_name}")
+            print(f"({int(time.time()) - start} seconds)")
 
     def reset_environment(self):
         return self.cleanup(validate_datasets=False)
