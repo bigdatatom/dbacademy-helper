@@ -78,7 +78,9 @@ class DBAcademyHelper:
         self.start = int(time.time())
         self.spark = dbgems.get_spark_session()
 
-        self.create_db = None
+        self.create_schema = None  # Initialized in the call to init()
+        self.create_db = None      # Initialized in the call to init()
+
         self.catalog = catalog
         self.per_user_catalog = per_user_catalog
         self.course_code = course_code
@@ -219,18 +221,22 @@ class DBAcademyHelper:
 
         return None if delete else function_ref
 
-    def init(self, install_datasets, create_db):
+    def init(self, *, install_datasets: bool, create_schema: bool, create_db: bool):
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
 
-        self.create_db = create_db  # Flag to indicate if we are creating the database or not
+        self.create_schema = create_schema  # Flag to indicate if we are creating the schema or not
+        self.create_db = create_db          # Flag to indicate if we are creating the database or not
 
         if install_datasets:
             self.install_datasets()
 
+        if create_schema:
+            self.spark.sql(f"CREATE CATALOG IF NOT EXISTS ${self.catalog}")
+            self.spark.sql(f"USE CATALOG {self.catalog}")
+
         if create_db:
-            # print(f"\nCreating the database \"{self.db_name}\"")
             self.spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             self.spark.sql(f"USE {self.db_name}")
 
