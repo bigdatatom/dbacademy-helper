@@ -23,9 +23,6 @@ class TestCase(object):
 
         assert type(description) == str, f"Expected the parameter \"description\" to be of type str, found {type(description)}."
 
-        assert actual_value is not None, "The parameter \"actual_value\" must be specified."
-        self.actual_value = actual_value
-
         if test_case_id is None:
             TestCase._LAST_ID += 1
             test_case_id = str(TestCase._LAST_ID)
@@ -37,6 +34,7 @@ class TestCase(object):
         self.escape_html = escape_html
         self.description = description
         self.test_function = test_function
+        self.actual_value = actual_value
 
         depends_on = depends_on or [suite.last_test_id()]
         self.depends_on = depends_on if type(depends_on) is list else [depends_on]
