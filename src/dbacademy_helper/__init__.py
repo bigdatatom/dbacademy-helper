@@ -64,7 +64,7 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
-                 catalog: str = None,
+                 catalog_name: str = None,
                  per_user_catalog: bool = False,
                  lesson: str = None,
                  asynchronous: bool = True):
@@ -129,8 +129,8 @@ class DBAcademyHelper:
         datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.data_source_name}/{self.data_source_version}"
 
         # We can start by getting the current catalog if one was not specified and then adjusting if needing a per-user catalog
-        self.catalog = catalog or dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
-        self.catalog = self.clean_string(f"{self.unique_name}") if per_user_catalog else self.catalog
+        self.catalog_name = catalog_name or dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
+        self.catalog_name = self.clean_string(f"{self.unique_name}") if per_user_catalog else self.catalog_name
 
         if self.lesson is None:
             self.clean_lesson = None
@@ -234,10 +234,12 @@ class DBAcademyHelper:
             self.install_datasets()
 
         if create_catalog:
-            dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog}")
-            dbgems.sql(f"USE CATALOG {self.catalog}")
+            print(f"Creating the catalog {self.catalog_name}")
+            dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
+            dbgems.sql(f"USE CATALOG {self.catalog_name}")
 
         if create_db:
+            print(f"Creating the database {self.db_name}")
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             dbgems.sql(f"USE {self.db_name}")
 
@@ -245,7 +247,7 @@ class DBAcademyHelper:
         return self.cleanup(validate_datasets=False)
 
     def cleanup(self, validate_datasets=True):
-        import pyspark.sql.functions as F
+        from pyspark.sql.functions import col
         """
         Cleans up the user environment by stopping any active streams, dropping the database created by the call to init() and removing the user's lesson-specific working directory and any assets created in that directory.
         """
@@ -271,7 +273,7 @@ class DBAcademyHelper:
 
         if drop_db:
             start = int(time.time())
-            if dbgems.get_spark_session().sql(f"show databases").filter(F.col("databaseName") == self.db_name).count() > 0:
+            if dbgems.get_spark_session().sql(f"show databases").filter(col("databaseName") == self.db_name).count() > 0:
                 print(f"...dropping the database \"{self.db_name}\"", end="...")
                 self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
                 print(f"({int(time.time())-start} seconds)")
@@ -358,8 +360,8 @@ class DBAcademyHelper:
         self.spark.conf.set("da.db_name", self.db_name)
         self.spark.conf.set("DA.db_name", self.db_name)
 
-        self.spark.conf.set("da.catalog", self.catalog)
-        self.spark.conf.set("DA.catalog", self.catalog)
+        self.spark.conf.set("da.catalog", self.catalog_name)
+        self.spark.conf.set("DA.catalog", self.catalog_name)
 
         # Automatically add all path attributes to the SQL context as well.
         for key in self.paths.__dict__:
