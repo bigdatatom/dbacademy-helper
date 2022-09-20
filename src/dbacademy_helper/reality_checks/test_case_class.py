@@ -9,7 +9,7 @@ class TestCase(object):
                  *,
                  suite,
                  test_function: Callable[[], Any],
-                 description: str = None,
+                 description: str,
                  test_case_id: str = None,
                  depends_on: List[str] = None,
                  escape_html: bool = False,
@@ -21,7 +21,9 @@ class TestCase(object):
 
         # Because I cannot figure out how to resolve circular references
         expected_type = "<class 'dbacademy_helper.reality_checks.test_suite_class.TestSuite'>"
-        assert str(type(suite)) == expected_type, f"Expected the parameter \"suite\" to be of type TestSuite, found {type(suite)}"
+        assert str(type(suite)) == expected_type, f"Expected the parameter \"suite\" to be of type TestSuite, found {type(suite)}."
+
+        assert type(description) == str, f"Expected the parameter \"description\" to be of type str, found {type(description)}."
 
         if test_case_id is None:
             TestCase._LAST_ID += 1
