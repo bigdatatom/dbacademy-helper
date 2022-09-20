@@ -1,9 +1,5 @@
-# noinspection PyPep8Naming
-import builtins as BI
-from dbacademy_helper.reality_checks.test_result_class import TestResult
-
-
 class __TestResultsAggregator(object):
+    from dbacademy_helper.reality_checks.test_result_class import TestResult
 
     testResults = dict()
 
@@ -13,15 +9,15 @@ class __TestResultsAggregator(object):
 
     @property
     def score(self) -> int:
-        return BI.sum(map(lambda result: result.points, self.testResults.values()))
+        return sum(map(lambda result: result.points, self.testResults.values()))
 
     @property
     def max_score(self) -> int:
-        return BI.sum(map(lambda result: result.test.points, self.testResults.values()))
+        return sum(map(lambda result: result.test.points, self.testResults.values()))
 
     @property
     def percentage(self) -> int:
-        return 0 if self.max_score == 0 else BI.int(100.0 * self.score / self.max_score)
+        return 0 if self.max_score == 0 else int(100.0 * self.score / self.max_score)
 
     @property
     def passed(self) -> bool:

@@ -1,11 +1,10 @@
-from dbacademy_helper.reality_checks import lazy_property
-from dbacademy_helper.reality_checks.test_result_class import TestResult
-from dbacademy_helper.reality_checks.test_case_class import TestCase
-
 class TestSuite(object):
     import pyspark
     from pyspark.sql import DataFrame, Row
     from typing import List, Callable, Iterable, Any
+    from dbacademy_helper.reality_checks import lazy_property
+    from dbacademy_helper.reality_checks.test_result_class import TestResult
+    from dbacademy_helper.reality_checks.test_case_class import TestCase
 
     def __init__(self, name) -> None:
         self.name = name

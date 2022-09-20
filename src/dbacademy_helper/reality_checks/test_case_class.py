@@ -1,5 +1,3 @@
-from dbacademy_helper.reality_checks.test_suite_class import TestSuite
-
 class TestCase(object):
     from typing import Callable, Any, Iterable
 
@@ -7,7 +5,7 @@ class TestCase(object):
 
     def __init__(self,
                  *,
-                 suite: TestSuite,
+                 suite,
                  test_function: Callable[[], Any],
                  description: str = None,
                  test_case_id: str = None,
@@ -18,6 +16,8 @@ class TestCase(object):
 
         from typing import List
         import uuid
+
+        assert str(type(suite)) == "TestSuite", f"Expected the parameter \"suite\" to be of type TestSuite, found {type(suite)}"
 
         self.test_case_id = f"{suite.name}-{test_case_id}" or f"{suite.name}-{uuid.uuid4()}"
         self.hint = hint
