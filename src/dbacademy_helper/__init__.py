@@ -64,7 +64,7 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
-                 catalog: str = "hive_metastore",
+                 catalog: str = None,
                  per_user_catalog: bool = False,
                  lesson: str = None,
                  asynchronous: bool = True):
@@ -81,8 +81,9 @@ class DBAcademyHelper:
         self.create_catalog = None  # Initialized in the call to init()
         self.create_db = None       # Initialized in the call to init()
 
-        self.catalog = catalog
+        self.catalog = catalog or dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
         self.per_user_catalog = per_user_catalog
+
         self.course_code = course_code
         self.course_name = course_name
         self.remote_files = remote_files
