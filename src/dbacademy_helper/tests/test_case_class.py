@@ -40,5 +40,5 @@ class TestCase(object):
         self.depends_on = depends_on if type(depends_on) is list else [depends_on]
 
     def update_hint(self):
-        self.hint = self.hint.replace("[[ACTUAL_VALUE]]", self.actual_value)
-        self.hint = self.hint.replace("[[LEN_ACTUAL_VALUE]]", len(self.actual_value))
+        self.hint = self.hint.replace("[[ACTUAL_VALUE]]", str(self.actual_value))
+        self.hint = self.hint.replace("[[LEN_ACTUAL_VALUE]]", str(len(self.actual_value)))
