@@ -1,7 +1,9 @@
 class TestResult(object):
+    from dbacademy_helper.reality_checks.test_case_class import TestCase
+
     __slots__ = ('test', 'skipped', 'passed', 'status', 'points', 'exception', 'message')
 
-    def __init__(self, test, skipped=False):
+    def __init__(self, test: TestCase, skipped: bool = False):
         try:
             self.test = test
             self.skipped = skipped
@@ -10,7 +12,7 @@ class TestResult(object):
                 self.passed = False
                 self.points = 0
             else:
-                assert test.testFunction(), "Test returned false"
+                assert test.test_function(), "Test returned false"
                 self.status = "passed"
                 self.passed = True
                 self.points = self.test.points

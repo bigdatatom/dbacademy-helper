@@ -1,19 +1,20 @@
 class __TestResultsAggregator(object):
+    from typing import Dict
     from dbacademy_helper.reality_checks.test_result_class import TestResult
 
-    testResults = dict()
+    test_results: Dict[str, TestResult] = dict()
 
     def update(self, result: TestResult):
-        self.testResults[result.test.id] = result
+        self.test_results[result.test.test_case_id] = result
         return result
 
     @property
     def score(self) -> int:
-        return sum(map(lambda result: result.points, self.testResults.values()))
+        return sum(map(lambda result: result.points, self.test_results.values()))
 
     @property
     def max_score(self) -> int:
-        return sum(map(lambda result: result.test.points, self.testResults.values()))
+        return sum(map(lambda result: result.test.points, self.test_results.values()))
 
     @property
     def percentage(self) -> int:
