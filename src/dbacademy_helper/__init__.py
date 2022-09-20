@@ -81,9 +81,7 @@ class DBAcademyHelper:
         self.create_catalog = None  # Initialized in the call to init()
         self.create_db = None       # Initialized in the call to init()
 
-        self.catalog = catalog or dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
         self.per_user_catalog = per_user_catalog
-
         self.course_code = course_code
         self.course_name = course_name
         self.remote_files = remote_files
@@ -130,6 +128,10 @@ class DBAcademyHelper:
         # This is where the datasets will be downloaded to and should be treated as read-only for all practical purposes
         datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.data_source_name}/{self.data_source_version}"
 
+        # We can start by getting the current catalog if one was not specified and then adjusting if needing a per-user catalog
+        self.catalog = catalog or dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
+        self.catalog = self.clean_string(f"{self.unique_name}") if per_user_catalog else self.catalog
+
         if self.lesson is None:
             self.clean_lesson = None
             working_dir = working_dir_root  # No lesson, working dir is same as root
@@ -139,7 +141,6 @@ class DBAcademyHelper:
                                user_db=f"{working_dir}/database.db",
                                enable_streaming_support=enable_streaming_support)
             # self.hidden = Paths(working_dir, None, enable_streaming_support)  # Create the "hidden" path
-            self.catalog = self.catalog if not per_user_catalog else self.clean_string(f"{self.unique_name}")
             self.db_name = self.db_name_prefix  # No lesson, database name is the same as prefix
         else:
             working_dir = f"{working_dir_root}/{self.lesson}"           # Working directory now includes the lesson name
@@ -150,7 +151,6 @@ class DBAcademyHelper:
                                user_db=f"{working_dir}/{self.clean_lesson}.db",
                                enable_streaming_support=enable_streaming_support)
             # self.hidden = Paths(working_dir, self.clean_lesson, enable_streaming_support)  # Create the "hidden" path
-            self.catalog = self.catalog if not per_user_catalog else self.clean_string(f"{self.unique_name}_{self.lesson}")
             self.db_name = f"{self.db_name_prefix}_{self.clean_lesson}"  # Database name includes the lesson name
 
     @property
