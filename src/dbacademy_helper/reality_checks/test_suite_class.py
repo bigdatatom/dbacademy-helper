@@ -7,7 +7,8 @@ class TestSuite(object):
     from .test_result_class import TestResult
     from .test_case_class import TestCase
 
-    def __init__(self) -> None:
+    def __init__(self, name) -> None:
+        self.name = name
         self.ids = set()
         self.score = 0
         self.test_cases = list()

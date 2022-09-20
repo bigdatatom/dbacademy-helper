@@ -6,6 +6,10 @@ class RealityChecksHelper:
         self.da = da
         self.client = da.client
 
+    # noinspection PyMethodMayBeStatic
+    def new(self, name):
+        from .test_suite_class import TestSuite
+        return TestSuite(name)
 
 # Decorator to lazy evaluate - used by TestSuite
 def lazy_property(fn):
