@@ -17,7 +17,9 @@ class TestCase(object):
         from typing import List
         import uuid
 
-        assert str(type(suite)) == "TestSuite", f"Expected the parameter \"suite\" to be of type TestSuite, found {type(suite)}"
+        # Because I cannot figure out how to resolve circular references
+        expected_type = "<class 'dbacademy_helper.reality_checks.test_suite_class.TestSuite'>"
+        assert str(type(suite)) == expected_type, f"Expected the parameter \"suite\" to be of type TestSuite, found {type(suite)}"
 
         self.test_case_id = f"{suite.name}-{test_case_id}" or f"{suite.name}-{uuid.uuid4()}"
         self.hint = hint
