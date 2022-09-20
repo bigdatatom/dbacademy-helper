@@ -1,0 +1,26 @@
+class TestCase(object):
+    from typing import Callable, Any, Iterable
+
+    __slots__ = ('description', 'test_function', 'test_case_id', 'unique_id', 'depends_on', 'escape_html', 'points', 'hint')
+
+    def __init__(self,
+                 *,
+                 description: str,
+                 test_function: Callable[[], Any],
+                 test_case_id: str = None,
+                 depends_on: Iterable[str] = None,
+                 escape_html: bool = False,
+                 points: int = 1,
+                 hint=None):
+
+        from typing import List
+
+        self.test_case_id = test_case_id
+        self.hint = hint
+        self.points = points
+        self.escape_html = escape_html
+        self.description = description
+        self.test_function = test_function
+
+        depends_on = depends_on or []
+        self.depends_on = depends_on if type(depends_on) is List else [depends_on]

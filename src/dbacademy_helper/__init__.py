@@ -70,6 +70,7 @@ class DBAcademyHelper:
         from dbacademy.dbrest import DBAcademyRestClient
         from .workspace_helper import WorkspaceHelper
         from .dev_helper import DevHelper
+        from .reality_checks import RealityChecksHelper
 
         self.start = int(time.time())
         self.spark = dbgems.get_spark_session()
@@ -88,6 +89,7 @@ class DBAcademyHelper:
         self.client = DBAcademyRestClient()
         self.workspace = WorkspaceHelper(self)
         self.dev = DevHelper(self)
+        self.rc = RealityChecks()
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
