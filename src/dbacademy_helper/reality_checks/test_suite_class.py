@@ -55,7 +55,8 @@ class TestSuite(object):
             lines.append(f"    {description_html}")
 
             if result.status == "failed" and result.test.hint:
-                lines.append(f"  <div class='note'>Hint: {escape(str(result.test.hint))}</div>")
+                hint_html = escape(str(result.test.hint)) if result.test.escape_html else str(result.test.hint)
+                lines.append(f"  <div class='note'>Hint: {hint_html}</div>")
 
             if result.message:
                 lines.append(f"    <hr/>")
