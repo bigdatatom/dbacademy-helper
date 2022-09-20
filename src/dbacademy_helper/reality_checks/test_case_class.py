@@ -36,13 +36,4 @@ class TestCase(object):
         self.test_function = test_function
 
         depends_on = depends_on or [suite.last_test_id()]
-        print(f"-"*80)
-        print(f"Depends On:           {depends_on} | {type(depends_on)}")
-        print(f"suite.last_test_id(): {suite.last_test_id()} | {type(suite.last_test_id())}")
-
-        if type(depends_on) is List:
-            print(f"Type is already {type(depends_on)}")
-            self.depends_on = depends_on
-        else:
-            print(f"Type was {type(depends_on)}")
-            self.depends_on = [depends_on]
+        self.depends_on = depends_on if type(depends_on) is list else [depends_on]

@@ -28,8 +28,6 @@ class TestSuite(object):
         print("-"*80)
 
         for test in self.test_cases:
-            print(f"Test #{test.test_case_id}: {test.depends_on}")
-
             skip = any(test_id in failed_tests for test_id in test.depends_on)
             result = TestResult(test, skip)
 

@@ -15,6 +15,8 @@ class MyTestCase(unittest.TestCase):
         b = "banana"
         suite.test_equals(a, b)
 
+        suite.display_results()
+
 
 if __name__ == '__main__':
     unittest.main()
