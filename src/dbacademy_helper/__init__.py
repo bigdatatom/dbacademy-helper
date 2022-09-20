@@ -55,6 +55,7 @@ class Paths:
 
 class DBAcademyHelper:
     def __init__(self,
+                 *,
                  course_code: str,
                  course_name: str,
                  data_source_name: str,
@@ -63,6 +64,7 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
+                 catalog: str = None,
                  lesson: str = None,
                  asynchronous: bool = True):
 
@@ -76,6 +78,7 @@ class DBAcademyHelper:
         self.spark = dbgems.get_spark_session()
 
         self.create_db = None
+        self.catalog = catalog
         self.course_code = course_code
         self.course_name = course_name
         self.remote_files = remote_files
@@ -336,12 +339,15 @@ class DBAcademyHelper:
 
         import time
 
-        # Inject the user's database name
         # Add custom attributes to the SQL context here.
         self.spark.conf.set("da.username", self.username)
         self.spark.conf.set("DA.username", self.username)
+
         self.spark.conf.set("da.db_name", self.db_name)
         self.spark.conf.set("DA.db_name", self.db_name)
+
+        self.spark.conf.set("da.catalog", self.catalog)
+        self.spark.conf.set("DA.catalog", self.catalog)
 
         # Automatically add all path attributes to the SQL context as well.
         for key in self.paths.__dict__:
