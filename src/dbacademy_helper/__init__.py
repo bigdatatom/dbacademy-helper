@@ -89,7 +89,7 @@ class DBAcademyHelper:
         self.client = DBAcademyRestClient()
         self.workspace = WorkspaceHelper(self)
         self.dev = DevHelper(self)
-        self.rc = RealityChecks()
+        self.rc = RealityChecksHelper(self)
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
