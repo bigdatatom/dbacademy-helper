@@ -64,7 +64,7 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
-                 catalog: str = "hive_metastore",
+                 catalog: str = "spark_catalog",
                  per_user_catalog: bool = False,
                  lesson: str = None,
                  asynchronous: bool = True):
