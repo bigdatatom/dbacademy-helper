@@ -1,15 +1,18 @@
+from typing import List, Callable, Iterable, Any
+
 class TestSuite(object):
     import pyspark
     from pyspark.sql import DataFrame, Row
-    from typing import List, Callable, Iterable, Any
     from dbacademy_helper.reality_checks import lazy_property
     from dbacademy_helper.reality_checks.test_result_class import TestResult
     from dbacademy_helper.reality_checks.test_case_class import TestCase
 
     def __init__(self, name) -> None:
+        from dbacademy_helper.reality_checks.test_case_class import TestCase
+
         self.name = name
         self.ids = set()
-        self.test_cases = list()
+        self.test_cases: List[TestCase] = list()
 
     @lazy_property
     def test_results(self) -> List[TestResult]:
@@ -26,8 +29,8 @@ class TestSuite(object):
             skip = any(testId in failed_tests for testId in test.depends_on)
             result = TestResult(test, skip)
 
-            if not result.passed and test.id is not None:
-                failed_tests.add(test.id)
+            if not result.passed and test.test_case_id is not None:
+                failed_tests.add(test.test_case_id)
 
             test_results.append(result)
             TestResultsAggregator.update(result)
@@ -90,7 +93,7 @@ class TestSuite(object):
         return self.percentage == 100
 
     def last_test_id(self) -> bool:
-        return "-n/a-" if len(self.test_cases) == 0 else self.test_cases[-1].id
+        return "-n/a-" if len(self.test_cases) == 0 else self.test_cases[-1].test_case_id
 
     def add_test(self, test_case: TestCase):
         if not test_case.test_case_id: raise ValueError("The test cases' id must be specified")
