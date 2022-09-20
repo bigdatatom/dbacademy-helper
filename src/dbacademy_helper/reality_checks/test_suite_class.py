@@ -113,7 +113,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
@@ -125,7 +125,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
@@ -137,7 +137,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
@@ -149,7 +149,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
@@ -158,7 +158,7 @@ class TestSuite(object):
     def fail_pre_req(self, *, test_case_id: str, e: Exception, depends_on: Iterable[str] = None):
         self.fail(test_case_id=test_case_id,
                   points=1,
-                  depends_on=depends_on or list(),
+                  depends_on=depends_on,
                   escape_html=False,
                   description=f"""<div>Execute prerequisites.</div><div style='max-width: 1024px; overflow-x:auto'>{e}</div>""")
 
@@ -168,7 +168,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       test_function=lambda: False))
@@ -179,7 +179,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       test_function=lambda: self.compare_floats(value_a, value_b, tolerance)))
@@ -201,7 +201,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       test_function=lambda: self.compare_data_frames(df_a, df_b)))
@@ -212,7 +212,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
-                                      depends_on=depends_on or list(),
+                                      depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
                                       test_function=lambda: value in list_of_values))
