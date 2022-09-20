@@ -1,12 +1,14 @@
 class TestCase(object):
     from typing import Callable, Any, Iterable
+    from dbacademy_helper.reality_checks.test_suite_class import TestSuite
 
     __slots__ = ('description', 'test_function', 'test_case_id', 'unique_id', 'depends_on', 'escape_html', 'points', 'hint')
 
     def __init__(self,
                  *,
-                 description: str,
+                 suite: TestSuite,
                  test_function: Callable[[], Any],
+                 description: str = None,
                  test_case_id: str = None,
                  depends_on: Iterable[str] = None,
                  escape_html: bool = False,
@@ -23,5 +25,5 @@ class TestCase(object):
         self.description = description
         self.test_function = test_function
 
-        depends_on = depends_on or []
+        depends_on = depends_on or [suite.last_test_id()]
         self.depends_on = depends_on if type(depends_on) is List else [depends_on]
