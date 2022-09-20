@@ -64,7 +64,6 @@ class DBAcademyHelper:
                  install_max_time: str,
                  enable_streaming_support: bool,
                  remote_files: list,
-                 catalog_name: str = None,
                  per_user_catalog: bool = False,
                  lesson: str = None,
                  asynchronous: bool = True):
@@ -129,9 +128,12 @@ class DBAcademyHelper:
         # This is where the datasets will be downloaded to and should be treated as read-only for all practical purposes
         datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.data_source_name}/{self.data_source_version}"
 
-        # We can start by getting the current catalog if one was not specified and then adjusting if needing a per-user catalog
-        self.catalog_name = catalog_name or dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
-        self.catalog_name = self.clean_string(f"{self.unique_name}") if per_user_catalog else self.catalog_name
+        # Figure out if we have UC enabled or not by looking at the current catalog
+        current_catalog = dbgems.get_spark_session().sql("SELECT current_catalog() as catalog").first()[0]
+        self.uc_enabled = current_catalog != "spark_catalog"
+
+        # Use the current catalog unless we want per-user catalogs
+        self.catalog_name = self.clean_string(f"{self.unique_name}") if per_user_catalog else current_catalog
 
         if self.lesson is None:
             self.clean_lesson = None
@@ -236,6 +238,9 @@ class DBAcademyHelper:
         if install_datasets:
             self.install_datasets()
 
+        if not self.uc_enabled and create_catalog:
+            raise Exception(f"Unity Catalog is not enabled but create_catalog was set to True")
+
         if create_catalog and create_db:
             print(f"\nCreating the catalog and schema {self.catalog_name}.{self.db_name}")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
@@ -280,11 +285,23 @@ class DBAcademyHelper:
             print(f"({int(time.time())-start} seconds)")
 
         if drop_db:
-            start = int(time.time())
-            if dbgems.get_spark_session().sql(f"show databases").filter(col("databaseName") == self.db_name).count() > 0:
-                print(f"...dropping the database \"{self.db_name}\"", end="...")
-                self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
-                print(f"({int(time.time())-start} seconds)")
+            if self.uc_enabled:
+                # With UC enabled, we need to drop all databases
+                dbgems.sql(f"USE CATALOG {self.catalog_name}")  # just in case
+
+                print(f"...dropping all database in \"{self.catalog_name}\"")
+                for db_name in [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]:
+                    start = int(time.time())
+                    print(f"...dropping the database \"{db_name}\"", end="...")
+                    dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {db_name} CASCADE")
+                    print(f"({int(time.time())-start} seconds)")
+            else:
+                # Without UC, we only want to drop the database provided to the learner
+                if dbgems.get_spark_session().sql(f"show databases").filter(col("databaseName") == self.db_name).count() > 0:
+                    start = int(time.time())
+                    print(f"...dropping the database \"{self.db_name}\"", end="...")
+                    self.spark.sql(f"DROP DATABASE {self.db_name} CASCADE")
+                    print(f"({int(time.time())-start} seconds)")
 
         if remove_wd:
             start = int(time.time())
