@@ -289,6 +289,9 @@ class DBAcademyHelper:
         if self.catalog_name is None:
             return  # No catalog name, nothing to create.
 
+        if self.__requires_uc is False:
+            return  # Too many features are unsupported to default to using UC catalogs.
+
         start = self.__start_clock()
 
         try:
@@ -297,7 +300,10 @@ class DBAcademyHelper:
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
             print(self.__stop_clock(start))
         except Exception as e:
-            raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog")) from e
+            if self.__requires_uc:
+                raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog (Required)")) from e
+            else:
+                raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog (Not Required)")) from e
 
     def __create_schema(self):
         start = self.__start_clock()
