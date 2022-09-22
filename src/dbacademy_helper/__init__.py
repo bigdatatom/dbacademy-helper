@@ -240,7 +240,7 @@ class DBAcademyHelper:
         if install_datasets: self.install_datasets()
 
         start = self.__start_clock()
-        if create_catalog and create_db: print(f"\nCreating the catalog and schema {self.catalog_name}.{self.db_name}", end="...")
+        if create_catalog and create_db: print(f"\nCreating the catalog and schema {self.__to_catalog_name(self.username)}.{self.db_name}", end="...")
         elif create_catalog: print(f"\nCreating the catalog {self.catalog_name}", end="...")
         else: print(f"\nCreating the schema {self.db_name}", end="...")
 
@@ -249,14 +249,18 @@ class DBAcademyHelper:
 
         print(self.__stop_clock(start))
 
+    @staticmethod
+    def __to_catalog_name(username):
+        local_part = username.split("@")[0]  # Split the username, dropping the domain
+        username_hash = abs(hash(username)) % 10000  # Create a has from the full username
+        return DBAcademyHelper.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
+
     def __create_catalog(self):
 
         if self.__is_uc_enabled_workspace:
             # The current catalog is Unity Catalog's default, and it's
             # our confirmation that we can create the user-specific catalog
-            local_part = self.username.split("@")[0]           # Split the username, dropping the domain
-            username_hash = abs(hash(self.username)) % 10000   # Create a has from the full username
-            self.catalog_name = self.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
+            self.catalog_name = self.__to_catalog_name(self.username)
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             # We are not creating the catalog because we cannot confirm that this is a UC environment.
