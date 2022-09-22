@@ -379,7 +379,7 @@ class DBAcademyHelper:
                 start = self.__start_clock()
                 print(f"......dropping the schema \"{schema_name}\"", end="...")
 
-                dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{schema_name} CASCADE")
+                dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{self.catalog_name}.{schema_name} CASCADE")
 
                 print(self.__stop_clock(start))
 
@@ -392,23 +392,28 @@ class DBAcademyHelper:
             except: pass  # Bury any exceptions
             print(self.__stop_clock(start))
 
-    def cleanup_databases(self):
-        schema_names = [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]
-        for schema_name in schema_names:
-            if schema_name.startswith(self.schema_name_prefix):
-                print(f"Dropping the database \"{schema_name}\"")
-                dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {schema_name} CASCADE")
+    def reset_databases(self):
+        if self.catalog_name is not None:
+            self.__cleanup_catalog()
+        else:
+            # This is a "classic" setup, drop all user-specific databases.
+            schema_names = [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]
+            for schema_name in schema_names:
+                if schema_name.startswith(self.schema_name_prefix) and schema_name != "default":
+                    print(f"Dropping the schema \"{schema_name}\"")
+                    dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {schema_name} CASCADE")
 
-    def cleanup_working_dir(self):
+    def reset_working_dir(self):
         # noinspection PyProtectedMember
         working_dir_root = self.paths._working_dir_root
+
         if Paths.exists(working_dir_root):
-            print(f"Removing the directory \"{working_dir_root}\"")
+            print(f"Deleting working directory \"{working_dir_root}\".")
             dbgems.get_dbutils().fs.rm(working_dir_root, True)
 
-    def cleanup_datasets(self):
+    def reset_datasets(self):
         if Paths.exists(self.paths.datasets):
-            print(f"Removing datasets from \"{self.paths.datasets}\"")
+            print(f"Deleting datasets \"{self.paths.datasets}\".")
             dbgems.get_dbutils().fs.rm(self.paths.datasets, True)
 
     def __cleanup_feature_store_tables(self):
