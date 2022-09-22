@@ -40,6 +40,7 @@ class DBAcademyHelper:
         self.__spark = dbgems.get_spark_session()
 
         # Initialized in the call to init()
+        self.__initialized = False
         self.create_db = False
         self.catalog_name = None
 
@@ -234,7 +235,8 @@ class DBAcademyHelper:
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
-
+        self.__initialized = True
+        
         if install_datasets: self.install_datasets()
 
         start = self.__start_clock()
