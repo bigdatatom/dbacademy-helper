@@ -492,8 +492,8 @@ class DBAcademyHelper:
         self.__spark.conf.set("da.username", self.username)
         self.__spark.conf.set("DA.username", self.username)
 
-        self.__spark.conf.set("da.catalog_name", self.catalog_name)
-        self.__spark.conf.set("DA.catalog_name", self.catalog_name)
+        if self.catalog_name: self.__spark.conf.set("da.catalog_name", self.catalog_name)
+        if self.catalog_name: self.__spark.conf.set("DA.catalog_name", self.catalog_name)
 
         self.__spark.conf.set("da.schema_name", self.schema_name)
         self.__spark.conf.set("DA.schema_name", self.schema_name)
