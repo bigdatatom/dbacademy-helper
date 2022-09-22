@@ -123,7 +123,7 @@ class DBAcademyHelper:
             self.dprint(f"UC required:    {self.__requires_uc}")
 
             # if UC is required, we are going to have to fail setup until the problem is addressed
-            if self.__requires_uc: raise AssertionError(self.__troubleshoot_error("This course requires Unity Catalog.", "Unity Catalog"))
+            if self.__requires_uc: raise AssertionError(self.__troubleshoot_error("This course requires Unity Catalog.", "Requires Unity Catalog"))
 
             # We are not creating the catalog because we cannot confirm that this is a UC environment.
             self.catalog_name = None
