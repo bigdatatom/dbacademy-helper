@@ -46,7 +46,7 @@ class DBAcademyHelper:
         # Initialized in the call to init()
         self.__initialized = False
         self.__smoke_test_lesson = False
-        self.create_db = False
+        self.created_db = False
 
         # Standard initialization
         self.asynchronous = asynchronous
@@ -355,15 +355,14 @@ class DBAcademyHelper:
 
     def __create_schema(self):
         start = self.clock_start()
-        self.create_db = True
+        self.created_db = True
 
         try:
+            print(f"Creating & using the schema \"{self.schema_name}\"", end="...")
             if self.catalog_name is None:
-                print(f"Creating & using the schema \"{self.schema_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.schema_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.schema_name}")
             else:
-                print(f"Creating & using the schema \"{self.catalog_name}.{self.schema_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.schema_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.catalog_name}.{self.schema_name}")
             print(self.clock_stopped(start))
@@ -551,7 +550,7 @@ class DBAcademyHelper:
         if self.catalog_name is not None:
             pass  # TODO - figure out what to advertise here.
 
-        if self.create_db:
+        if self.created_db:
             if self.catalog_name is None:
                 print(f"\nPredefined tables in \"{self.schema_name}\":")
             else:
