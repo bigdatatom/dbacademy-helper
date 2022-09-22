@@ -392,7 +392,13 @@ class DBAcademyHelper:
             except: pass  # Bury any exceptions
             print(self.__stop_clock(start))
 
-    def reset_databases(self):
+    def reset_learning_environment(self):
+        self.__reset_databases()
+        self.__reset_datasets()
+        self.__reset_working_dir()
+        print("Course environment was successfully reset.")
+
+    def __reset_databases(self):
         if self.catalog_name is not None:
             self.__cleanup_catalog()
         else:
@@ -403,7 +409,7 @@ class DBAcademyHelper:
                     print(f"Dropping the schema \"{schema_name}\"")
                     dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {schema_name} CASCADE")
 
-    def reset_working_dir(self):
+    def __reset_working_dir(self):
         # noinspection PyProtectedMember
         working_dir_root = self.paths._working_dir_root
 
@@ -411,7 +417,7 @@ class DBAcademyHelper:
             print(f"Deleting working directory \"{working_dir_root}\".")
             dbgems.get_dbutils().fs.rm(working_dir_root, True)
 
-    def reset_datasets(self):
+    def __reset_datasets(self):
         if Paths.exists(self.paths.datasets):
             print(f"Deleting datasets \"{self.paths.datasets}\".")
             dbgems.get_dbutils().fs.rm(self.paths.datasets, True)
