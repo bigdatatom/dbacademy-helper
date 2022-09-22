@@ -87,16 +87,17 @@ class DBAcademyHelper:
 
         # This is the location in our Azure data repository of the datasets for this lesson
         self.staging_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/_dbacademy-datasets-staging/{self.data_source_name}/{self.data_source_version}"
+        self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.data_source_name}/{self.data_source_version}"
         try:
             files = dbgems.get_dbutils().ls(self.staging_source_uri)
+            print(f"Found {len(files)}")
             if len(files) > 0:
                 self.data_source_uri = self.staging_source_uri
                 print("*"*80)
                 print(f"* Found Staging-Datasets for {self.data_source_name}/{self.data_source_version}")
                 print(f"* Using alternate install location.")
                 print("*"*80)
-        except:
-            self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.data_source_name}/{self.data_source_version}"
+        except: pass
 
         ###########################################################################################
         # The follow section focuses on the schema and catalog names.
