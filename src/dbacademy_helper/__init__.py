@@ -108,11 +108,13 @@ class DBAcademyHelper:
         if self.__is_uc_enabled_workspace:
             if not self.__requires_uc:
                 # We currently cannot use catalogs unless it's specifically required do to various UC limitations
+                self.dprint("Does not require UC, skipping catalog, creating schema")
                 self.catalog_name = None
                 self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
             else:
                 # The current catalog is Unity Catalog's default, and it's
                 # our confirmation that we can create the user-specific catalog
+                self.dprint("UC is required, creating catalog, skipping schema")
                 self.catalog_name = self.to_catalog_name(self.username)
                 self.schema_name_prefix = "default"
 
@@ -173,7 +175,7 @@ class DBAcademyHelper:
 
     def dprint(self, message):
         if self.__debug:
-            print(message)
+            print(f"DEBUG: {message}")
 
     @staticmethod
     def to_catalog_name(username):
