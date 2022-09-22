@@ -636,6 +636,11 @@ class DBAcademyHelper:
         """
         Utility method to compare local datasets to the registered list of remote files.
         """
+        if self.staging_source_uri == self.data_source_uri:
+            start = self.clock_start()
+            print("Enumerating staged files for validation", end="...")
+            self.remote_files = self.list_r(self.staging_source_uri)
+            print(self.clock_stopped(start))
 
         start = self.clock_start()
         local_files = self.list_r(self.paths.datasets)
