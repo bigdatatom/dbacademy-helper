@@ -99,7 +99,7 @@ class DBAcademyHelper:
                 print(f"* Using alternate install location.")
                 print("*"*80)
         except Exception as e:
-            print(e)
+            print(f"Some Exception: {e}")
 
         ###########################################################################################
         # The follow section focuses on the schema and catalog names.
