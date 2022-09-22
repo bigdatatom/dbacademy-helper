@@ -12,6 +12,7 @@ from dbacademy_gems import dbgems
 class DBAcademyHelper:
     from deprecated.classic import deprecated
 
+    INFORMATION_SCHEMA = "information_schema"
     SMOKE_TEST_KEY = "dbacademy.smoke-test"
 
     CATALOG_SPARK_DEFAULT = "spark_catalog"
@@ -319,34 +320,21 @@ class DBAcademyHelper:
         if install_datasets: self.install_datasets()  # Install the data
         print()
 
-        if create_catalog:
-            self.dprint(f"create_catalog: True")
-            if not self.__create_catalog():     # Create the UC catalog
-                self.dprint(f"Create catalog failed, create schema instead")
-                self.__create_schema()          # No catalog, create a schema instead
-        elif create_db:
-            self.dprint(f"Catalog==False, create schema instead")
-            self.__create_schema()              # Create the Schema (is not a catalog)
+        if create_catalog: self.__create_catalog()  # Create the UC catalog
+        if create_db: self.__create_schema()        # Create the Schema (is not a catalog)
 
-        self.__initialized = True               # Set the all-done flag.
+        self.__initialized = True                   # Set the all-done flag.
 
-    def __create_catalog(self) -> bool:
-        if self.catalog_name is None:
-            self.dprint(f"No catalog name found.")
-            return False  # No catalog name, nothing to create.
-
-        if self.__requires_uc is False:
-            self.dprint(f"UC is not required, bailing on create catalog.")
-            return False  # Too many features are unsupported to default to using UC catalogs.
-
-        start = self.clock_start()
+    def __create_catalog(self):
+        if self.catalog_name is None: return
+        if self.__requires_uc is False: return
 
         try:
+            start = self.clock_start()
             print(f"Creating & using the catalog \"{self.catalog_name}\"", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
             print(self.clock_stopped(start))
-            return True
 
         except Exception as e:
             if self.__requires_uc:
@@ -413,7 +401,7 @@ class DBAcademyHelper:
     # Without UC, we only want to drop the database provided to the learner
     def __cleanup_schema(self):
         start = self.clock_start()
-        print(f"...dropping the database \"{self.schema_name}\"", end="...")
+        print(f"...dropping the schema \"{self.schema_name}\"", end="...")
 
         self.__spark.sql(f"DROP DATABASE {self.schema_name} CASCADE")
 
@@ -430,8 +418,8 @@ class DBAcademyHelper:
 
         print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
         for schema_name in [d[0] for d in dbgems.get_spark_session().sql(f"show databases").collect()]:
-            if schema_name in ["default", "information_schema"] or schema_name.startswith("_"):
-                print(f"......keeping the schema \"{schema_name}\".")
+            if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"):
+                print(f"......skipping the schema \"{schema_name}\".")
             else:
                 start = self.clock_start()
                 print(f"......dropping the schema \"{schema_name}\"", end="...")
@@ -552,7 +540,7 @@ class DBAcademyHelper:
         schemas = [self.schema_name] if self.catalog_name is None else [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
 
         # Skip over those special, to-be-ignored schemas.
-        ignored_schemas = ["information_schema"]
+        ignored_schemas = [DBAcademyHelper.INFORMATION_SCHEMA]
         for schema in ignored_schemas:
             if schema in schemas:
                 del schemas[schemas.index(schema)]
