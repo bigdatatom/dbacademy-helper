@@ -109,9 +109,7 @@ class DBAcademyHelper:
             else:
                 # The current catalog is Unity Catalog's default, and it's
                 # our confirmation that we can create the user-specific catalog
-                local_part = self.username.split("@")[0]  # Split the username, dropping the domain
-                username_hash = abs(hash(self.username)) % 10000  # Create a has from the full username
-                self.catalog_name = self.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
+                self.catalog_name = self.to_catalog_name(self.username)
 
                 self.schema_name_prefix = "default"
 
@@ -169,6 +167,12 @@ class DBAcademyHelper:
                            datasets=datasets_path,
                            user_db=user_db_path,
                            enable_streaming_support=enable_streaming_support)
+
+    @staticmethod
+    def to_catalog_name(username):
+        local_part = username.split("@")[0]  # Split the username, dropping the domain
+        username_hash = abs(hash(username)) % 10000  # Create a has from the full username
+        return DBAcademyHelper.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
 
     @property
     @deprecated(reason="Use DBAcademyHelper.schema_name_prefix instead", action="ignore")
