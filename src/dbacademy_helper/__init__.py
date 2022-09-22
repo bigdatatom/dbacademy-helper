@@ -236,6 +236,7 @@ class DBAcademyHelper:
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
         if install_datasets: self.install_datasets()  # Install the data
+        print()
         if create_catalog: self.__create_catalog()    # Create the UC catalog
         if create_db: self.__create_schema()          # Create the Schema
 
@@ -265,7 +266,7 @@ class DBAcademyHelper:
         self.__schema_name_prefix = "default"
 
         try:
-            print(f"\nCreating the catalog {self.catalog_name}", end="...")
+            print(f"Creating the catalog {self.catalog_name}", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
             print(self.__stop_clock(start))
@@ -277,7 +278,7 @@ class DBAcademyHelper:
         self.create_db = True
 
         try:
-            print(f"\nCreating the schema {self.db_name}", end="...")
+            print(f"Creating the schema {self.db_name}", end="...")
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             dbgems.sql(f"USE {self.db_name}")
             print(self.__stop_clock(start))
