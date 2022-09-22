@@ -184,7 +184,7 @@ class DBAcademyHelper:
     def to_catalog_name(username):
         local_part = username.split("@")[0]  # Split the username, dropping the domain
         username_hash = abs(hash(username)) % 10000  # Create a has from the full username
-        return DBAcademyHelper.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
+        return DBAcademyHelper.clean_string(f"{local_part}-{username_hash}-dbacademy").lower()
 
     @property
     @deprecated(reason="Use DBAcademyHelper.schema_name_prefix instead", action="ignore")
@@ -419,7 +419,7 @@ class DBAcademyHelper:
         print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
         for schema_name in [d[0] for d in dbgems.get_spark_session().sql(f"show databases").collect()]:
             if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"):
-                print(f"......skipping the schema \"{schema_name}\".")
+                print(f"......keeping the schema \"{schema_name}\".")
             else:
                 start = self.clock_start()
                 print(f"......dropping the schema \"{schema_name}\"", end="...")
@@ -839,8 +839,8 @@ class DBAcademyHelper:
 class Paths:
     def __init__(self, working_dir_root: str, working_dir: str, datasets: str, user_db: Union[str, None], enable_streaming_support: bool):
 
-        self.user_db = user_db
         self.datasets = datasets
+        self.user_db = user_db
         self.working_dir = working_dir
 
         self._working_dir_root = working_dir_root
