@@ -19,7 +19,7 @@ class MyTestCase(unittest.TestCase):
     def test_to_database_name(self):
         username = "john.doe@example.com"
         course_code = self.helper.course_code
-        db_name = DBAcademyHelper.to_database_name(username, course_code)
+        db_name = DBAcademyHelper.to_schema_name(username, course_code)
 
         self.assertEqual("adf", db_name)
 
