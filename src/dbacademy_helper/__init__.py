@@ -92,13 +92,16 @@ class DBAcademyHelper:
         # The follow section focuses on the schema and catalog names.
         ###########################################################################################
         if self.__is_uc_enabled_workspace:
-            # The current catalog is Unity Catalog's default, and it's
-            # our confirmation that we can create the user-specific catalog
-            local_part = self.username.split("@")[0]  # Split the username, dropping the domain
-            username_hash = abs(hash(self.username)) % 10000  # Create a has from the full username
-            self.catalog_name = self.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
+            if not self.__requires_uc:
+                pass  # We currently cannot use catalogs unless it's specifically required do to various UC limitations
+            else:
+                # The current catalog is Unity Catalog's default, and it's
+                # our confirmation that we can create the user-specific catalog
+                local_part = self.username.split("@")[0]  # Split the username, dropping the domain
+                username_hash = abs(hash(self.username)) % 10000  # Create a has from the full username
+                self.catalog_name = self.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
 
-            self.schema_name_prefix = "default"
+                self.schema_name_prefix = "default"
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             # We are not creating the catalog because we cannot confirm that this is a UC environment.
@@ -377,7 +380,7 @@ class DBAcademyHelper:
         # Make sure to use the catalog that we are getting ready to clean up.
         dbgems.sql(f"USE CATALOG {self.catalog_name}")
 
-        print(f"...dropping all database in \"{self.catalog_name}\"")
+        print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
         for schema_name in [d[0] for d in dbgems.get_spark_session().sql(f"show databases").collect()]:
             if schema_name in ["default", "information_schema"] or schema_name.startswith("_"):
                 print(f"......keeping the schema \"{schema_name}\".")
