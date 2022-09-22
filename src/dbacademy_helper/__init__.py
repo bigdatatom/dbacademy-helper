@@ -368,10 +368,10 @@ class DBAcademyHelper:
         print(f"...dropping all database in \"{self.catalog_name}\"")
         for schema_name in [d[0] for d in dbgems.get_spark_session().sql(f"show databases").collect()]:
             if schema_name in ["default", "information_schema"] or schema_name.startswith("_"):
-                print(f"...keeping the schema \"{schema_name}\".")
+                print(f"......keeping the schema \"{schema_name}\".")
             else:
                 start = self.__start_clock()
-                print(f"...dropping the schema \"{schema_name}\"", end="...")
+                print(f"......dropping the schema \"{schema_name}\"", end="...")
 
                 dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{schema_name} CASCADE")
 
