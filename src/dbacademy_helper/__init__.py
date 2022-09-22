@@ -551,6 +551,12 @@ class DBAcademyHelper:
         # Ge the one or list of schemas depending on our configuration
         schemas = [self.schema_name] if self.catalog_name is None else [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
 
+        # Skip over those special, to-be-ignored schemas.
+        ignored_schemas = ["information_schema"]
+        for schema in ignored_schemas:
+            if schema in schemas:
+                del schemas[schemas.index(schema)]
+
         for schema in schemas:
             if self.catalog_name is None:
                 print(f"\nPredefined tables in \"{schema}\":")
