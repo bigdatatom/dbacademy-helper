@@ -12,6 +12,8 @@ from dbacademy_gems import dbgems
 class DBAcademyHelper:
     from deprecated.classic import deprecated
 
+    SMOKE_TEST_KEY = "dbacademy.smoke-test"
+
     CATALOG_SPARK_DEFAULT = "spark_catalog"
     CATALOG_UC_DEFAULT = "hive_metastore"
 
@@ -41,10 +43,12 @@ class DBAcademyHelper:
 
         # Initialized in the call to init()
         self.__initialized = False
+        self.__smoke_test_lesson = False
         self.create_db = False
         self.catalog_name = None
 
         # Standard initialization
+        self.asynchronous = asynchronous
         self.course_code = course_code
         self.course_name = course_name
         self.remote_files = remote_files
@@ -70,10 +74,11 @@ class DBAcademyHelper:
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
         # use one working directory and one database, but under test, we can use many
-        if lesson is None and asynchronous and self.is_smoke_test():
+        if lesson is None and self.asynchronous and self.is_smoke_test():
             # The developer did not define a lesson, we can run asynchronous, and this
             # is a smoke test, so we can define a lesson here for the sake of testing
             lesson = str(abs(hash(dbgems.get_notebook_path())) % 10000)
+            self.__smoke_test_lesson = True
 
         # Convert any lesson value we have to lower case.
         self.lesson = None if lesson is None else lesson.lower()
@@ -110,18 +115,24 @@ class DBAcademyHelper:
             self.schema_name = self.__schema_name_prefix                           # No lesson, database name is the same as prefix
             user_db = f"{working_dir}/database.db"                                 # Use generic "database.db"
         else:
-            self.clean_lesson = self.clean_string(self.lesson.lower())             # Replace all special characters with underscores
+            self.clean_lesson = self.clean_string(self.lesson)                     # Replace all special characters with underscores
             working_dir = f"{working_dir_root}/{self.lesson}"                      # Working directory now includes the lesson name
             self.schema_name = f"{self.__schema_name_prefix}_{self.clean_lesson}"  # Schema name includes the lesson name
             user_db = f"{working_dir}/{self.clean_lesson}.db"                      # The schema's location includes the lesson name
-
-        self.db_name = self.schema_name                                            # Just for backwards compatability
 
         self.paths = Paths(working_dir_root=working_dir_root,
                            working_dir=working_dir,
                            datasets=datasets_path,
                            user_db=user_db,
                            enable_streaming_support=enable_streaming_support)
+
+    @staticmethod
+    def is_smoke_test():
+        """
+        Helper method to indentify when we are running as a smoke test
+        :return: Returns true if the notebook is running as a smoke test.
+        """
+        return dbgems.get_spark_session().conf.get(DBAcademyHelper.SMOKE_TEST_KEY, "false").lower() == "true"
 
     # noinspection PyMethodMayBeStatic
     @property
@@ -261,12 +272,14 @@ class DBAcademyHelper:
             raise AssertionError(f"The current catalog is expected to be \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" or \"{DBAcademyHelper.CATALOG_SPARK_DEFAULT}\" so as to prevent inadvertent corruption of the current workspace, found \"{self.__initial_catalog}\"")
 
         # We are officially committed to creating the catalog...
-        self.schema_name = "default"           # We will use the default database here
-        self.db_name = self.schema_name        # because we are user-scoped to the catalog
         self.__schema_name_prefix = "default"
 
+        # If the lesson was defined because we are in a smoke test we will need to honor it here.
+        self.schema_name = f"default_{self.clean_lesson}" if self.__smoke_test_lesson else "default"
+        self.db_name = self.schema_name
+
         try:
-            print(f"Creating the catalog \"{self.catalog_name}\"", end="...")
+            print(f"Creating & using the catalog \"{self.catalog_name}\"", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
             print(self.__stop_clock(start))
@@ -278,7 +291,7 @@ class DBAcademyHelper:
         self.create_db = True
 
         try:
-            print(f"Creating the schema \"{self.db_name}\"", end="...")
+            print(f"Creating & using the schema \"{self.db_name}\"", end="...")
             if self.catalog_name is None:
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.db_name}")
@@ -286,7 +299,7 @@ class DBAcademyHelper:
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.db_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.catalog_name}.{self.db_name}")
             print(self.__stop_clock(start))
-            
+
         except Exception as e:
             raise AssertionError(self.__troubleshoot_error(f"Failed to create the schema \"{self.db_name}\".", "Cannot Create Schema")) from e
 
@@ -684,17 +697,6 @@ class DBAcademyHelper:
         value = re.sub(r"[^a-zA-Z\d]", replacement, str(value))
         while replacement_2x in value: value = value.replace(replacement_2x, replacement)
         return value
-
-    @property
-    def is_smoke_test_key(self):
-        return "dbacademy.smoke-test"
-
-    def is_smoke_test(self):
-        """
-        Helper method to indentify when we are running as a smoke test
-        :return: Returns true if the notebook is running as a smoke test.
-        """
-        return dbgems.get_spark_session().conf.get(self.is_smoke_test_key, "false").lower() == "true"
 
     @staticmethod
     def block_until_stream_is_ready(query: Union[str, pyspark.sql.streaming.StreamingQuery], min_batches: int = 2, delay_seconds: int = 5):
