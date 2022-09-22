@@ -98,7 +98,7 @@ class DBAcademyHelper:
             username_hash = abs(hash(self.username)) % 10000  # Create a has from the full username
             self.catalog_name = self.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
 
-            self.__schema_name_prefix = "default"
+            self.schema_name_prefix = "default"
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             # We are not creating the catalog because we cannot confirm that this is a UC environment.
@@ -108,7 +108,7 @@ class DBAcademyHelper:
 
             # Create the schema name prefix according to curriculum standards. This is the value by which
             # all schemas in this course should start with. Including this lesson's schema name.
-            self.__schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
+            self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
 
         else:
             raise AssertionError(f"The current catalog is expected to be \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" or \"{DBAcademyHelper.CATALOG_SPARK_DEFAULT}\" so as to prevent inadvertent corruption of the current workspace, found \"{self.__initial_catalog}\"")
@@ -131,22 +131,27 @@ class DBAcademyHelper:
             self.clean_lesson = None
             working_dir = working_dir_root                                             # No lesson, working dir is same as root
             user_db_path = f"{working_dir}/database.db"                                # Use generic "database.db"
-            self.schema_name = self.__schema_name_prefix                               # No lesson, database name is the same as prefix
+            self.schema_name = self.schema_name_prefix                               # No lesson, database name is the same as prefix
         else:
             self.clean_lesson = self.clean_string(self.lesson)                         # Replace all special characters with underscores
             working_dir = f"{working_dir_root}/{self.lesson}"                          # Working directory now includes the lesson name
             if self.catalog_name is not None:
                 user_db_path = f"{working_dir}/database.db"                            # Use generic "database.db" when using UC catalog
-                self.schema_name = f"{self.__schema_name_prefix}"                      # Database name is the same as prefix when using UC
+                self.schema_name = f"{self.schema_name_prefix}"                      # Database name is the same as prefix when using UC
             else:
                 user_db_path = f"{working_dir}/{self.clean_lesson}.db"                 # The schema's location includes the lesson name
-                self.schema_name = f"{self.__schema_name_prefix}_{self.clean_lesson}"  # Schema name includes the lesson name
+                self.schema_name = f"{self.schema_name_prefix}_{self.clean_lesson}"  # Schema name includes the lesson name
 
         self.paths = Paths(working_dir_root=working_dir_root,
                            working_dir=working_dir,
                            datasets=datasets_path,
                            user_db=user_db_path,
                            enable_streaming_support=enable_streaming_support)
+
+    @property
+    @deprecated(reason="Use DBAcademyHelper.schema_name_prefix instead", action="ignore")
+    def db_name_prefix(self):
+        return self.schema_name_prefix
 
     @property
     @deprecated(reason="Use DBAcademyHelper.schema_name instead", action="ignore")
@@ -390,7 +395,7 @@ class DBAcademyHelper:
     def cleanup_databases(self):
         schema_names = [d.databaseName for d in dbgems.get_spark_session().sql(f"show databases").collect()]
         for schema_name in schema_names:
-            if schema_name.startswith(self.__schema_name_prefix):
+            if schema_name.startswith(self.schema_name_prefix):
                 print(f"Dropping the database \"{schema_name}\"")
                 dbgems.get_spark_session().sql(f"DROP DATABASE IF EXISTS {schema_name} CASCADE")
 
