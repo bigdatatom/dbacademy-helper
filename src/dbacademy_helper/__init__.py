@@ -561,9 +561,7 @@ class DBAcademyHelper:
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
 
-            print()
-
-        print("Predefined paths variables:")
+        print("\nPredefined paths variables:")
         self.paths.print(self_name="DA.")
 
         print(f"\nSetup completed in {self.clock_start() - self.__start} seconds")
