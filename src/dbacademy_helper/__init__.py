@@ -96,6 +96,7 @@ class DBAcademyHelper:
                 print(f"* Found staged datasets - using alternate installation location:")
                 print(f"* {self.staging_source_uri}")
                 print("*"*80)
+                print()
         except: pass
 
         ###########################################################################################
