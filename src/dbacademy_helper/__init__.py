@@ -90,7 +90,6 @@ class DBAcademyHelper:
         self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.data_source_name}/{self.data_source_version}"
         try:
             files = dbgems.get_dbutils().fs.ls(self.staging_source_uri)
-            print(f"Found {len(files)}")
             if len(files) > 0:
                 self.data_source_uri = self.staging_source_uri
                 print("*"*80)
