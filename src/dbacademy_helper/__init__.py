@@ -398,7 +398,7 @@ class DBAcademyHelper:
         self.__reset_databases()
         self.__reset_datasets()
         self.__reset_working_dir()
-        print(f"\nThe learning environment was successfully reset. {self.__stop_clock(start)}")
+        print(f"\nThe learning environment was successfully reset {self.__stop_clock(start)}.")
 
     def __reset_databases(self):
         if self.catalog_name is not None:
