@@ -227,7 +227,7 @@ class DBAcademyHelper:
 
         return None if delete else function_ref
 
-    def init(self, *, install_datasets: bool, create_catalog: bool, create_db: bool):
+    def init(self, *, install_datasets: bool, create_db: bool, create_catalog: bool = False):
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
