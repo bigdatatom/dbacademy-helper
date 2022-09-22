@@ -38,7 +38,7 @@ class DBAcademyHelper:
         from .dev_helper import DevHelper
         from .tests import TestHelper
 
-        self.__start = self._start_clock()
+        self.__start = self.clock_start()
         self.__spark = dbgems.get_spark_session()
 
         # Initialized in the call to init()
@@ -195,12 +195,12 @@ class DBAcademyHelper:
         return self.__initial_catalog == DBAcademyHelper.CATALOG_UC_DEFAULT
 
     # noinspection PyMethodMayBeStatic
-    def _start_clock(self):
+    def clock_start(self):
         import time
         return int(time.time())
 
     # noinspection PyMethodMayBeStatic
-    def _stop_clock(self, start):
+    def clock_stop(self, start):
         import time
         return f"({int(time.time()) - start} seconds)"
 
@@ -304,13 +304,13 @@ class DBAcademyHelper:
         if self.__requires_uc is False:
             return  # Too many features are unsupported to default to using UC catalogs.
 
-        start = self._start_clock()
+        start = self.clock_start()
 
         try:
             print(f"Creating & using the catalog \"{self.catalog_name}\"", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
-            print(self._stop_clock(start))
+            print(self.clock_stop(start))
         except Exception as e:
             if self.__requires_uc:
                 raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog (Required)")) from e
@@ -318,7 +318,7 @@ class DBAcademyHelper:
                 raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog (Not Required)")) from e
 
     def __create_schema(self):
-        start = self._start_clock()
+        start = self.clock_start()
         self.create_db = True
 
         try:
@@ -330,7 +330,7 @@ class DBAcademyHelper:
                 print(f"Creating & using the schema \"{self.catalog_name}.{self.schema_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.schema_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.catalog_name}.{self.schema_name}")
-            print(self._stop_clock(start))
+            print(self.clock_stop(start))
 
         except Exception as e:
             raise AssertionError(self.__troubleshoot_error(f"Failed to create the schema \"{self.schema_name}\".", "Cannot Create Schema")) from e
@@ -367,21 +367,21 @@ class DBAcademyHelper:
             self.validate_datasets(fail_fast=False, repairing_dataset=False)
 
     def __cleanup_working_dir(self):
-        start = self._start_clock()
+        start = self.clock_start()
         print(f"...removing the working directory \"{self.paths.working_dir}\"", end="...")
 
         dbgems.get_dbutils().fs.rm(self.paths.working_dir, True)
 
-        print(self._stop_clock(start))
+        print(self.clock_stop(start))
 
     # Without UC, we only want to drop the database provided to the learner
     def __cleanup_schema(self):
-        start = self._start_clock()
+        start = self.clock_start()
         print(f"...dropping the database \"{self.schema_name}\"", end="...")
 
         self.__spark.sql(f"DROP DATABASE {self.schema_name} CASCADE")
 
-        print(self._stop_clock(start))
+        print(self.clock_stop(start))
 
     # With UC enabled, we need to drop all databases
     def __cleanup_catalog(self):
@@ -394,29 +394,29 @@ class DBAcademyHelper:
             if schema_name in ["default", "information_schema"] or schema_name.startswith("_"):
                 print(f"......keeping the schema \"{schema_name}\".")
             else:
-                start = self._start_clock()
+                start = self.clock_start()
                 print(f"......dropping the schema \"{schema_name}\"", end="...")
 
                 dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{self.catalog_name}.{schema_name} CASCADE")
 
-                print(self._stop_clock(start))
+                print(self.clock_stop(start))
 
     def __cleanup_stop_all_streams(self):
         for stream in self.__spark.streams.active:
-            start = self._start_clock()
+            start = self.clock_start()
             print(f"...stopping the stream \"{stream.name}\"", end="...")
             stream.stop()
             try: stream.awaitTermination()
             except: pass  # Bury any exceptions
-            print(self._stop_clock(start))
+            print(self.clock_stop(start))
 
     def reset_learning_environment(self):
-        start = self._start_clock()
+        start = self.clock_start()
         print("Resetting the learning environment:")
         self.__reset_databases()
         self.__reset_datasets()
         self.__reset_working_dir()
-        print(f"\nThe learning environment was successfully reset {self._stop_clock(start)}.")
+        print(f"\nThe learning environment was successfully reset {self.clock_stop(start)}.")
 
     def __reset_databases(self):
         if self.catalog_name is not None:
@@ -525,7 +525,7 @@ class DBAcademyHelper:
         print("\nPredefined paths variables:")
         self.paths.print(self_name="DA.")
 
-        print(f"\nSetup completed in {self._start_clock() - self.__start} seconds")
+        print(f"\nSetup completed in {self.clock_start() - self.__start} seconds")
 
     def install_datasets(self, reinstall_datasets=False, repairing_dataset=False):
         """
@@ -564,20 +564,20 @@ class DBAcademyHelper:
         what = "dataset" if len(files) == 1 else "datasets"
         print(f"\nInstalling {len(files)} {what}: ")
 
-        install_start = self._start_clock()
+        install_start = self.clock_start()
         for f in files:
-            start = self._start_clock()
+            start = self.clock_start()
             print(f"Copying /{f.name[:-1]}", end="...")
 
             source_path = f"{self.data_source_uri}/{f.name}"
             target_path = f"{self.paths.datasets}/{f.name}"
 
             dbgems.get_dbutils().fs.cp(source_path, target_path, True)
-            print(f"({self._start_clock() - start} seconds)")
+            print(f"({self.clock_start() - start} seconds)")
 
         self.validate_datasets(fail_fast=True, repairing_dataset=repairing_dataset)
 
-        print(f"""\nThe install of the datasets completed successfully in {self._start_clock() - install_start} seconds.""")
+        print(f"""\nThe install of the datasets completed successfully in {self.clock_start() - install_start} seconds.""")
 
     def print_copyrights(self, mappings: dict = None):
         if mappings is None:
@@ -626,7 +626,7 @@ class DBAcademyHelper:
         Utility method to compare local datasets to the registered list of remote files.
         """
 
-        start = self._start_clock()
+        start = self.clock_start()
         local_files = self.list_r(self.paths.datasets)
 
         errors = []
@@ -643,7 +643,7 @@ class DBAcademyHelper:
                 errors.append(f"...Missing {what}: {file}")
                 break
 
-        print(f"({self._start_clock() - start} seconds)")
+        print(f"({self.clock_start() - start} seconds)")
         for error in errors:
             print(error)
 
