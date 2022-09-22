@@ -120,10 +120,9 @@ class DBAcademyHelper:
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             self.dprint(f"UC not enabled: {DBAcademyHelper.CATALOG_SPARK_DEFAULT}")
-            self.dprint(f"Requires UC:    {not self.__requires_uc}")
 
             # if UC is required, we are going to have to fail setup until the problem is addressed
-            assert not self.__requires_uc, self.__troubleshoot_error("This course requires Unity Catalog.", "Unity Catalog")
+            if self.__requires_uc: raise AssertionError(self.__troubleshoot_error("This course requires Unity Catalog.", "Unity Catalog"))
 
             # We are not creating the catalog because we cannot confirm that this is a UC environment.
             self.catalog_name = None
