@@ -134,7 +134,7 @@ class DBAcademyHelper:
         try:
             # noinspection PyUnresolvedReferences
             self.__initial_catalog
-        except NameError:
+        except AttributeError:
             self.__initial_catalog = dbgems.get_spark_session().sql("SELECT current_catalog()").first()[0].lower()
 
         return self.__initial_catalog == DBAcademyHelper.CATALOG_UC_DEFAULT
