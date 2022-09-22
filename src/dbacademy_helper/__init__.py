@@ -93,8 +93,8 @@ class DBAcademyHelper:
             if len(files) > 0:
                 self.data_source_uri = self.staging_source_uri
                 print("*"*100)
-                print(f"* Staged datasets found at {self.staging_source_uri}")
-                print(f"* Using this alternate installation location.")
+                print(f"* Found staged datasets - using alternate installation location:")
+                print(f"* {self.staging_source_uri}")
                 print("*"*100)
                 print()
         except: pass
