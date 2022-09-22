@@ -200,7 +200,7 @@ class DBAcademyHelper:
         return int(time.time())
 
     # noinspection PyMethodMayBeStatic
-    def clock_stop(self, start):
+    def clock_stopped(self, start):
         import time
         return f"({int(time.time()) - start} seconds)"
 
@@ -310,7 +310,7 @@ class DBAcademyHelper:
             print(f"Creating & using the catalog \"{self.catalog_name}\"", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
-            print(self.clock_stop(start))
+            print(self.clock_stopped(start))
         except Exception as e:
             if self.__requires_uc:
                 raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog (Required)")) from e
@@ -330,7 +330,7 @@ class DBAcademyHelper:
                 print(f"Creating & using the schema \"{self.catalog_name}.{self.schema_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.schema_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.catalog_name}.{self.schema_name}")
-            print(self.clock_stop(start))
+            print(self.clock_stopped(start))
 
         except Exception as e:
             raise AssertionError(self.__troubleshoot_error(f"Failed to create the schema \"{self.schema_name}\".", "Cannot Create Schema")) from e
@@ -372,7 +372,7 @@ class DBAcademyHelper:
 
         dbgems.get_dbutils().fs.rm(self.paths.working_dir, True)
 
-        print(self.clock_stop(start))
+        print(self.clock_stopped(start))
 
     # Without UC, we only want to drop the database provided to the learner
     def __cleanup_schema(self):
@@ -381,7 +381,7 @@ class DBAcademyHelper:
 
         self.__spark.sql(f"DROP DATABASE {self.schema_name} CASCADE")
 
-        print(self.clock_stop(start))
+        print(self.clock_stopped(start))
 
     # With UC enabled, we need to drop all databases
     def __cleanup_catalog(self):
@@ -399,7 +399,7 @@ class DBAcademyHelper:
 
                 dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{self.catalog_name}.{schema_name} CASCADE")
 
-                print(self.clock_stop(start))
+                print(self.clock_stopped(start))
 
     def __cleanup_stop_all_streams(self):
         for stream in self.__spark.streams.active:
@@ -408,7 +408,7 @@ class DBAcademyHelper:
             stream.stop()
             try: stream.awaitTermination()
             except: pass  # Bury any exceptions
-            print(self.clock_stop(start))
+            print(self.clock_stopped(start))
 
     def reset_learning_environment(self):
         start = self.clock_start()
@@ -416,7 +416,7 @@ class DBAcademyHelper:
         self.__reset_databases()
         self.__reset_datasets()
         self.__reset_working_dir()
-        print(f"\nThe learning environment was successfully reset {self.clock_stop(start)}.")
+        print(f"\nThe learning environment was successfully reset {self.clock_stopped(start)}.")
 
     def __reset_databases(self):
         if self.catalog_name is not None:
