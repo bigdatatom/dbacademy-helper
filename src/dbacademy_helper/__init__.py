@@ -393,10 +393,12 @@ class DBAcademyHelper:
             print(self.__stop_clock(start))
 
     def reset_learning_environment(self):
+        start = self.__start_clock()
+        print("Resetting the learning environment...")
         self.__reset_databases()
         self.__reset_datasets()
         self.__reset_working_dir()
-        print("Course environment was successfully reset.")
+        print(f"\nThe learning environment was successfully reset. {self.__stop_clock(start)}")
 
     def __reset_databases(self):
         if self.catalog_name is not None:
