@@ -278,16 +278,15 @@ class DBAcademyHelper:
         self.create_db = True
 
         try:
+            print(f"Creating the schema \"{self.db_name}\"", end="...")
             if self.catalog_name is None:
-                print(f"Creating the schema \"{self.db_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.db_name}")
             else:
-                print(f"Creating the schema \"{self.catalog_name}.{self.db_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.db_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.catalog_name}.{self.db_name}")
-
             print(self.__stop_clock(start))
+            
         except Exception as e:
             raise AssertionError(self.__troubleshoot_error(f"Failed to create the schema \"{self.db_name}\".", "Cannot Create Schema")) from e
 
