@@ -299,11 +299,12 @@ class DBAcademyHelper:
         self.create_db = True
 
         try:
-            print(f"Creating & using the schema \"{self.schema_name}\"", end="...")
             if self.catalog_name is None:
+                print(f"Creating & using the schema \"{self.schema_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.schema_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.schema_name}")
             else:
+                print(f"Creating & using the schema \"{self.catalog_name}.{self.schema_name}\"", end="...")
                 dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.schema_name} LOCATION '{self.paths.user_db}'")
                 dbgems.sql(f"USE {self.catalog_name}.{self.schema_name}")
             print(self.__stop_clock(start))
