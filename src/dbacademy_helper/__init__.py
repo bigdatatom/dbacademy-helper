@@ -110,7 +110,6 @@ class DBAcademyHelper:
                 # The current catalog is Unity Catalog's default, and it's
                 # our confirmation that we can create the user-specific catalog
                 self.catalog_name = self.to_catalog_name(self.username)
-
                 self.schema_name_prefix = "default"
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
