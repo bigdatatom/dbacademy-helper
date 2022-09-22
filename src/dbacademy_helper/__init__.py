@@ -236,7 +236,7 @@ class DBAcademyHelper:
 
     @property
     def __requires_uc(self):
-        return DBAcademyHelper.REQUIREMENTS in self.requirements
+        return DBAcademyHelper.REQUIREMENTS_UC in self.requirements
 
     @property
     def unique_name(self):
