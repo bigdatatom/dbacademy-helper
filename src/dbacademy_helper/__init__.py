@@ -236,7 +236,7 @@ class DBAcademyHelper:
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
         self.__initialized = True
-        
+
         if install_datasets: self.install_datasets()
 
         start = self.__start_clock()
@@ -424,6 +424,7 @@ class DBAcademyHelper:
         """
         Concludes the setup of DBAcademyHelper by advertising to the student the new state of the environment such as predefined path variables, databases and tables created on behalf of the student and the total setup time. Additionally, all path attributes are pushed to the Spark context for reference in SQL statements.
         """
+        assert self.__initialized, f"We cannot conclude setup without first calling DBAcademyHelper.init(..)"
 
         # Add custom attributes to the SQL context here.
         self.__spark.conf.set("da.username", self.username)
