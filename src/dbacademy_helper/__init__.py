@@ -98,7 +98,8 @@ class DBAcademyHelper:
                 print(f"* Found Staging-Datasets for {self.data_source_name}/{self.data_source_version}")
                 print(f"* Using alternate install location.")
                 print("*"*80)
-        except: pass
+        except Exception as e:
+            print(e)
 
         ###########################################################################################
         # The follow section focuses on the schema and catalog names.
