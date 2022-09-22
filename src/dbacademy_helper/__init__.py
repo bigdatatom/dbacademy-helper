@@ -31,13 +31,15 @@ class DBAcademyHelper:
                  remote_files: list,
                  lesson: str = None,
                  asynchronous: bool = True,
-                 requirements: List[str] = None):
+                 requirements: List[str] = None,
+                 debug: bool = False):
 
         from dbacademy.dbrest import DBAcademyRestClient
         from .workspace_helper import WorkspaceHelper
         from .dev_helper import DevHelper
         from .tests import TestHelper
 
+        self.__debug = debug
         self.__start = self.clock_start()
         self.__spark = dbgems.get_spark_session()
 
@@ -63,6 +65,7 @@ class DBAcademyHelper:
         self.requirements = [self.requirements] if type(self.requirements) == str else self.requirements
         assert type(self.requirements) == list, f"The parameter \"requirements\" must be of type \"list\", found \"{type(self.requirements)}\"."
         for r in self.requirements: assert r in DBAcademyHelper.REQUIREMENTS, f"The value \"{r}\" is not a supported requirement, expected one of {DBAcademyHelper.REQUIREMENTS}."
+        self.dprint(f"Requirements: {self.requirements}")
 
         # The following objects provide advanced support for modifying the learning environment.
         self.client = DBAcademyRestClient()
@@ -167,6 +170,10 @@ class DBAcademyHelper:
                            datasets=datasets_path,
                            user_db=user_db_path,
                            enable_streaming_support=enable_streaming_support)
+
+    def dprint(self, message):
+        if self.__debug:
+            print(message)
 
     @staticmethod
     def to_catalog_name(username):
@@ -304,22 +311,29 @@ class DBAcademyHelper:
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
-        if create_catalog is True:                    # Use the "default" schema when
-            create_db = False                         # we are creating the catalog.
 
         if install_datasets: self.install_datasets()  # Install the data
         print()
-        if create_catalog: self.__create_catalog()    # Create the UC catalog
-        if create_db: self.__create_schema()          # Create the Schema
 
-        self.__initialized = True                     # Set the all-done flag.
+        if create_catalog:
+            self.dprint(f"create_catalog: {create_catalog}")
+            if not self.__create_catalog():     # Create the UC catalog
+                self.dprint(f"Create catalog failed, create schema instead")
+                self.__create_schema()          # No catalog, create a schema instead
+        elif create_db:
+            self.dprint(f"Catalog==False, create schema instead")
+            self.__create_schema()              # Create the Schema (is not a catalog)
 
-    def __create_catalog(self):
+        self.__initialized = True               # Set the all-done flag.
+
+    def __create_catalog(self) -> bool:
         if self.catalog_name is None:
-            return  # No catalog name, nothing to create.
+            self.dprint(f"No catalog name found.")
+            return False  # No catalog name, nothing to create.
 
         if self.__requires_uc is False:
-            return  # Too many features are unsupported to default to using UC catalogs.
+            self.dprint(f"UC is not required, bailing on create catalog.")
+            return False  # Too many features are unsupported to default to using UC catalogs.
 
         start = self.clock_start()
 
