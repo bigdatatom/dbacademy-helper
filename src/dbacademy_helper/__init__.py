@@ -119,6 +119,8 @@ class DBAcademyHelper:
                 self.schema_name_prefix = "default"
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
+            self.dprint(f"UC not enabled: {DBAcademyHelper.CATALOG_SPARK_DEFAULT}")
+
             # if UC is required, we are going to have to fail setup until the problem is addressed
             assert not self.__requires_uc, self.__troubleshoot_error("This course requires Unity Catalog.", "Unity Catalog")
 
@@ -318,7 +320,7 @@ class DBAcademyHelper:
         print()
 
         if create_catalog:
-            self.dprint(f"create_catalog: {create_catalog}")
+            self.dprint(f"create_catalog: True")
             if not self.__create_catalog():     # Create the UC catalog
                 self.dprint(f"Create catalog failed, create schema instead")
                 self.__create_schema()          # No catalog, create a schema instead
