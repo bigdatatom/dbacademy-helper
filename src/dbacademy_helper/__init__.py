@@ -534,8 +534,10 @@ class DBAcademyHelper:
             tables = self.__spark.sql(f"SHOW TABLES IN {self.schema_name}").filter("isTemporary == false").select("tableName").collect()
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
+            
+            print()
 
-        print("\nPredefined paths variables:")
+        print("Predefined paths variables:")
         self.paths.print(self_name="DA.")
 
         print(f"\nSetup completed in {self.clock_start() - self.__start} seconds")
