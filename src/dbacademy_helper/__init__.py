@@ -548,16 +548,16 @@ class DBAcademyHelper:
                 self.__spark.conf.set(f"da.paths.{key.lower()}", value)
                 self.__spark.conf.set(f"DA.paths.{key.lower()}", value)
 
-        if self.catalog_name is not None:
-            pass  # TODO - figure out what to advertise here.
+        # Ge the one or list of schemas depending on our configuration
+        schemas = [self.schema_name] if self.catalog_name is None else [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
 
-        if self.created_db:
+        for schema in schemas:
             if self.catalog_name is None:
-                print(f"\nPredefined tables in \"{self.schema_name}\":")
+                print(f"\nPredefined tables in \"{schema}\":")
             else:
-                print(f"\nPredefined tables in \"{self.catalog_name}.{self.schema_name}\":")
+                print(f"\nPredefined tables in \"{self.catalog_name}.{schema}\":")
 
-            tables = self.__spark.sql(f"SHOW TABLES IN {self.schema_name}").filter("isTemporary == false").select("tableName").collect()
+            tables = self.__spark.sql(f"SHOW TABLES IN {schema}").filter("isTemporary == false").select("tableName").collect()
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
 
