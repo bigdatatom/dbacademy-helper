@@ -92,10 +92,10 @@ class DBAcademyHelper:
             files = dbgems.get_dbutils().fs.ls(self.staging_source_uri)
             if len(files) > 0:
                 self.data_source_uri = self.staging_source_uri
-                print("*"*100)
+                print("*"*80)
                 print(f"* Found staged datasets - using alternate installation location:")
                 print(f"* {self.staging_source_uri}")
-                print("*"*100)
+                print("*"*80)
                 print()
         except: pass
 
@@ -563,10 +563,10 @@ class DBAcademyHelper:
         print(f"\nInstalling datasets...")
         print(f"...from \"{self.data_source_uri}\"")
         print(f"...to \"{self.paths.datasets}\"")
-
-        print(f"""\nNOTE: The datasets that we are installing are located in Washington, USA - depending on the
-              region that your workspace is in, this operation can take as little as {self.install_min_time} and 
-              upwards to {self.install_max_time}, but this is a one-time operation.""")
+        print()
+        print(f"NOTE: The datasets that we are installing are located in Washington, USA - depending on the")
+        print(f"region that your workspace is in, this operation can take as little as {self.install_min_time} and")
+        print(f"upwards to {self.install_max_time}, but this is a one-time operation.")
 
         # Using data_source_uri is a temporary hack because it assumes we can actually
         # reach the remote repository - in cases where it's blocked, this will fail.
