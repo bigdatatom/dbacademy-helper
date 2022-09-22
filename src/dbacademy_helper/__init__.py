@@ -422,6 +422,9 @@ class DBAcademyHelper:
     # With UC enabled, we need to drop all databases
     def __cleanup_catalog(self):
 
+        catalogs = [c[0] for c in dbgems.sql("SHOW CATALOGS").collect()]
+        if self.catalog_name not in catalogs: return
+
         # Make sure to use the catalog that we are getting ready to clean up.
         dbgems.sql(f"USE CATALOG {self.catalog_name}")
 
