@@ -476,7 +476,11 @@ class DBAcademyHelper:
             pass  # TODO - figure out what to advertise here.
 
         if self.create_db:
-            print(f"\nPredefined tables in \"{self.schema_name}\":")
+            if self.catalog_name is None:
+                print(f"\nPredefined tables in \"{self.schema_name}\":")
+            else:
+                print(f"\nPredefined tables in \"{self.catalog_name}.{self.schema_name}\":")
+
             tables = self.__spark.sql(f"SHOW TABLES IN {self.schema_name}").filter("isTemporary == false").select("tableName").collect()
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
