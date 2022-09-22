@@ -235,32 +235,21 @@ class DBAcademyHelper:
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
-        self.__initialized = True
+        if install_datasets: self.install_datasets()  # Install the data
+        if create_catalog: self.__create_catalog()    # Create the UC catalog
+        if create_db: self.__create_schema()          # Create the Schema
 
-        if install_datasets: self.install_datasets()
-
-        start = self.__start_clock()
-        if create_catalog and create_db: print(f"\nCreating the catalog and schema {self.__to_catalog_name(self.username)}.{self.db_name}", end="...")
-        elif create_catalog: print(f"\nCreating the catalog {self.catalog_name}", end="...")
-        else: print(f"\nCreating the schema {self.db_name}", end="...")
-
-        if create_catalog: self.__create_catalog()
-        if create_db: self.__create_schema()
-
-        print(self.__stop_clock(start))
-
-    @staticmethod
-    def __to_catalog_name(username):
-        local_part = username.split("@")[0]  # Split the username, dropping the domain
-        username_hash = abs(hash(username)) % 10000  # Create a has from the full username
-        return DBAcademyHelper.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
+        self.__initialized = True                     # Set the all-done flag.
 
     def __create_catalog(self):
+        start = self.__start_clock()
 
         if self.__is_uc_enabled_workspace:
             # The current catalog is Unity Catalog's default, and it's
             # our confirmation that we can create the user-specific catalog
-            self.catalog_name = self.__to_catalog_name(self.username)
+            local_part = self.username.split("@")[0]  # Split the username, dropping the domain
+            username_hash = abs(hash(self.username)) % 10000  # Create a has from the full username
+            self.catalog_name = self.clean_string(f"dbacademy-{local_part}-{username_hash}").lower()
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             # We are not creating the catalog because we cannot confirm that this is a UC environment.
@@ -276,17 +265,22 @@ class DBAcademyHelper:
         self.__schema_name_prefix = "default"
 
         try:
+            print(f"\nCreating the catalog {self.catalog_name}", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
+            print(self.__stop_clock(start))
         except Exception as e:
             raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog")) from e
 
     def __create_schema(self):
+        start = self.__start_clock()
         self.create_db = True
 
         try:
+            print(f"\nCreating the schema {self.db_name}", end="...")
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.db_name} LOCATION '{self.paths.user_db}'")
             dbgems.sql(f"USE {self.db_name}")
+            print(self.__stop_clock(start))
         except Exception as e:
             raise AssertionError(self.__troubleshoot_error(f"Failed to create the schema \"{self.db_name}\".", "Cannot Create Schema")) from e
 
