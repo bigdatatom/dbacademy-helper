@@ -94,8 +94,8 @@ class DBAcademyHelper:
         if self.__is_uc_enabled_workspace:
             if not self.__requires_uc:
                 # We currently cannot use catalogs unless it's specifically required do to various UC limitations
-                self.catalog_name = None
-                self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
+                # self.catalog_name = None
+                # self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
             else:
                 # The current catalog is Unity Catalog's default, and it's
                 # our confirmation that we can create the user-specific catalog
@@ -118,6 +118,12 @@ class DBAcademyHelper:
 
         else:
             raise AssertionError(f"The current catalog is expected to be \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" or \"{DBAcademyHelper.CATALOG_SPARK_DEFAULT}\" so as to prevent inadvertent corruption of the current workspace, found \"{self.__initial_catalog}\"")
+
+        try: self.catalog_name
+        except AttributeError: raise AssertionError(f"The catalog_name was not properly defined.")
+
+        try: self.schema_name_prefix
+        except AttributeError: raise AssertionError(f"The schema_name_prefix was not properly defined.")
 
         ###########################################################################################
         # This next section is varies its configuration based on whether the lesson is
