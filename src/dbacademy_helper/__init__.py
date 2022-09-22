@@ -106,17 +106,16 @@ class DBAcademyHelper:
         # The follow section focuses on the schema and catalog names.
         ###########################################################################################
         if self.__is_uc_enabled_workspace:
-            if not self.__requires_uc:
+            if self.__requires_uc:
+                # UC enabled and required: create the user-specific catalog
+                self.dprint("UC is required, creating catalog, skipping schema")
+                self.catalog_name = self.to_catalog_name(self.username)
+                self.schema_name_prefix = "default"
+            else:
                 # We currently cannot use catalogs unless it's specifically required do to various UC limitations
                 self.dprint("Does not require UC, skipping catalog, creating schema")
                 self.catalog_name = None
                 self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
-            else:
-                # The current catalog is Unity Catalog's default, and it's
-                # our confirmation that we can create the user-specific catalog
-                self.dprint("UC is required, creating catalog, skipping schema")
-                self.catalog_name = self.to_catalog_name(self.username)
-                self.schema_name_prefix = "default"
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             self.dprint(f"UC not enabled: {DBAcademyHelper.CATALOG_SPARK_DEFAULT}")
@@ -347,6 +346,8 @@ class DBAcademyHelper:
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.catalog_name}")
             print(self.clock_stopped(start))
+            return True
+
         except Exception as e:
             if self.__requires_uc:
                 raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.catalog_name}\".", "Cannot Create Catalog (Required)")) from e
