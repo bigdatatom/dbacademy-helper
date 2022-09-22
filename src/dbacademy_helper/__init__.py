@@ -424,7 +424,7 @@ class DBAcademyHelper:
                 start = self.clock_start()
                 print(f"......dropping the schema \"{schema_name}\"", end="...")
 
-                dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{self.catalog_name}.{schema_name} CASCADE")
+                dbgems.get_spark_session().sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{schema_name} CASCADE")
 
                 print(self.clock_stopped(start))
 
