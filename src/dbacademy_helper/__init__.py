@@ -94,6 +94,7 @@ class DBAcademyHelper:
         if self.__is_uc_enabled_workspace:
             if not self.__requires_uc:
                 # We currently cannot use catalogs unless it's specifically required do to various UC limitations
+                self.catalog_name = None
                 self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
             else:
                 # The current catalog is Unity Catalog's default, and it's
@@ -105,9 +106,10 @@ class DBAcademyHelper:
                 self.schema_name_prefix = "default"
 
         elif self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
-            # We are not creating the catalog because we cannot confirm that this is a UC environment.
-            # However, if UC is required, we are going to have to fail setup until the problem is addressed
+            # if UC is required, we are going to have to fail setup until the problem is addressed
             assert not self.__requires_uc, self.__troubleshoot_error("This course requires Unity Catalog.", "Unity Catalog")
+
+            # We are not creating the catalog because we cannot confirm that this is a UC environment.
             self.catalog_name = None
 
             # Create the schema name prefix according to curriculum standards. This is the value by which
