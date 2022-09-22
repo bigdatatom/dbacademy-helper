@@ -92,10 +92,11 @@ class DBAcademyHelper:
             files = dbgems.get_dbutils().fs.ls(self.staging_source_uri)
             if len(files) > 0:
                 self.data_source_uri = self.staging_source_uri
-                print("*"*80)
+                print("*"*100)
                 print(f"* Staged datasets found at {self.staging_source_uri}")
                 print(f"* Using this alternate installation location.")
-                print("*"*80)
+                print("*"*100)
+                print()
         except: pass
 
         ###########################################################################################
@@ -635,12 +636,6 @@ class DBAcademyHelper:
         """
         Utility method to compare local datasets to the registered list of remote files.
         """
-        if self.staging_source_uri == self.data_source_uri:
-            start = self.clock_start()
-            print("Enumerating staged files for validation", end="...")
-            self.remote_files = self.list_r(self.staging_source_uri)
-            print(self.clock_stopped(start))
-
         start = self.clock_start()
         local_files = self.list_r(self.paths.datasets)
 
@@ -668,6 +663,12 @@ class DBAcademyHelper:
         """
         Validates the "install" of the datasets by recursively listing all files in the remote data repository as well as the local data repository, validating that each file exists but DOES NOT validate file size or checksum.
         """
+
+        if self.staging_source_uri == self.data_source_uri:
+            start = self.clock_start()
+            print("Enumerating staged files for validation", end="...")
+            self.remote_files = self.list_r(self.staging_source_uri)
+            print(self.clock_stopped(start))
 
         if repairing_dataset:
             print(f"\nRevalidating the locally installed datasets", end="...")
