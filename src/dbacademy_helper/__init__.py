@@ -303,6 +303,9 @@ class DBAcademyHelper:
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
+        if create_catalog is True:                    # Use the "default" schema when
+            create_db = False                         # we are creating the catalog.
+
         if install_datasets: self.install_datasets()  # Install the data
         print()
         if create_catalog: self.__create_catalog()    # Create the UC catalog
@@ -534,7 +537,7 @@ class DBAcademyHelper:
             tables = self.__spark.sql(f"SHOW TABLES IN {self.schema_name}").filter("isTemporary == false").select("tableName").collect()
             if len(tables) == 0: print("  -none-")
             for row in tables: print(f"  {row[0]}")
-            
+
             print()
 
         print("Predefined paths variables:")
