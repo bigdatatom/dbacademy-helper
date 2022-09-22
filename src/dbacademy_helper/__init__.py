@@ -94,6 +94,7 @@ class DBAcademyHelper:
         if self.__is_uc_enabled_workspace:
             if not self.__requires_uc:
                 # We currently cannot use catalogs unless it's specifically required do to various UC limitations
+                pass
                 # self.catalog_name = None
                 # self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
             else:
