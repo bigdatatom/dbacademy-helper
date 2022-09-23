@@ -18,7 +18,7 @@ class DatabasesHelper:
         self.workspace._existing_databases = None
 
     def _drop_databases_for(self, username: str):
-        db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
+        db_name = DBAcademyHelper.to_schema_name(username=username, course_code=self.da.course_code)
         if db_name in self.workspace.existing_databases:
             print(f"Dropping the database \"{db_name}\" for {username}")
             dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
@@ -34,7 +34,7 @@ class DatabasesHelper:
         self.workspace._existing_databases = None
 
     def _create_database_for(self, username: str, drop_existing: bool, post_create: Callable[[str], None] = None):
-        db_name = self.da.to_database_name(username=username, course_code=self.da.course_code)
+        db_name = DBAcademyHelper.to_schema_name(username=username, course_code=self.da.course_code)
         db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_name}/database.db"
 
         if db_name in self.da.workspace.existing_databases and drop_existing:
