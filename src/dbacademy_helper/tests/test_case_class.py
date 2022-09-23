@@ -11,11 +11,11 @@ class TestCase(object):
                  test_function: Callable[[], Any],
                  description: str,
                  actual_value: Any,
-                 test_case_id: str = None,
-                 depends_on: List[str] = None,
-                 escape_html: bool = False,
-                 points: int = 1,
-                 hint=None):
+                 test_case_id: str,
+                 depends_on: List[str],
+                 escape_html: bool,
+                 points: int,
+                 hint):
 
         # Because I cannot figure out how to resolve circular references
         expected_type = "<class 'dbacademy_helper.tests.test_suite_class.TestSuite'>"
