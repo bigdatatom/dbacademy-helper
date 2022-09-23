@@ -269,6 +269,18 @@ class TestSuite(object):
                                       points=points,
                                       test_function=lambda: actual_value in list_of_values))
 
+    def test_sequence(self, actual_value: list, expected_value: list, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False):
+        from dbacademy_helper.tests.test_case_class import TestCase
+
+        return self.add_test(TestCase(suite=self,
+                                      test_case_id=test_case_id,
+                                      description=description,
+                                      actual_value=actual_value,
+                                      depends_on=depends_on,
+                                      escape_html=escape_html,
+                                      points=points,
+                                      test_function=lambda: self.compare_lists(actual_value, expected_value)))
+
     @staticmethod
     def compare_lists(value_a: list, value_b: list, test_column_order: bool):
         if value_a is None and value_b is None: return True
