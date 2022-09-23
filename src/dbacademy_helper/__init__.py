@@ -301,7 +301,8 @@ class DBAcademyHelper:
     @staticmethod
     def monkey_patch(function_ref, delete=True):
         """
-        This function "monkey patches" the specified function to the DBAcademyHelper class. While not 100% necissary, this pattern does allow each function to be defined in it's own cell which makes authoring notebooks a little bit easier.
+        This function "monkey patches" the specified function to the DBAcademyHelper class. While not 100% necessary,
+        this pattern does allow each function to be defined in its own cell which makes authoring notebooks a little easier.
         """
         import inspect
 
