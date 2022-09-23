@@ -190,6 +190,9 @@ class TestSuite(object):
     def test_length(self, actual_value: Any, expected_length: int, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
+        if type(actual_value) in [int, str, float]:
+            actual_value = list(actual_value)
+
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description,
