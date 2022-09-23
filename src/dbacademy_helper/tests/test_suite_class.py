@@ -190,8 +190,7 @@ class TestSuite(object):
     def test_length(self, actual_value: Any, expected_length: int, description: str, *, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
         from dbacademy_helper.tests.test_case_class import TestCase
 
-        if type(actual_value) in [int, str, float]:
-            actual_value = list(actual_value)
+        enumerations = [str, bytes, list, dict, tuple, range, set, frozenset]
 
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
@@ -201,7 +200,7 @@ class TestSuite(object):
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint,
-                                      test_function=lambda: len(actual_value) == expected_length))
+                                      test_function=lambda: type(actual_value) in enumerations and len(actual_value) == expected_length))
 
     def fail_pre_req(self, *, test_case_id: str, e: Exception, depends_on: Iterable[str] = None):
         self.fail(test_case_id=test_case_id,
