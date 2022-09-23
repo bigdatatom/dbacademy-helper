@@ -268,6 +268,21 @@ class TestSuite(object):
                                       test_function=lambda: actual_value in list_of_values))
 
     @staticmethod
+    def compare_lists(value_a: list, value_b: list, test_column_order: bool):
+        if value_a is None and value_b is None: return True
+        if value_a is None or value_b is None: return False
+        if len(value_a) != len(value_b): return False
+
+        if test_column_order:
+            return value_a == value_b
+
+        for column in value_a:
+            if column not in value_b: return False
+        for column in value_b:
+            if column not in value_a: return False
+        return True
+
+    @staticmethod
     def compare_floats(value_a: float, value_b: float, tolerance: float = 0.01):
         try:
             if value_a is None and value_b is None: return True
