@@ -294,7 +294,7 @@ class TestSuite(object):
         field = None if len(fields) == 0 else fields[0]
 
         full_expected_type = f"<class 'pyspark.sql.types.{expected_type}'>"
-        actual_value = None if field is None else ",".join([str(field.name),
+        actual_value = None if field is None else ", ".join([str(field.name),
                                                             str(type(field.dataType)).replace("<class 'pyspark.sql.types.", "").replace("'>", ""),
                                                             str(field.nullable)])
         return self.add_test(TestCase(suite=self,
