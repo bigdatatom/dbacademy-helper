@@ -293,6 +293,8 @@ class TestSuite(object):
         fields = [f for f in schema.fields if f.name == expected_name]
         field = None if len(fields) == 0 else fields[0]
 
+        full_expected_type = f"<class 'pyspark.sql.types.{expected_type}'>"
+
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description or f"Schema contains \"{expected_name}\" of type {expected_type} (nullable={expected_nullable})",
@@ -301,7 +303,7 @@ class TestSuite(object):
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint or "Found [[ACTUAL_VALUE]]",
-                                      test_function=lambda: field is not None and field.name==expected_name and str(type(field.dataType))==expected_type and (expected_nullable is None or field.nullable == expected_nullable)))
+                                      test_function=lambda: field is not None and field.name==expected_name and str(type(field.dataType))==full_expected_type and (expected_nullable is None or field.nullable == expected_nullable)))
 
     @staticmethod
     def compare_lists(value_a: list, value_b: list, test_column_order: bool):
