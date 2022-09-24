@@ -287,6 +287,25 @@ class TestSuite(object):
                                       hint=hint,
                                       test_function=lambda: self.compare_lists(actual_value, expected_value, test_column_order=test_column_order)))
 
+    def test_struct_field(self, schema: pyspark.sql.types.StructType, expected_name: str, expected_type: str, expected_nullable: str, *, description: str = None, test_case_id: str = None, points: int = 1, depends_on: Iterable[str] = None, escape_html: bool = False, hint=None):
+        from dbacademy_helper.tests.test_case_class import TestCase
+
+        fields = [f for f in schema.fields if f.name == expected_name]
+        field = None if len(fields) == 0 else fields[0]
+
+        return self.add_test(TestCase(suite=self,
+                                      test_case_id=test_case_id,
+                                      description=description or f"Schema contains \"{expected_name}\" of type {expected_type} (nullable={expected_nullable})",
+                                      actual_value=field,
+                                      depends_on=depends_on,
+                                      escape_html=escape_html,
+                                      points=points,
+                                      hint=hint or "Found [[ACTUAL_VALUE]]",
+                                      test_function=lambda: field is not None and
+                                                            field.name==expected_name and
+                                                            str(field.dataType)==expected_type) and
+                                                            (expected_nullable is None or field.nullable == expected_nullable)
+
     @staticmethod
     def compare_lists(value_a: list, value_b: list, test_column_order: bool):
         if value_a is None and value_b is None: return True
