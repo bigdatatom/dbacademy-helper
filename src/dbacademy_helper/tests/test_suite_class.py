@@ -304,7 +304,7 @@ class TestSuite(object):
                                       test_function=lambda: field is not None and
                                                             field.name==expected_name and
                                                             str(field.dataType)==expected_type) and
-                                                            (expected_nullable is None or field.nullable == expected_nullable)
+                                                            (expected_nullable is None or field.nullable == expected_nullable))
 
     @staticmethod
     def compare_lists(value_a: list, value_b: list, test_column_order: bool):
