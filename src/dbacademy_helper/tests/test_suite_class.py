@@ -298,7 +298,7 @@ class TestSuite(object):
         return self.add_test(TestCase(suite=self,
                                       test_case_id=test_case_id,
                                       description=description or f"Schema contains \"{expected_name}\" of type {expected_type} (nullable={expected_nullable})",
-                                      actual_value=field,
+                                      actual_value=[field.name, str(type(field.dataType)), field.nullable],
                                       depends_on=depends_on,
                                       escape_html=escape_html,
                                       points=points,
