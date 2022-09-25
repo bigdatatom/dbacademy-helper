@@ -21,7 +21,7 @@ class DatabasesHelper:
         db_name = DBAcademyHelper.to_schema_name(username=username, course_code=self.da.course_code)
         if db_name in self.workspace.existing_databases:
             print(f"Dropping the database \"{db_name}\" for {username}")
-            dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
+            dbgems.spark.sql(f"DROP DATABASE {db_name} CASCADE;")
         else:
             print(f"Skipping database drop for {username}")
 
@@ -39,10 +39,10 @@ class DatabasesHelper:
 
         if db_name in self.da.workspace.existing_databases and drop_existing:
             print(f"Dropping the database \"{db_name}\" for {username}")
-            dbgems.get_spark_session().sql(f"DROP DATABASE {db_name} CASCADE;")
+            dbgems.spark.sql(f"DROP DATABASE {db_name} CASCADE;")
 
         print(f"Creating database \"{db_name}\" for {username}")
-        dbgems.get_spark_session().sql(f"CREATE DATABASE IF NOT EXISTS {db_name} LOCATION '{db_path}';")
+        dbgems.spark.sql(f"CREATE DATABASE IF NOT EXISTS {db_name} LOCATION '{db_path}';")
 
         if post_create:
             # Call the post-create init function if defined
