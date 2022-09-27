@@ -47,6 +47,8 @@ class WorkspaceHelper:
 
         # if self.usernames is None:
         #     raise ValueError("DBAcademyHelper.workspace.usernames must be defined before calling DBAcademyHelper.workspace.do_for_all_users(). See also DBAcademyHelper.workspace.load_all_usernames()")
+        if len(self.usernames) == 0:
+            return []
 
         with ThreadPool(len(self.usernames)) as pool:
             return pool.map(f, self.usernames)
