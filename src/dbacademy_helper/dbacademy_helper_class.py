@@ -544,14 +544,19 @@ class DBAcademyHelper:
                 del schemas[schemas.index(schema)]
 
         for schema in schemas:
-            if self.catalog_name is None:
-                print(f"\nPredefined tables in \"{schema}\":")
-            else:
+            if self.catalog_name is not None:
+                # We have a catalog and presumably a default schema
                 print(f"\nPredefined tables in \"{self.catalog_name}.{schema}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {self.catalog_name}.{schema}").filter("isTemporary == false").select("tableName").collect()
+                if len(tables) == 0: print("  -none-")
+                for row in tables: print(f"  {row[0]}")
 
-            tables = self.__spark.sql(f"SHOW TABLES IN {schema}").filter("isTemporary == false").select("tableName").collect()
-            if len(tables) == 0: print("  -none-")
-            for row in tables: print(f"  {row[0]}")
+            elif self.created_db:
+                # We created a schema so there should be tables in it
+                print(f"\nPredefined tables in \"{schema}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {schema}").filter("isTemporary == false").select("tableName").collect()
+                if len(tables) == 0: print("  -none-")
+                for row in tables: print(f"  {row[0]}")
 
         print("\nPredefined paths variables:")
         self.paths.print(self_name="DA.")
