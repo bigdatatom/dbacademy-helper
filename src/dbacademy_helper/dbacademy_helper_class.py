@@ -41,6 +41,7 @@ class DBAcademyHelper:
         self.__initialized = False
         self.__smoke_test_lesson = False
         self.created_db = False
+        self.created_catalog = False
 
         # Standard initialization
         self.asynchronous = asynchronous
@@ -334,6 +335,7 @@ class DBAcademyHelper:
         self.__initialized = True                   # Set the all-done flag.
 
     def __create_catalog(self):
+        self.created_catalog = True
         if self.catalog_name is None: return
         if self.__requires_uc is False: return
 
@@ -548,8 +550,15 @@ class DBAcademyHelper:
                 self.__spark.conf.set(f"da.paths.{key.lower()}", value)
                 self.__spark.conf.set(f"DA.paths.{key.lower()}", value)
 
-        # Ge the one or list of schemas depending on our configuration
-        schemas = [self.schema_name] if self.catalog_name is None else [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
+        if self.created_catalog:
+            # Get the list of schemas from the prescribed catalog
+            schemas = [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
+        elif self.__requires_uc:
+            # Get the list of schemas from the default catalog
+            schemas = [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {DBAcademyHelper.CATALOG_UC_DEFAULT}").collect()]
+        else:
+            # With no catalog, there can only be one schema.
+            schemas = [self.schema_name]
 
         # Skip over those special, to-be-ignored schemas.
         ignored_schemas = [DBAcademyHelper.INFORMATION_SCHEMA]
@@ -558,10 +567,12 @@ class DBAcademyHelper:
                 del schemas[schemas.index(schema)]
 
         for schema in schemas:
-            if self.catalog_name is not None:
+            if self.created_catalog:
+                catalog = self.catalog_name if self.created_catalog else DBAcademyHelper.CATALOG_UC_DEFAULT
+
                 # We have a catalog and presumably a default schema
-                print(f"\nPredefined tables in \"{self.catalog_name}.{schema}\":")
-                tables = self.__spark.sql(f"SHOW TABLES IN {self.catalog_name}.{schema}").filter("isTemporary == false").select("tableName").collect()
+                print(f"\nPredefined tables in \"{catalog}.{schema}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {catalog}.{schema}").filter("isTemporary == false").select("tableName").collect()
                 if len(tables) == 0: print("  -none-")
                 for row in tables: print(f"  {row[0]}")
 
