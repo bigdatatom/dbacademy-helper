@@ -419,7 +419,7 @@ class DBAcademyHelper:
 
         catalogs = [c[0] for c in dbgems.sql("SHOW CATALOGS").collect()]
         if self.catalog_name not in catalogs:
-            return # The catalog no longer exists
+            return  # The catalog no longer exists
 
         if self.created_catalog:
             print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
