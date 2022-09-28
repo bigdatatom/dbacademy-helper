@@ -62,14 +62,14 @@ class DBAcademyHelper:
             assert r.startswith("dbr-") or r in DBAcademyHelper.REQUIREMENTS, f"The value \"{r}\" is not a supported requirement, expected one of {DBAcademyHelper.REQUIREMENTS}."
         self.dprint(f"Requirements: {self.requirements}")
 
-        # With requirements initialized, we can assert our spark versions.
-        self.__assert_spark_version()
-
         # The following objects provide advanced support for modifying the learning environment.
         self.client = DBAcademyRestClient()
         self.workspace = WorkspaceHelper(self)
         self.dev = DevHelper(self)
         self.tests = TestHelper(self)
+
+        # With requirements initialized, we can assert our spark versions.
+        self.__assert_spark_version()
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
