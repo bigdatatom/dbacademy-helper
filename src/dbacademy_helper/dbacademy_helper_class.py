@@ -61,6 +61,9 @@ class DBAcademyHelper:
         for r in self.requirements: assert r in DBAcademyHelper.REQUIREMENTS, f"The value \"{r}\" is not a supported requirement, expected one of {DBAcademyHelper.REQUIREMENTS}."
         self.dprint(f"Requirements: {self.requirements}")
 
+        # With requirements initialized, we can assert our spark versions.
+        self.__assert_spark_version()
+
         # The following objects provide advanced support for modifying the learning environment.
         self.client = DBAcademyRestClient()
         self.workspace = WorkspaceHelper(self)
@@ -230,6 +233,16 @@ class DBAcademyHelper:
     @property
     def __requires_uc(self):
         return DBAcademyHelper.REQUIREMENTS_UC in self.requirements
+
+    def __assert_spark_version(self):
+        expected_versions = []
+        for requirement in self.requirements:
+            if requirement.lower().startswith("dbr-"):
+                expected_versions.append(requirement[4:])
+
+        if len(expected_versions) > 0:
+            actual = self.client.clusters.get_current_spark_version()
+            assert actual in expected_versions, self.__troubleshoot_error(f"The Databricks Runtime is expected to be one of {expected_versions}, found \"{actual}\".", "Spark Version")
 
     @property
     def unique_name(self):
