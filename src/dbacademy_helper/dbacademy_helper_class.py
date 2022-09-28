@@ -359,12 +359,8 @@ class DBAcademyHelper:
 
         try:
             print(f"Creating & using the schema \"{self.schema_name}\"", end="...")
-            if self.catalog_name is None:
-                dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.schema_name} LOCATION '{self.paths.user_db}'")
-                dbgems.sql(f"USE {self.schema_name}")
-            else:
-                dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.catalog_name}.{self.schema_name} LOCATION '{self.paths.user_db}'")
-                dbgems.sql(f"USE {self.catalog_name}.{self.schema_name}")
+            dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {self.schema_name} LOCATION '{self.paths.user_db}'")
+            dbgems.sql(f"USE {self.schema_name}")
             print(self.clock_stopped(start))
 
         except Exception as e:
