@@ -566,19 +566,23 @@ class DBAcademyHelper:
             if schema in schemas:
                 del schemas[schemas.index(schema)]
 
-        for schema in schemas:
-            if self.created_catalog or self.__requires_uc:
-                catalog = self.catalog_name if self.created_catalog else DBAcademyHelper.CATALOG_UC_DEFAULT
+        for i, schema in enumerate(schemas):
+            if i > 0: print()
 
+            if self.created_catalog:
                 # We have a catalog and presumably a default schema
-                print(f"\nPredefined tables in \"{catalog}.{schema}\":")
-                tables = self.__spark.sql(f"SHOW TABLES IN {catalog}.{schema}").filter("isTemporary == false").select("tableName").collect()
+                print(f"Predefined tables in \"{self.catalog_name}.{schema}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {self.catalog_name}.{schema}").filter("isTemporary == false").select("tableName").collect()
                 if len(tables) == 0: print("  -none-")
                 for row in tables: print(f"  {row[0]}")
 
+            elif self.__requires_uc:
+                # We require UC, but we didn't create the catalog.
+                print(f"Using {DBAcademyHelper.CATALOG_UC_DEFAULT}.default")
+
             elif self.created_db:
                 # We created a schema so there should be tables in it
-                print(f"\nPredefined tables in \"{schema}\":")
+                print(f"Predefined tables in \"{schema}\":")
                 tables = self.__spark.sql(f"SHOW TABLES IN {schema}").filter("isTemporary == false").select("tableName").collect()
                 if len(tables) == 0: print("  -none-")
                 for row in tables: print(f"  {row[0]}")
