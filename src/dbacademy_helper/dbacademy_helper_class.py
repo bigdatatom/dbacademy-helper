@@ -58,7 +58,8 @@ class DBAcademyHelper:
         self.requirements = requirements or list()
         self.requirements = [self.requirements] if type(self.requirements) == str else self.requirements
         assert type(self.requirements) == list, f"The parameter \"requirements\" must be of type \"list\", found \"{type(self.requirements)}\"."
-        for r in self.requirements: assert r in DBAcademyHelper.REQUIREMENTS, f"The value \"{r}\" is not a supported requirement, expected one of {DBAcademyHelper.REQUIREMENTS}."
+        for r in self.requirements:
+            assert r.startswith("dbr-") or r in DBAcademyHelper.REQUIREMENTS, f"The value \"{r}\" is not a supported requirement, expected one of {DBAcademyHelper.REQUIREMENTS}."
         self.dprint(f"Requirements: {self.requirements}")
 
         # With requirements initialized, we can assert our spark versions.
