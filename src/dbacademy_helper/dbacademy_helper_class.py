@@ -215,6 +215,7 @@ class DBAcademyHelper:
             self.__initial_catalog
         except AttributeError:
             self.__initial_catalog = dbgems.spark.sql("SELECT current_catalog()").first()[0].lower()
+            self.__initial_schema = dbgems.spark.sql("SELECT current_database()").first()[0].lower()
 
         return self.__initial_catalog == DBAcademyHelper.CATALOG_UC_DEFAULT
 
@@ -578,14 +579,20 @@ class DBAcademyHelper:
 
             elif self.__requires_uc:
                 # We require UC, but we didn't create the catalog.
-                print(f"Using the catalog \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" and the \"default\" schema.")
+                print(f"Using the catalog \"{self.__initial_catalog}\" and the \"{self.__initial_schema}\" schema.")
 
             elif self.created_db:
-                # We created a schema so there should be tables in it
-                print(f"Predefined tables in \"{schema}\":")
-                tables = self.__spark.sql(f"SHOW TABLES IN {schema}").filter("isTemporary == false").select("tableName").collect()
+                # Not UC, but we created a schema so there should be tables in it
+                catalog_table = schema if self.__initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.__initial_catalog}.{schema}"
+
+                print(f"Predefined tables in \"{catalog_table}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {catalog_table}").filter("isTemporary == false").select("tableName").collect()
                 if len(tables) == 0: print("  -none-")
                 for row in tables: print(f"  {row[0]}")
+
+            else:
+                # Not UC, didn't create the database
+                print(f"Using the \"{self.__initial_schema}\" schema.")
 
         print("\nPredefined paths variables:")
         self.paths.print(self_name="DA.")
