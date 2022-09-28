@@ -81,7 +81,8 @@ class DatabasesHelper:
                         }
                     },
                     "new_cluster": {
-                        "num_workers": "0",
+                        "num_workers": 0,
+                        "cluster_name": "",
                         "spark_conf": {
                             "spark.master": "local[*]",
                             "spark.databricks.acl.dfAclsEnabled": "true",
@@ -94,7 +95,7 @@ class DatabasesHelper:
             ],
         }
         cluster_params = params.get("tasks")[0].get("new_cluster")  # Photon currently is not supported on these cluster types
-        cluster_params["spark_version"] = self.client.clusters().get_current_spark_version().replace("-photon-", "-")
+        cluster_params["spark_version"] = "10.4.x-scala2.12"  # self.client.clusters().get_current_spark_version().replace("-photon-", "-")
 
         if self.client.clusters().get_current_instance_pool_id() is not None:
             cluster_params["instance_pool_id"] = self.client.clusters().get_current_instance_pool_id()
