@@ -418,22 +418,21 @@ class DBAcademyHelper:
     def __cleanup_catalog(self):
 
         catalogs = [c[0] for c in dbgems.sql("SHOW CATALOGS").collect()]
-        if self.catalog_name not in catalogs: return
+        if self.catalog_name not in catalogs:
+            return # The catalog no longer exists
 
-        # Make sure to use the catalog that we are getting ready to clean up.
-        dbgems.sql(f"USE CATALOG {self.catalog_name}")
+        if self.created_catalog:
+            print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
+            for schema_name in [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.catalog_name}").collect()]:
+                if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"):
+                    print(f"......keeping the schema \"{schema_name}\".")
+                else:
+                    start = self.clock_start()
+                    print(f"......dropping the schema \"{schema_name}\"", end="...")
 
-        print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
-        for schema_name in [d[0] for d in dbgems.spark.sql(f"show databases").collect()]:
-            if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"):
-                print(f"......keeping the schema \"{schema_name}\".")
-            else:
-                start = self.clock_start()
-                print(f"......dropping the schema \"{schema_name}\"", end="...")
+                    dbgems.spark.sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{schema_name} CASCADE")
 
-                dbgems.spark.sql(f"DROP SCHEMA IF EXISTS {self.catalog_name}.{schema_name} CASCADE")
-
-                print(self.clock_stopped(start))
+                    print(self.clock_stopped(start))
 
     def __cleanup_stop_all_streams(self):
         for stream in self.__spark.streams.active:
