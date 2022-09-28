@@ -554,7 +554,7 @@ class DBAcademyHelper:
             # Get the list of schemas from the prescribed catalog
             schemas = [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
         elif self.__requires_uc:
-            # Get the list of schemas from the default catalog
+            # No telling how many schemas there may be, we would only care about the default
             schemas = ["default"]
         else:
             # With no catalog, there can only be one schema.
