@@ -567,7 +567,7 @@ class DBAcademyHelper:
                 del schemas[schemas.index(schema)]
 
         for schema in schemas:
-            if self.created_catalog:
+            if self.created_catalog or self.__requires_uc:
                 catalog = self.catalog_name if self.created_catalog else DBAcademyHelper.CATALOG_UC_DEFAULT
 
                 # We have a catalog and presumably a default schema
