@@ -578,7 +578,7 @@ class DBAcademyHelper:
 
             elif self.__requires_uc:
                 # We require UC, but we didn't create the catalog.
-                print(f"Using {DBAcademyHelper.CATALOG_UC_DEFAULT}.default")
+                print(f"Using the catalog \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" and the \"default\" schema.")
 
             elif self.created_db:
                 # We created a schema so there should be tables in it
