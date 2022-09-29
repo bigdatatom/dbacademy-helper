@@ -46,7 +46,7 @@ class DatabasesHelper:
             dbgems.spark.sql(f"DROP DATABASE {db_name} CASCADE;")
 
         print(f"Creating database \"{db_name}\" for {username}")
-        dbgems.spark.sql(f"CREATE DATABASE IF NOT EXISTS {db_name} LOCATION '{db_path}';")
+        dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {db_name} LOCATION '{db_path}';")
 
         if post_create:
             # Call the post-create init function if defined
