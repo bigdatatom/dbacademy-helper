@@ -154,6 +154,10 @@ class DBAcademyHelper:
         if self.__debug:
             print(f"DEBUG: {message}")
 
+    @property
+    def catalog_name(self):
+        return self.env.catalog_name
+
     @staticmethod
     def to_catalog_name(username):
         return EnvConfig.to_catalog_name(username)
