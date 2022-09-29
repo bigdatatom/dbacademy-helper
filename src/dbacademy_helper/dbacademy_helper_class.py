@@ -379,20 +379,13 @@ class DBAcademyHelper:
 
         if self.env.created_catalog:
             schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]
-            for schema_name in schemas:
-                if schema_name == schema_name.startswith("_"):
-                    print(f"Skipping {schema_name}")
-                    del schemas[schemas.index(schema_name)]
-                elif schema_name in DBAcademyHelper.SPECIAL_SCHEMAS:
-                    print(f"Skipping {schema_name}")
-                    del schemas[schemas.index(schema_name)]
-                else:
-                    print(f"Keeping {schema_name}: {schema_name in DBAcademyHelper.SPECIAL_SCHEMAS}")
 
-            if len(schemas) > 0:
-                s = "" if len(schemas) == 1 else "s"
-                print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.env.catalog_name}\"")
-                for schema_name in schemas:
+            s = "" if len(schemas) == 1 else "s"
+            print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.env.catalog_name}\"")
+            for schema_name in schemas:
+                if schema_name.startswith("_") or schema_name in DBAcademyHelper.SPECIAL_SCHEMAS:
+                    print(f"......skipping the schema \"{schema_name}\"", end="...")
+                else:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
                     dbgems.spark.sql(f"DROP SCHEMA IF EXISTS {self.env.catalog_name}.{schema_name} CASCADE")
