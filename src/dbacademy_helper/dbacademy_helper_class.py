@@ -384,7 +384,8 @@ class DBAcademyHelper:
                 if schema_name in DBAcademyHelper.SPECIAL_SCHEMAS: del schemas[i]
 
             if len(schemas) > 0:
-                print(f"...dropping all database in the catalog \"{self.env.catalog_name}\"")
+                s = "" if len(schemas) == 1 else "s"
+                print(f"...dropping {len(schemas)} schema{s} in the catalog \"{self.env.catalog_name}\"")
                 for schema_name in schemas:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
