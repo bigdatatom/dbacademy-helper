@@ -4,9 +4,9 @@ class EnvConfig:
 
         try:
             row = dbgems.sql("SELECT current_user() as username, current_catalog() as catalog, current_database() as schema").first()
-            self.__username = row.get["username"]
-            self.__initial_catalog = row.get["catalog"]
-            self.__initial_schema = row.get["schema"]
+            self.__username = row["username"]
+            self.__initial_catalog = row["catalog"]
+            self.__initial_schema = row["schema"]
         except:
             self.__username = "unknown@example.com"  # Because of unit tests
             self.__initial_catalog = "unknown_catalog"  # Because of unit tests
