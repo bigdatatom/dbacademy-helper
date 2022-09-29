@@ -526,7 +526,7 @@ class DBAcademyHelper:
 
             elif self.__requires_uc:
                 # We require UC, but we didn't create the catalog.
-                print(f"Using the catalog \"{self.env.initial_catalog}\" and the \"{self.env.initial_schema}\" schema.")
+                print(f"Using the catalog \"{self.env.initial_catalog}\" and the schema \"{self.env.initial_schema}\".")
 
             elif self.env.created_schema:
                 # Not UC, but we created a schema so there should be tables in it
