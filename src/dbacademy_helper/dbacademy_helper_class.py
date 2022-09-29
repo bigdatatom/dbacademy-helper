@@ -379,6 +379,10 @@ class DBAcademyHelper:
 
         if self.env.created_catalog:
             schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]
+            
+            for ignored in DBAcademyHelper.SPECIAL_SCHEMAS:
+                if ignored in schemas:
+                    del schemas[schemas.index(ignored)]
 
             s = "" if len(schemas) == 1 else "s"
             print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.env.catalog_name}\"")
@@ -516,7 +520,6 @@ class DBAcademyHelper:
 
         for ignored in DBAcademyHelper.SPECIAL_SCHEMAS:
             if ignored in schemas:
-                # Skip over those special, to-be-ignored schemas.
                 del schemas[schemas.index(ignored)]
 
         for i, schema in enumerate(schemas):
