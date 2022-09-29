@@ -2,27 +2,6 @@ class EnvConfig:
     def __init__(self, create_schema: bool, create_catalog: bool, requires_uc: bool):
         from dbacademy_gems import dbgems
 
-        self.requires_uc = requires_uc
-
-        self.__create_schema = create_schema   # Store the variable.
-        self.__created_schema = create_schema  # Will be unconditionally equal
-
-        if create_catalog: assert requires_uc, f"Inconsistent configuration: The parameter \"create_catalog\" was True and \"requires_uc\" was False."
-        self.__create_catalog = create_catalog
-        self.__created_catalog = False
-
-        # self.create_uc_schema = False
-        # self.create_uc_catalog = False
-        # self.create_stock_schema = False
-        # self.create_stock_catalog = False
-        #
-        # self.__created_uc_schema = False
-        # self.__created_uc_catalog = False
-        # self.__created_stock_schema = False
-        # self.__created_stock_catalog = False
-        #
-        # self.schemas = []
-
         try:
             row = dbgems.sql("SELECT current_user() as username, current_catalog() as catalog, current_database() as schema").first()
             self.__username = row.get["username"]
@@ -33,52 +12,67 @@ class EnvConfig:
             self.__initial_catalog = "unknown_catalog"  # Because of unit tests
             self.__initial_schema = "unknown_schema"  # Because of unit tests
 
+        self.__requires_uc = requires_uc
+
+        if create_catalog:
+            assert requires_uc, f"Inconsistent configuration: The parameter \"create_catalog\" was True and \"requires_uc\" was False."
+            assert self.is_uc_enabled_workspace, f"Cannot create a catalog, UC is not enabled for this workspace/cluster."
+            assert not create_schema, f"Cannot create a user-specific schema when creating UC catalogs"
+
+        # Will be unconditionally True
+        self.__created_schema = create_schema
+        self.__created_catalog = create_catalog
+
+        if self.is_uc_enabled_workspace:
+            from .dbacademy_helper_class import DBAcademyHelper
+
+            # By default, the catalog name will be the same as the default.
+            self.__catalog_name = DBAcademyHelper.CATALOG_UC_DEFAULT
+
+            # If we are creating a catalog, we will use a user-specific catalog
+            if create_catalog:
+                self.__catalog_name = self.to_catalog_name(self.username)
+
     @property
-    def initial_catalog(self):
+    def requires_uc(self) -> bool:
+        return self.__requires_uc
+
+    @property
+    def catalog_name(self) -> str:
+        return self.__catalog_name
+
+    @property
+    def is_uc_enabled_workspace(self) -> bool:
+        """
+        There has to be better ways of implementing this, but it is the only option we have found so far.
+        It works when the environment is enabled AND the cluster is configured properly.
+        :return: True if this is a UC environment
+        """
+        from .dbacademy_helper_class import DBAcademyHelper
+        return self.initial_catalog == DBAcademyHelper.CATALOG_UC_DEFAULT
+
+    @property
+    def initial_catalog(self) -> str:
         return self.__initial_catalog
 
     @property
-    def initial_schema(self):
+    def initial_schema(self) -> str:
         return self.__initial_schema
 
     @property
-    def username(self):
+    def username(self) -> str:
         return self.__username
 
     @property
-    def created_catalog(self):
+    def created_catalog(self) -> bool:
         return self.__created_catalog
 
     @property
-    def create_catalog(self):
-        return self.__create_catalog
-
-    @property
-    def created_schema(self):
+    def created_schema(self) -> bool:
         return self.__created_schema
 
-    @property
-    def create_schema(self):
-        return self.__create_schema
-
-    # @property
-    # def created_uc_schema(self) -> bool:
-    #     return self.__created_uc_schema
-    #
-    # @property
-    # def created_uc_catalog(self) -> bool:
-    #     return self.__created_uc_catalog
-    #
-    # @property
-    # def created_stock_schema(self) -> bool:
-    #     return self.__created_stock_schema
-    #
-    # @property
-    # def created_stock_catalog(self) -> bool:
-    #     return self.__created_stock_catalog
-
     @staticmethod
-    def to_catalog_name(username):
+    def to_catalog_name(username) -> str:
         import re, hashlib
         from .dbacademy_helper_class import DBAcademyHelper
 
