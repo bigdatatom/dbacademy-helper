@@ -288,6 +288,10 @@ class DBAcademyHelper:
             print(f"Creating & using the catalog \"{self.env.catalog_name}\"", end="...")
             dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.env.catalog_name}")
             dbgems.sql(f"USE CATALOG {self.env.catalog_name}")
+
+            dbgems.sql(f"CREATE DATABASE IF NOT EXISTS default")
+            dbgems.sql(f"USE default")
+
             print(self.clock_stopped(start))
 
         except Exception as e:
