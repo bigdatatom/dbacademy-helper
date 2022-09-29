@@ -380,12 +380,16 @@ class DBAcademyHelper:
         if self.env.created_catalog:
             schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]
             for i, schema_name in enumerate(schemas):
-                if schema_name == schema_name.startswith("_"): del schemas[i]
-                if schema_name in DBAcademyHelper.SPECIAL_SCHEMAS: del schemas[i]
+                if schema_name == schema_name.startswith("_"):
+                    print(f"Skipping {schema_name}")
+                    del schemas[i]
+                if schema_name in DBAcademyHelper.SPECIAL_SCHEMAS:
+                    print(f"Skipping {schema_name}")
+                    del schemas[i]
 
             if len(schemas) > 0:
                 s = "" if len(schemas) == 1 else "s"
-                print(f"...dropping {len(schemas)} schema{s} in the catalog \"{self.env.catalog_name}\"")
+                print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.env.catalog_name}\"")
                 for schema_name in schemas:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
@@ -515,11 +519,9 @@ class DBAcademyHelper:
             # With no catalog, there can only be one schema.
             schemas = [self.schema_name]
 
-        # Skip over those special, to-be-ignored schemas.
-        ignored_schemas = [DBAcademyHelper.INFORMATION_SCHEMA]
-        for schema in ignored_schemas:
-            if schema in schemas:
-                del schemas[schemas.index(schema)]
+        if DBAcademyHelper.SPECIAL_SCHEMAS in schemas:
+            # Skip over those special, to-be-ignored schemas.
+            del schemas[schemas.index(DBAcademyHelper.SPECIAL_SCHEMAS)]
 
         for i, schema in enumerate(schemas):
             if i > 0: print()
