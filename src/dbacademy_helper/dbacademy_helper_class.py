@@ -1,4 +1,5 @@
 from dbacademy_gems import dbgems
+from .env_config_class import EnvConfig
 
 class DBAcademyHelper:
     import pyspark
@@ -10,10 +11,11 @@ class DBAcademyHelper:
     CATALOG_SPARK_DEFAULT = "spark_catalog"
     CATALOG_UC_DEFAULT = "hive_metastore"
 
-    REQUIREMENTS_UC = "UC"
-    REQUIREMENTS = [REQUIREMENTS_UC]
+    # REQUIREMENTS_UC = "UC"
+    REQUIREMENTS = []
 
     def __init__(self, *,
+                 env_config: EnvConfig,
                  course_code: str,
                  course_name: str,
                  data_source_name: str,
@@ -33,6 +35,9 @@ class DBAcademyHelper:
         from .dev_helper import DevHelper
         from .tests import TestHelper
 
+        assert env_config is not None, f"The parameter env_config:EnvConfig must be specified."
+        self.__env_config = env_config
+
         self.__debug = debug
         self.__start = self.clock_start()
         self.__spark = dbgems.spark
@@ -40,8 +45,8 @@ class DBAcademyHelper:
         # Initialized in the call to init()
         self.__initialized = False
         self.__smoke_test_lesson = False
-        self.created_db = False
-        self.created_catalog = False
+        # self.created_db = False
+        # self.created_catalog = False
 
         # Standard initialization
         self.asynchronous = asynchronous
@@ -85,7 +90,7 @@ class DBAcademyHelper:
         self.lesson = None if lesson is None else lesson.lower()
 
         # Define username using the hive function (cleaner than notebooks API)
-        self.username = dbgems.sql("SELECT current_user()").first()[0]
+        self.username = self.__env_config.username
 
         # This is the location in our Azure data repository of the datasets for this lesson
         self.staging_source_uri = f"dbfs:/mnt/dbacademy-datasets-staging/{self.data_source_name}/{self.data_source_version}"
@@ -108,13 +113,13 @@ class DBAcademyHelper:
             if self.__requires_uc:
                 # UC enabled and required: create the user-specific catalog
                 self.dprint("UC is required, creating catalog, skipping schema")
-                self.catalog_name = self.to_catalog_name(self.username)
+                self.catalog_name = EnvConfig.to_catalog_name(self.username)
                 self.schema_name_prefix = "default"
             else:
                 # We currently cannot use catalogs unless it's specifically required do to various UC limitations
                 self.dprint("Does not require UC, skipping catalog, creating schema")
                 self.catalog_name = None
-                self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
+                self.schema_name_prefix = EnvConfig.to_schema_name(username=self.username, course_code=self.course_code)
 
         elif self.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             self.dprint(f"UC not enabled: {DBAcademyHelper.CATALOG_SPARK_DEFAULT}")
@@ -128,7 +133,7 @@ class DBAcademyHelper:
 
             # Create the schema name prefix according to curriculum standards. This is the value by which
             # all schemas in this course should start with. Including this lesson's schema name.
-            self.schema_name_prefix = self.to_schema_name(username=self.username, course_code=self.course_code)
+            self.schema_name_prefix = EnvConfig.to_schema_name(username=self.username, course_code=self.course_code)
 
         else:
             raise AssertionError(f"The current catalog is expected to be \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" or \"{DBAcademyHelper.CATALOG_SPARK_DEFAULT}\" so as to prevent inadvertent corruption of the current workspace, found \"{self.initial_catalog}\"")
@@ -180,9 +185,7 @@ class DBAcademyHelper:
 
     @staticmethod
     def to_catalog_name(username):
-        local_part = username.split("@")[0]  # Split the username, dropping the domain
-        username_hash = abs(hash(username)) % 10000  # Create a has from the full username
-        return DBAcademyHelper.clean_string(f"{local_part}-{username_hash}-dbacademy").lower()
+        return EnvConfig.to_catalog_name(username)
 
     @property
     @dbgems.deprecated(reason="Use DBAcademyHelper.schema_name_prefix instead")
@@ -235,7 +238,8 @@ class DBAcademyHelper:
 
     @property
     def __requires_uc(self):
-        return DBAcademyHelper.REQUIREMENTS_UC in self.requirements
+        return self.__env_config is not None and self.__env_config.requires_uc
+        # return DBAcademyHelper.REQUIREMENTS_UC in self.requirements
 
     def __assert_spark_version(self):
         expected_versions = []
@@ -253,36 +257,23 @@ class DBAcademyHelper:
         Generates a unique, user-specific name for databases, models, jobs, pipelines, etc,
         :return: Returns a unique name for the current user and course.
         """
-        return self.to_schema_name(self.username, self.course_code)
+        return EnvConfig.to_schema_name(self.username, self.course_code)
 
     def get_database_name(self):
         """
         Alias for DBAcademyHelper.to_database_name(self.username, self.course_code)
         :return: Returns the name of the database for the current user and course.
         """
-        return self.to_schema_name(self.username, self.course_code)
+        return EnvConfig.to_schema_name(self.username, self.course_code)
 
     @staticmethod
     @dbgems.deprecated(reason="Use DBAcademyHelper.to_schema_name() instead")
     def to_database_name(username, course_code) -> str:
-        return DBAcademyHelper.to_schema_name(username, course_code)
+        return EnvConfig.to_schema_name(username, course_code)
 
     @staticmethod
     def to_schema_name(username, course_code) -> str:
-        """
-        Given the specified username and course_code, creates a database name that follows the pattern "da-name_prefix@hash-course_code"
-        where name_prefix is the right hand of an email as in "john.doe" given "john.doe@example.com", hash is truncated hash based on
-        the full email address and course code.
-        :param username: The full username (e.g. email address) to compose the database name from.
-        :param course_code: The abbreviated version of the course's name
-        :return: Returns the name of the database for the given user and course.
-        """
-        import re
-        schema_name, da_hash = DBAcademyHelper.to_username_hash(username, course_code)
-        schema_name = f"da-{schema_name}@{da_hash}-{course_code}"                # Composite all the values to create the "dirty" database name
-        schema_name = re.sub(r"[^a-zA-Z\d]", "_", schema_name)                   # Replace all special characters with underscores (not digit or alpha)
-        while "__" in schema_name: schema_name = schema_name.replace("__", "_")  # Replace all double underscores with single underscores
-        return schema_name
+        return EnvConfig.to_schema_name(username, course_code)
 
     def get_username_hash(self):
         """
@@ -302,9 +293,10 @@ class DBAcademyHelper:
         :param course_code: The abbreviated version of the course's name
         :return: Returns (da_name:str, da_hash:str)
         """
-
+        import re, hashlib
         da_name = username.split("@")[0]  # Split the username, dropping the domain
-        da_hash = abs(hash(f"{username}-{course_code}")) % 10000  # Create a has from the full username and course code
+        hash_value = hashlib.sha3_512(f"{username}-{course_code}".encode('utf-8')).hexdigest()
+        da_hash = abs(int(re.sub(r"[a-z]", "", hash_value))) & 10000
         return da_name, da_hash
 
     @staticmethod
@@ -326,6 +318,10 @@ class DBAcademyHelper:
         """
         This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
         """
+        if self.__env_config is not None:
+            # HACK - environment config was provided, so we only need to assert that they match.
+            assert create_db == self.__env_config.created_schema, f"The create_db parameter ({create_db}) is not consistent with the value provided by EnvConfig.created_schema ({self.__env_config.created_schema})."
+            assert create_catalog == self.__env_config.create_catalog, f"The create_catalog parameter ({create_catalog}) is not consistent with the value provided by EnvConfig.create_catalog ({self.__env_config.create_catalog})."
 
         if install_datasets: self.install_datasets()  # Install the data
         print()
@@ -336,9 +332,9 @@ class DBAcademyHelper:
         self.__initialized = True                   # Set the all-done flag.
 
     def __create_catalog(self):
-        self.created_catalog = True
         if self.catalog_name is None: return
         if self.__requires_uc is False: return
+        # self.created_catalog = True
 
         try:
             start = self.clock_start()
@@ -355,7 +351,7 @@ class DBAcademyHelper:
 
     def __create_schema(self):
         start = self.clock_start()
-        self.created_db = True
+        # self.created_db = True
 
         try:
             print(f"Creating & using the schema \"{self.schema_name}\"", end="...")
@@ -421,7 +417,7 @@ class DBAcademyHelper:
         if self.catalog_name not in catalogs:
             return  # The catalog no longer exists
 
-        if self.created_catalog:
+        if self.__env_config.created_catalog:
             print(f"...dropping all database in the catalog \"{self.catalog_name}\"")
             for schema_name in [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.catalog_name}").collect()]:
                 if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"):
@@ -546,7 +542,7 @@ class DBAcademyHelper:
                 self.__spark.conf.set(f"da.paths.{key.lower()}", value)
                 self.__spark.conf.set(f"DA.paths.{key.lower()}", value)
 
-        if self.created_catalog:
+        if self.__env_config.created_catalog:
             # Get the list of schemas from the prescribed catalog
             schemas = [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.catalog_name}").collect()]
         elif self.__requires_uc:
@@ -565,7 +561,7 @@ class DBAcademyHelper:
         for i, schema in enumerate(schemas):
             if i > 0: print()
 
-            if self.created_catalog:
+            if self.__env_config.created_catalog:
                 # We have a catalog and presumably a default schema
                 print(f"Predefined tables in \"{self.catalog_name}.{schema}\":")
                 tables = self.__spark.sql(f"SHOW TABLES IN {self.catalog_name}.{schema}").filter("isTemporary == false").select("tableName").collect()
@@ -576,7 +572,7 @@ class DBAcademyHelper:
                 # We require UC, but we didn't create the catalog.
                 print(f"Using the catalog \"{self.initial_catalog}\" and the \"{self.initial_schema}\" schema.")
 
-            elif self.created_db:
+            elif self.__env_config.created_schema:
                 # Not UC, but we created a schema so there should be tables in it
                 catalog_table = schema if self.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.initial_catalog}.{schema}"
 
