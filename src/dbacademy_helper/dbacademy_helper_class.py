@@ -492,8 +492,9 @@ class DBAcademyHelper:
         for key in self.paths.__dict__:
             if not key.startswith("_"):
                 value = self.paths.__dict__[key]
-                self.__spark.conf.set(f"da.paths.{key.lower()}", value)
-                self.__spark.conf.set(f"DA.paths.{key.lower()}", value)
+                if value is not None:
+                    self.__spark.conf.set(f"da.paths.{key.lower()}", value)
+                    self.__spark.conf.set(f"DA.paths.{key.lower()}", value)
 
         if self.env.created_catalog:
             # Get the list of schemas from the prescribed catalog
