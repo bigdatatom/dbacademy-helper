@@ -371,11 +371,13 @@ class DBAcademyHelper:
             return  # The catalog no longer exists
 
         if self.env.created_catalog:
-            print(f"...dropping all database in the catalog \"{self.env.catalog_name}\"")
-            for schema_name in [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]:
-                if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"):
-                    print(f"......keeping the schema \"{schema_name}\".")
-                else:
+            schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]
+            for i, schema_name in enumerate(schemas):
+                if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"): del schemas[i]
+
+            if len(schemas) > 0:
+                print(f"...dropping all database in the catalog \"{self.env.catalog_name}\"")
+                for schema_name in schemas:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
 
