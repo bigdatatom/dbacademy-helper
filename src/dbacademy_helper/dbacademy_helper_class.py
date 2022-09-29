@@ -121,7 +121,7 @@ class DBAcademyHelper:
                 self.catalog_name = None
                 self.schema_name_prefix = EnvConfig.to_schema_name(username=self.username, course_code=self.course_code)
 
-        elif self.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
+        elif self.__env_config.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT:
             self.dprint(f"UC not enabled: {DBAcademyHelper.CATALOG_SPARK_DEFAULT}")
             self.dprint(f"UC required:    {self.__requires_uc}")
 
@@ -136,7 +136,7 @@ class DBAcademyHelper:
             self.schema_name_prefix = EnvConfig.to_schema_name(username=self.username, course_code=self.course_code)
 
         else:
-            raise AssertionError(f"The current catalog is expected to be \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" or \"{DBAcademyHelper.CATALOG_SPARK_DEFAULT}\" so as to prevent inadvertent corruption of the current workspace, found \"{self.initial_catalog}\"")
+            raise AssertionError(f"The current catalog is expected to be \"{DBAcademyHelper.CATALOG_UC_DEFAULT}\" or \"{DBAcademyHelper.CATALOG_SPARK_DEFAULT}\" so as to prevent inadvertent corruption of the current workspace, found \"{self.__env_config.initial_catalog}\"")
 
         try: self.catalog_name
         except AttributeError: raise AssertionError(f"The catalog_name was not properly defined.")
@@ -213,14 +213,7 @@ class DBAcademyHelper:
         It works when the environment is enabled AND the cluster is configured properly.
         :return: True if this is a UC environment
         """
-        try:
-            # noinspection PyUnresolvedReferences
-            self.initial_catalog
-        except AttributeError:
-            self.initial_catalog = dbgems.spark.sql("SELECT current_catalog()").first()[0].lower()
-            self.initial_schema = dbgems.spark.sql("SELECT current_database()").first()[0].lower()
-
-        return self.initial_catalog == DBAcademyHelper.CATALOG_UC_DEFAULT
+        return self.__env_config.initial_catalog == DBAcademyHelper.CATALOG_UC_DEFAULT
 
     # noinspection PyMethodMayBeStatic
     def clock_start(self):
@@ -570,11 +563,11 @@ class DBAcademyHelper:
 
             elif self.__requires_uc:
                 # We require UC, but we didn't create the catalog.
-                print(f"Using the catalog \"{self.initial_catalog}\" and the \"{self.initial_schema}\" schema.")
+                print(f"Using the catalog \"{self.__env_config.initial_catalog}\" and the \"{self.__env_config.initial_schema}\" schema.")
 
             elif self.__env_config.created_schema:
                 # Not UC, but we created a schema so there should be tables in it
-                catalog_table = schema if self.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.initial_catalog}.{schema}"
+                catalog_table = schema if self.__env_config.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.__env_config.initial_catalog}.{schema}"
 
                 print(f"Predefined tables in \"{catalog_table}\":")
                 tables = self.__spark.sql(f"SHOW TABLES IN {catalog_table}").filter("isTemporary == false").select("tableName").collect()
@@ -583,7 +576,7 @@ class DBAcademyHelper:
 
             else:
                 # Not UC, didn't create the database
-                print(f"Using the \"{self.initial_schema}\" schema.")
+                print(f"Using the \"{self.__env_config.initial_schema}\" schema.")
 
         print("\nPredefined paths variables:")
         self.paths.print(self_name="DA.")

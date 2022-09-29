@@ -23,8 +23,23 @@ class EnvConfig:
         #
         # self.schemas = []
 
-        try: self.__username = dbgems.sql("SELECT current_user()").first()[0]
-        except: self.__username = "unknown@example.com"  # Because of unit tests
+        try:
+            row = dbgems.sql("SELECT current_user() as username, current_catalog() as catalog, current_database() as schema").first()
+            self.__username = row.get["username"]
+            self.__initial_catalog = row.get["catalog"]
+            self.__initial_schema = row.get["schema"]
+        except:
+            self.__username = "unknown@example.com"  # Because of unit tests
+            self.__initial_catalog = "unknown_catalog"  # Because of unit tests
+            self.__initial_schema = "unknown_schema"  # Because of unit tests
+
+    @property
+    def initial_catalog(self):
+        return self.__initial_catalog
+
+    @property
+    def initial_schema(self):
+        return self.__initial_schema
 
     @property
     def username(self):
