@@ -42,7 +42,8 @@ class Paths:
         for key in self.__dict__:
             if not key.startswith("_"):
                 label = f"{padding}{self_name}paths.{key}: "
-                print(label.ljust(max_key_len + 13) + self.__dict__[key])
+                if self.__dict__[key] is not None:
+                    print(label.ljust(max_key_len + 13) + self.__dict__[key])
 
     def __repr__(self):
         return self.__dict__.__repr__().replace(", ", ",\n").replace("{", "").replace("}", "").replace("'", "")
