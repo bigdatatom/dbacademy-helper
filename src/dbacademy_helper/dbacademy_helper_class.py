@@ -384,7 +384,7 @@ class DBAcademyHelper:
             print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.env.catalog_name}\"")
             for schema_name in schemas:
                 if schema_name.startswith("_") or schema_name in DBAcademyHelper.SPECIAL_SCHEMAS:
-                    print(f"......skipping the schema \"{schema_name}\"", end="...")
+                    print(f"......skipping the schema \"{schema_name}\"")
                 else:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
