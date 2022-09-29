@@ -5,7 +5,10 @@ class DBAcademyHelper:
     import pyspark
     from typing import Union, List
 
+    DEFAULT_SCHEMA = "default"
     INFORMATION_SCHEMA = "information_schema"
+    SPECIAL_SCHEMAS = [DEFAULT_SCHEMA, INFORMATION_SCHEMA]
+
     SMOKE_TEST_KEY = "dbacademy.smoke-test"
 
     CATALOG_SPARK_DEFAULT = "spark_catalog"
@@ -378,16 +381,14 @@ class DBAcademyHelper:
             schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]
             for i, schema_name in enumerate(schemas):
                 if schema_name == schema_name.startswith("_"): del schemas[i]
-                if schema_name in ["default", DBAcademyHelper.INFORMATION_SCHEMA]: del schemas[i]
+                if schema_name in DBAcademyHelper.SPECIAL_SCHEMAS: del schemas[i]
 
             if len(schemas) > 0:
                 print(f"...dropping all database in the catalog \"{self.env.catalog_name}\"")
                 for schema_name in schemas:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
-
                     dbgems.spark.sql(f"DROP SCHEMA IF EXISTS {self.env.catalog_name}.{schema_name} CASCADE")
-
                     print(self.clock_stopped(start))
 
     def __cleanup_stop_all_streams(self):
