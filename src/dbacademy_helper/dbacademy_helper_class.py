@@ -377,7 +377,8 @@ class DBAcademyHelper:
         if self.env.created_catalog:
             schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.env.catalog_name}").collect()]
             for i, schema_name in enumerate(schemas):
-                if schema_name == DBAcademyHelper.INFORMATION_SCHEMA or schema_name.startswith("_"): del schemas[i]
+                if schema_name == schema_name.startswith("_"): del schemas[i]
+                if schema_name in ["default", DBAcademyHelper.INFORMATION_SCHEMA]: del schemas[i]
 
             if len(schemas) > 0:
                 print(f"...dropping all database in the catalog \"{self.env.catalog_name}\"")
