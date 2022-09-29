@@ -530,10 +530,10 @@ class DBAcademyHelper:
 
             elif self.env.created_schema:
                 # Not UC, but we created a schema so there should be tables in it
-                catalog_table = schema if self.env.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.env.initial_catalog}.{schema}"
+                # catalog_table = schema if self.env.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.env.initial_catalog}.{schema}"
 
-                print(f"Predefined tables in \"{catalog_table}\":")
-                tables = self.__spark.sql(f"SHOW TABLES IN {catalog_table}").filter("isTemporary == false").select("tableName").collect()
+                print(f"Predefined tables in \"{schema}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {schema}").filter("isTemporary == false").select("tableName").collect()
                 if len(tables) == 0: print("  -none-")
                 for row in tables: print(f"  {row[0]}")
 
