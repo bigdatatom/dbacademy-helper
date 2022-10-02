@@ -16,7 +16,7 @@ def find_dbacademy_packages():
 
 setuptools.setup(
     name="dbacademy-helper",
-    version="0.1",
+    version="0.0.0",
     install_requires=reqs,
     package_dir={"dbacademy_helper": "src/dbacademy_helper"},
     packages=find_dbacademy_packages()
