@@ -68,7 +68,7 @@ class DBAcademyHelper:
 
             encoded_value = dbgems.get_notebook_path().encode('utf-8')
             hashed_value = hashlib.sha3_512(encoded_value).hexdigest()
-            self.lesson_config.name = abs(int(re.sub(r"[a-z]", "", hashed_value))) & 10000
+            self.lesson_config.name = str(abs(int(re.sub(r"[a-z]", "", hashed_value))) & 10000)
             self.__smoke_test_lesson = True
 
         # Convert any lesson value we have to lower case.
