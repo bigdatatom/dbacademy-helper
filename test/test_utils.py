@@ -2,9 +2,9 @@ import unittest
 
 
 class MyTestCase(unittest.TestCase):
-    from dbacademy_helper.deprecated import deprecated
+    from dbacademy_gems import dbgems
 
-    @deprecated(reason="Because I'm bored")
+    @dbgems.deprecated(reason="Because I'm bored")
     def add(self, value_a, value_b):
         return value_a+value_b
 
