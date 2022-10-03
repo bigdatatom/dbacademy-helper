@@ -8,3 +8,11 @@ from .dbacademy_helper_class import DBAcademyHelper
 from .lesson_config_class import LessonConfig
 from .course_config_class import CourseConfig
 from .paths_class import Paths
+
+def validate_dependencies():
+    from dbacademy_gems import dbgems
+    dbgems.validate_dependencies("dbacademy-gems")
+    dbgems.validate_dependencies("dbacademy-rest")
+    dbgems.validate_dependencies("dbacademy-helper")
+
+validate_dependencies()
