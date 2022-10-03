@@ -265,7 +265,6 @@ class DBAcademyHelper:
 
         if self.lesson_config.installing_datasets:
             self.install_datasets()               # Install the data
-        print()
 
         if self.__lesson_config.created_catalog:
             self.__create_catalog()               # Create the UC catalog
