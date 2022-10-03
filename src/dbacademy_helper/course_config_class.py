@@ -19,7 +19,7 @@ class CourseConfig:
         self.__install_max_time = install_max_time
         self.__remote_files = remote_files
 
-        assert type(supported_dbrs) == List, f"Expected the parameter \"supported_dbrs\" to be of type \"List\", found \"{type(supported_dbrs)}\"."
+        assert type(supported_dbrs) == list, f"Expected the parameter \"supported_dbrs\" to be of type \"list\", found \"{type(supported_dbrs)}\"."
         assert len(supported_dbrs) > 0, f"At least one supported DBR must be specified."
         self.__supported_dbrs = supported_dbrs
 
