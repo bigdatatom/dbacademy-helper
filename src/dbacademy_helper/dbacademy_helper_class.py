@@ -4,7 +4,7 @@ from .course_config_class import CourseConfig
 
 class DBAcademyHelper:
     import pyspark
-    from typing import Union, List
+    from typing import Union
 
     DEFAULT_SCHEMA = "default"
     INFORMATION_SCHEMA = "information_schema"
@@ -20,7 +20,6 @@ class DBAcademyHelper:
     def __init__(self, *,
                  course_config: CourseConfig,
                  lesson_config: LessonConfig,
-                 requirements: List[str] = None,
                  debug: bool = False):
 
         from dbacademy_helper.paths_class import Paths
@@ -48,14 +47,6 @@ class DBAcademyHelper:
         # Standard initialization
         self.naming_params = {"course": self.course_config.course_code}
 
-        # convert None and single string values to list, validate types and values
-        self.requirements = requirements or list()
-        self.requirements = [self.requirements] if type(self.requirements) == str else self.requirements
-        assert type(self.requirements) == list, f"The parameter \"requirements\" must be of type \"list\", found \"{type(self.requirements)}\"."
-        for r in self.requirements:
-            assert r.startswith("dbr-") or r in DBAcademyHelper.REQUIREMENTS, f"The value \"{r}\" is not a supported requirement, expected one of {DBAcademyHelper.REQUIREMENTS}."
-        self.dprint(f"Requirements: {self.requirements}")
-
         # The following objects provide advanced support for modifying the learning environment.
         self.client = DBAcademyRestClient()
         self.workspace = WorkspaceHelper(self)
@@ -63,7 +54,8 @@ class DBAcademyHelper:
         self.tests = TestHelper(self)
 
         # With requirements initialized, we can assert our spark versions.
-        self.__assert_spark_version()
+        self.__current_dbr = self.client.clusters.get_current_spark_version()
+        assert self.current_dbr in self.course_config.supported_dbrs, self.__troubleshoot_error(f"The Databricks Runtime is expected to be one of {self.course_config.supported_dbrs}, found \"{self.__current_dbr}\".", "Spark Version")
 
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
@@ -140,6 +132,10 @@ class DBAcademyHelper:
                            enable_streaming_support=lesson_config.enable_streaming_support)
 
     @property
+    def current_dbr(self):
+        return self.__current_dbr
+
+    @property
     def course_config(self) -> CourseConfig:
         return self.__course_config
 
@@ -195,16 +191,6 @@ class DBAcademyHelper:
     def __requires_uc(self):
         return self.__lesson_config is not None and self.__lesson_config.requires_uc
         # return DBAcademyHelper.REQUIREMENTS_UC in self.requirements
-
-    def __assert_spark_version(self):
-        expected_versions = []
-        for requirement in self.requirements:
-            if requirement.lower().startswith("dbr-"):
-                expected_versions.append(requirement[4:])
-
-        if len(expected_versions) > 0:
-            actual = self.client.clusters.get_current_spark_version()
-            assert actual in expected_versions, self.__troubleshoot_error(f"The Databricks Runtime is expected to be one of {expected_versions}, found \"{actual}\".", "Spark Version")
 
     @property
     def unique_name(self):
