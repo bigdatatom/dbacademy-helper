@@ -6,7 +6,6 @@ class CourseConfig:
                  course_name: str,                # The full name of the course, hyphenated
                  data_source_name: str,           # Should be the same as the course
                  data_source_version: str,        # New courses would start with 01
-                 enable_streaming_support: bool,  # This course uses stream and thus needs checkpoint directories
                  install_min_time: str,           # The minimum amount of time to install the datasets (e.g. from Oregon)
                  install_max_time: str,           # The maximum amount of time to install the datasets (e.g. from India)
                  remote_files: List[str],         # The enumerated list of files in the datasets
@@ -16,7 +15,6 @@ class CourseConfig:
         self.__course_name = course_name
         self.__data_source_name = data_source_name
         self.__data_source_version = data_source_version
-        self.__enable_streaming_support = enable_streaming_support
         self.__install_min_time = install_min_time
         self.__install_max_time = install_max_time
         self.__remote_files = remote_files
@@ -37,10 +35,6 @@ class CourseConfig:
     @property
     def data_source_version(self) -> str:
         return self.__data_source_version
-
-    @property
-    def enable_streaming_support(self) -> bool:
-        return self.__enable_streaming_support
 
     @property
     def install_min_time(self) -> str:
