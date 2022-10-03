@@ -68,9 +68,9 @@ class DBAcademyHelper:
         # Are we running under test? If so we can "optimize" for parallel execution
         # without affecting the student's runtime-experience. As in the student can
         # use one working directory and one database, but under test, we can use many
-        if self.lesson_config.name is None and self.lesson_config.asynchronous and self.is_smoke_test():
-            # The developer did not define a lesson, we can run asynchronous, and this
-            # is a smoke test, so we can define a lesson here for the sake of testing
+        if self.lesson_config.name is None and self.is_smoke_test():
+            # The developer did not define a lesson and this is a smoke
+            # test, so we can define a lesson here for the sake of testing
             import re, hashlib
 
             encoded_value = dbgems.get_notebook_path().encode('utf-8')

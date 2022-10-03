@@ -4,7 +4,6 @@ from .course_config_class import CourseConfig
 class LessonConfig:
     def __init__(self, *,
                  name: str,
-                 asynchronous: bool,
                  create_schema: bool,
                  create_catalog: bool,
                  requires_uc: bool,
@@ -45,7 +44,6 @@ class LessonConfig:
                 self.__catalog_name = self.to_catalog_name(self.username)
 
         self.__name = name
-        self.__asynchronous = asynchronous
 
     @staticmethod
     def is_smoke_test():
@@ -64,10 +62,6 @@ class LessonConfig:
     @name.setter
     def name(self, name: str):
         self.__name = name
-
-    @property
-    def asynchronous(self) -> bool:
-        return self.__asynchronous
 
     @property
     def enable_streaming_support(self) -> bool:
