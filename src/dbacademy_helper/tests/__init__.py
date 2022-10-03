@@ -26,6 +26,7 @@ class TestHelper:
 
         return None if delete else function_ref
 
+
 # Decorator to lazy evaluate - used by TestSuite
 def lazy_property(fn):
     """

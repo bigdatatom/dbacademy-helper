@@ -1,7 +1,8 @@
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 from typing import TypeVar
-T=TypeVar("T")
+T = TypeVar("T")
+
 
 class ClustersHelper:
     def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):
@@ -15,8 +16,8 @@ class ClustersHelper:
             ("dbacademy.students_count", self.da.clean_string(self.workspace.student_count)),
             ("dbacademy.workspace", self.da.clean_string(self.workspace.workspace_name)),
             ("dbacademy.org_id", self.da.clean_string(self.workspace.org_id)),
-            ("dbacademy.course", self.da.clean_string(self.da.course_name)),
-            ("dbacademy.source", self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name))
+            ("dbacademy.course", self.da.clean_string(self.da.course_config.course_name)),
+            ("dbacademy.source", self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_config.course_name))
         ]
 
         name = "DBAcademy Pool"
@@ -108,12 +109,12 @@ class ClustersHelper:
             },
             "custom_tags.dbacademy.course": {
                 "type": "fixed",
-                "value": self.da.clean_string(self.da.course_name),
+                "value": self.da.clean_string(self.da.course_config.course_name),
                 "hidden": False
             },
             "custom_tags.dbacademy.source": {
                 "type": "fixed",
-                "value": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name),
+                "value": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_config.course_name),
                 "hidden": False
             },
         })

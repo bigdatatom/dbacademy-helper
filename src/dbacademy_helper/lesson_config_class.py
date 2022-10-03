@@ -1,6 +1,26 @@
-class EnvConfig:
-    def __init__(self, create_schema: bool, create_catalog: bool, requires_uc: bool):
+from typing import Union
+from .course_config_class import CourseConfig
+
+
+class LessonConfig:
+    def __init__(self, *,
+                 name: str,
+                 create_schema: bool,
+                 create_catalog: bool,
+                 requires_uc: bool,
+                 installing_datasets: bool,
+                 enable_streaming_support: bool):
+
         from dbacademy_gems import dbgems
+
+        self.__name = name
+        self.__installing_datasets = installing_datasets
+        self.__requires_uc = requires_uc
+        self.__enable_streaming_support = enable_streaming_support
+
+        # Will be unconditionally True
+        self.__created_schema = create_schema
+        self.__created_catalog = create_catalog
 
         try:
             row = dbgems.sql("SELECT current_user() as username, current_catalog() as catalog, current_database() as schema").first()
@@ -8,20 +28,14 @@ class EnvConfig:
             self.__initial_catalog = row["catalog"]
             self.__initial_schema = row["schema"]
         except:
-            self.__username = "unknown@example.com"  # Because of unit tests
+            self.__username = "unknown@example.com"     # Because of unit tests
             self.__initial_catalog = "unknown_catalog"  # Because of unit tests
-            self.__initial_schema = "unknown_schema"  # Because of unit tests
-
-        self.__requires_uc = requires_uc
+            self.__initial_schema = "unknown_schema"    # Because of unit tests
 
         if create_catalog:
             assert requires_uc, f"Inconsistent configuration: The parameter \"create_catalog\" was True and \"requires_uc\" was False."
             assert self.is_uc_enabled_workspace, f"Cannot create a catalog, UC is not enabled for this workspace/cluster."
             assert not create_schema, f"Cannot create a user-specific schema when creating UC catalogs"
-
-        # Will be unconditionally True
-        self.__created_schema = create_schema
-        self.__created_catalog = create_catalog
 
         if self.is_uc_enabled_workspace:
             from .dbacademy_helper_class import DBAcademyHelper
@@ -32,6 +46,32 @@ class EnvConfig:
             # If we are creating a catalog, we will use a user-specific catalog
             if create_catalog:
                 self.__catalog_name = self.to_catalog_name(self.username)
+
+    @staticmethod
+    def is_smoke_test():
+        """
+        Helper method to indentify when we are running as a smoke test
+        :return: Returns true if the notebook is running as a smoke test.
+        """
+        from dbacademy_gems import dbgems
+        from .dbacademy_helper_class import DBAcademyHelper
+        return dbgems.spark.conf.get(DBAcademyHelper.SMOKE_TEST_KEY, "false").lower() == "true"
+
+    @property
+    def installing_datasets(self):
+        return self.__installing_datasets
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @name.setter
+    def name(self, name: str):
+        self.__name = name
+
+    @property
+    def enable_streaming_support(self) -> bool:
+        return self.__enable_streaming_support
 
     @property
     def requires_uc(self) -> bool:
@@ -82,17 +122,20 @@ class EnvConfig:
         return DBAcademyHelper.clean_string(f"{local_part}-{username_hash}-dbacademy").lower()
 
     @staticmethod
-    def to_schema_name(username, course_code) -> str:
+    def to_schema_name(username: str, course: Union[CourseConfig, str]) -> str:
         """
         Given the specified username and course_code, creates a database name that follows the pattern "da-name_prefix@hash-course_code"
         where name_prefix is the right hand of an email as in "john.doe" given "john.doe@example.com", hash is truncated hash based on
         the full email address and course code.
         :param username: The full username (e.g. email address) to compose the database name from.
-        :param course_code: The abbreviated version of the course's name
+        :param course: The abbreviated version of the course's name or the CourseConfig object
         :return: Returns the name of the database for the given user and course.
         """
         import re
         from .dbacademy_helper_class import DBAcademyHelper
+
+        assert course is not None, f"The course parameter must be specified."
+        course_code = course.course_code if type(course) == CourseConfig else course
 
         schema_name, da_hash = DBAcademyHelper.to_username_hash(username, course_code)
         schema_name = f"da-{schema_name}@{da_hash}-{course_code}"                # Composite all the values to create the "dirty" database name

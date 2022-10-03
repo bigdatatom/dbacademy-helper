@@ -5,7 +5,8 @@ try: from dbacademy import dbrest
 except ImportError as e: raise Exception("The runtime dependency dbrest was not found. Please install https://github.com/databricks-academy/dbacademy-rest") from e
 
 from .dbacademy_helper_class import DBAcademyHelper
-from .env_config_class import EnvConfig
+from .lesson_config_class import LessonConfig
+from .course_config_class import CourseConfig
 from .paths_class import Paths
 
 def validate_dependencies():

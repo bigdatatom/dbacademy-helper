@@ -2,7 +2,8 @@ from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 from typing import Callable, TypeVar
-T=TypeVar("T")
+T = TypeVar("T")
+
 
 class DatabasesHelper:
     def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):
@@ -18,9 +19,9 @@ class DatabasesHelper:
         self.workspace._existing_databases = None
 
     def _drop_databases_for(self, username: str):
-        from .env_config_class import EnvConfig
+        from .lesson_config_class import LessonConfig
 
-        db_name = EnvConfig.to_schema_name(username=username, course_code=self.da.course_code)
+        db_name = LessonConfig.to_schema_name(username=username, course=self.da.course_config.course_code)
         if db_name in self.workspace.existing_databases:
             print(f"Dropping the database \"{db_name}\" for {username}")
             dbgems.spark.sql(f"DROP DATABASE {db_name} CASCADE;")
@@ -36,10 +37,10 @@ class DatabasesHelper:
         self.workspace._existing_databases = None
 
     def _create_database_for(self, username: str, drop_existing: bool, post_create: Callable[[str], None] = None):
-        from .env_config_class import EnvConfig
+        from .lesson_config_class import LessonConfig
 
-        db_name = EnvConfig.to_schema_name(username=username, course_code=self.da.course_code)
-        db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_name}/database.db"
+        db_name = LessonConfig.to_schema_name(username=username, course=self.da.course_config.course_code)
+        db_path = f"dbfs:/mnt/dbacademy-users/{username}/{self.da.course_config.course_name}/database.db"
 
         if db_name in self.da.workspace.existing_databases and drop_existing:
             print(f"Dropping the database \"{db_name}\" for {username}")
@@ -56,7 +57,7 @@ class DatabasesHelper:
 
     def configure_permissions(self, notebook_name):
 
-        job_name = f"""DA-{self.da.course_code.upper()}-{notebook_name.split("/")[-1]}"""
+        job_name = f"""DA-{self.da.course_config.course_code.upper()}-{notebook_name.split("/")[-1]}"""
         print(f"Starting job \"{job_name}\" to update catalog and schema specific permissions")
 
         self.client.jobs().delete_by_name(job_name, success_only=False)
@@ -66,8 +67,8 @@ class DatabasesHelper:
         params = {
             "name": job_name,
             "tags": {
-                "dbacademy.course": self.da.clean_string(self.da.course_name, replacement="-"),
-                "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name, replacement="-")
+                "dbacademy.course": self.da.clean_string(self.da.course_config.course_name, replacement="-"),
+                "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_config.course_name, replacement="-")
             },
             "email_notifications": {},
             "timeout_seconds": 7200,

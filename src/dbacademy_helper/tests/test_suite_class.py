@@ -1,5 +1,6 @@
 from typing import List, Callable, Iterable, Any
 
+
 class TestSuite(object):
     import pyspark
     from pyspark.sql import DataFrame, Row
@@ -305,7 +306,7 @@ class TestSuite(object):
                                       escape_html=escape_html,
                                       points=points,
                                       hint=hint or "Found [[ACTUAL_VALUE]]",
-                                      test_function=lambda: field is not None and field.name==expected_name and str(type(field.dataType))==full_expected_type and (expected_nullable is None or field.nullable == expected_nullable)))
+                                      test_function=lambda: field is not None and field.name == expected_name and str(type(field.dataType)) == full_expected_type and (expected_nullable is None or field.nullable == expected_nullable)))
 
     @staticmethod
     def compare_lists(value_a: list, value_b: list, test_column_order: bool):

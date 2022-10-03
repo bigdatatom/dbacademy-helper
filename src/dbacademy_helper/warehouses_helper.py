@@ -2,6 +2,7 @@ from typing import Union
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 
+
 class WarehousesHelper:
     def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):
         self.da = da
@@ -18,7 +19,7 @@ class WarehousesHelper:
 
     def delete_sql_warehouses_for(self, username):
         name = DBAcademyHelper.to_schema_name(username=username,
-                                              course_code=self.da.course_code)
+                                              course=self.da.course_config)
         self.client.sql.endpoints.delete_by_name(name=name)
 
     def delete_sql_warehouses(self):
@@ -33,7 +34,7 @@ class WarehousesHelper:
     # TODO - Change enable_serverless_compute to default to True once serverless is mainstream
     def create_sql_warehouse_for(self, username, auto_stop_mins=120, enable_serverless_compute=False):
         return self._create_sql_warehouse(username=username,
-                                          name=DBAcademyHelper.to_schema_name(username=username, course_code=self.da.course_code),
+                                          name=DBAcademyHelper.to_schema_name(username=username, course=self.da.course_config),
                                           auto_stop_mins=auto_stop_mins,
                                           min_num_clusters=1,
                                           max_num_clusters=1,
@@ -66,8 +67,8 @@ class WarehousesHelper:
                 "dbacademy.students_count": self.da.clean_string(self.workspace.student_count),
                 "dbacademy.workspace": self.da.clean_string(self.workspace.workspace_name),
                 "dbacademy.org_id": self.da.clean_string(self.workspace.org_id),
-                "dbacademy.course": self.da.clean_string(self.da.course_name),  # Tag the name of the course
-                "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_name),
+                "dbacademy.course": self.da.clean_string(self.da.course_config.course_name),  # Tag the name of the course
+                "dbacademy.source": self.da.clean_string("Smoke-Test" if self.da.is_smoke_test() else self.da.course_config.course_name),
             })
         warehouse_id = warehouse.get("id")
 

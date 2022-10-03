@@ -1,11 +1,12 @@
 from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
 from typing import Callable, List, TypeVar
-T=TypeVar("T")
+T = TypeVar("T")
 
 ALL_USERS = "All Users"
 MISSING_USERS_ONLY = "Missing Users Only"
 CURRENT_USER_ONLY = "Current User Only"
+
 
 class WorkspaceHelper:
 
