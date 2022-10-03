@@ -1,5 +1,5 @@
 from typing import Union
-from course_config_class import CourseConfig
+from .course_config_class import CourseConfig
 
 class LessonConfig:
     def __init__(self, *,
