@@ -64,11 +64,15 @@ class DBAcademyHelper:
         if self.lesson_config.name is None and self.is_smoke_test():
             # The developer did not define a lesson and this is a smoke
             # test, so we can define a lesson here for the sake of testing
-            import re, hashlib
+            lesson = str(abs(hash(dbgems.get_notebook_path())) % 10000)
 
-            encoded_value = dbgems.get_notebook_path().encode('utf-8')
-            hashed_value = hashlib.sha3_512(encoded_value).hexdigest()
-            self.lesson_config.name = str(abs(int(re.sub(r"[a-z]", "", hashed_value))) & 10000)
+            # import re, hashlib
+            # encoded_value = dbgems.get_notebook_path().encode('utf-8')
+            # hash()
+            # hashed_value = hashlib.sha3_512(encoded_value).hexdigest()
+            # self.lesson_config.name = str(abs(int(re.sub(r"[a-z]", "", hashed_value))) & 10000)
+            # We don't need repeatable has values here - once the lesson is done, we are done with this value.
+            self.lesson_config.name = str(abs(hash(dbgems.get_notebook_path())) % 10000)
             self.__smoke_test_lesson = True
 
         # Convert any lesson value we have to lower case.
