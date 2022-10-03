@@ -1,7 +1,8 @@
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 from typing import TypeVar
-T=TypeVar("T")
+T = TypeVar("T")
+
 
 class ClustersHelper:
     def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):

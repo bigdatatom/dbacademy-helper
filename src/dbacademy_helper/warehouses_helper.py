@@ -2,6 +2,7 @@ from typing import Union
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 
+
 class WarehousesHelper:
     def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):
         self.da = da

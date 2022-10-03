@@ -2,7 +2,8 @@ from dbacademy_gems import dbgems
 from dbacademy_helper import DBAcademyHelper
 from dbacademy_helper.workspace_helper import WorkspaceHelper
 from typing import Callable, TypeVar
-T=TypeVar("T")
+T = TypeVar("T")
+
 
 class DatabasesHelper:
     def __init__(self, workspace: WorkspaceHelper, da: DBAcademyHelper):

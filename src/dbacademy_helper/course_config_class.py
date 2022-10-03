@@ -1,5 +1,6 @@
 from typing import List
 
+
 class CourseConfig:
     def __init__(self, *,
                  course_code: str,            # The abbreviated version of the course

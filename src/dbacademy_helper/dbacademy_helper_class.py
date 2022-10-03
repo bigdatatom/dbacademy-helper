@@ -2,6 +2,7 @@ from dbacademy_gems import dbgems
 from .lesson_config_class import LessonConfig
 from .course_config_class import CourseConfig
 
+
 class DBAcademyHelper:
     import pyspark
     from typing import Union
@@ -88,7 +89,8 @@ class DBAcademyHelper:
                 print(f"* {self.staging_source_uri}")
                 print("*"*80)
                 print()
-        except: pass
+        except:
+            pass
 
         ###########################################################################################
         # This next section is varies its configuration based on whether the lesson is
@@ -259,22 +261,18 @@ class DBAcademyHelper:
 
         return None if delete else function_ref
 
-    def init(self, *, install_datasets: bool, create_db: bool, create_catalog: bool = False):
-        """
-        This function aims to set up the environment enabling the constructor to provide initialization of attributes only and thus not modifying the environment upon initialization.
-        """
-        if self.__lesson_config is not None:
-            # HACK - environment config was provided, so we only need to assert that they match.
-            assert create_db == self.__lesson_config.created_schema, f"The create_db parameter ({create_db}) is not consistent with the value provided by EnvConfig.created_schema ({self.__lesson_config.created_schema})."
-            assert create_catalog == self.__lesson_config.created_catalog, f"The create_catalog parameter ({create_catalog}) is not consistent with the value provided by EnvConfig.create_catalog ({self.__lesson_config.created_catalog})."
+    def init(self):
 
-        if install_datasets: self.install_datasets()  # Install the data
+        if self.lesson_config.installing_datasets:
+            self.install_datasets()               # Install the data
         print()
 
-        if self.__lesson_config.created_catalog: self.__create_catalog()  # Create the UC catalog
-        if self.__lesson_config.created_schema: self.__create_schema()    # Create the Schema (is not a catalog)
+        if self.__lesson_config.created_catalog:
+            self.__create_catalog()               # Create the UC catalog
+        if self.__lesson_config.created_schema:
+            self.__create_schema()                # Create the Schema (is not a catalog)
 
-        self.__initialized = True                   # Set the all-done flag.
+        self.__initialized = True                 # Set the all-done flag.
 
     def __create_catalog(self):
         try:

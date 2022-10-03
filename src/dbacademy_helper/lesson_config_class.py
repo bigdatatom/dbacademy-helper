@@ -1,15 +1,26 @@
 from typing import Union
 from .course_config_class import CourseConfig
 
+
 class LessonConfig:
     def __init__(self, *,
                  name: str,
                  create_schema: bool,
                  create_catalog: bool,
                  requires_uc: bool,
+                 installing_datasets: bool,
                  enable_streaming_support: bool):
 
         from dbacademy_gems import dbgems
+
+        self.__name = name
+        self.__installing_datasets = installing_datasets
+        self.__requires_uc = requires_uc
+        self.__enable_streaming_support = enable_streaming_support
+
+        # Will be unconditionally True
+        self.__created_schema = create_schema
+        self.__created_catalog = create_catalog
 
         try:
             row = dbgems.sql("SELECT current_user() as username, current_catalog() as catalog, current_database() as schema").first()
@@ -17,21 +28,14 @@ class LessonConfig:
             self.__initial_catalog = row["catalog"]
             self.__initial_schema = row["schema"]
         except:
-            self.__username = "unknown@example.com"  # Because of unit tests
+            self.__username = "unknown@example.com"     # Because of unit tests
             self.__initial_catalog = "unknown_catalog"  # Because of unit tests
-            self.__initial_schema = "unknown_schema"  # Because of unit tests
-
-        self.__requires_uc = requires_uc
-        self.__enable_streaming_support = enable_streaming_support
+            self.__initial_schema = "unknown_schema"    # Because of unit tests
 
         if create_catalog:
             assert requires_uc, f"Inconsistent configuration: The parameter \"create_catalog\" was True and \"requires_uc\" was False."
             assert self.is_uc_enabled_workspace, f"Cannot create a catalog, UC is not enabled for this workspace/cluster."
             assert not create_schema, f"Cannot create a user-specific schema when creating UC catalogs"
-
-        # Will be unconditionally True
-        self.__created_schema = create_schema
-        self.__created_catalog = create_catalog
 
         if self.is_uc_enabled_workspace:
             from .dbacademy_helper_class import DBAcademyHelper
@@ -43,8 +47,6 @@ class LessonConfig:
             if create_catalog:
                 self.__catalog_name = self.to_catalog_name(self.username)
 
-        self.__name = name
-
     @staticmethod
     def is_smoke_test():
         """
@@ -54,6 +56,10 @@ class LessonConfig:
         from dbacademy_gems import dbgems
         from .dbacademy_helper_class import DBAcademyHelper
         return dbgems.spark.conf.get(DBAcademyHelper.SMOKE_TEST_KEY, "false").lower() == "true"
+
+    @property
+    def installing_datasets(self):
+        return self.__installing_datasets
 
     @property
     def name(self) -> str:
