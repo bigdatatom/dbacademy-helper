@@ -673,13 +673,11 @@ class DBAcademyHelper:
             print("\nEnumerating staged files for validation", end="...")
             self.course_config.remote_files = self.list_r(self.staging_source_uri)
             print(self.clock_stopped(start))
-        else:
-            print("\n")
 
         if repairing_dataset:
-            print(f"Revalidating the locally installed datasets", end="...")
+            print(f"\nRevalidating the locally installed datasets", end="...")
         else:
-            print(f"Validating the locally installed datasets", end="...")
+            print(f"\nValidating the locally installed datasets", end="...")
 
         result = self.do_validate()
 
