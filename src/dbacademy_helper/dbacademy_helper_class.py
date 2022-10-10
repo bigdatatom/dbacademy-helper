@@ -55,8 +55,9 @@ class DBAcademyHelper:
         self.tests = TestHelper(self)
 
         # With requirements initialized, we can assert our spark versions.
+        self.__current_dbr = None
+
         if len(self.course_config.supported_dbrs) > 0:
-            self.__current_dbr = self.client.clusters.get_current_spark_version()
             assert self.current_dbr in self.course_config.supported_dbrs, self.__troubleshoot_error(f"The Databricks Runtime is expected to be one of {self.course_config.supported_dbrs}, found \"{self.current_dbr}\".", "Spark Version")
 
         # Are we running under test? If so we can "optimize" for parallel execution
@@ -140,6 +141,9 @@ class DBAcademyHelper:
 
     @property
     def current_dbr(self):
+        if self.__current_dbr is None:
+            self.__current_dbr = self.client.clusters.get_current_spark_version()
+
         return self.__current_dbr
 
     @property
