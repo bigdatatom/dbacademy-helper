@@ -11,16 +11,14 @@ from .paths_class import Paths
 
 
 def validate_dependencies():
-    # noinspection PyUnresolvedReferences
-    from py4j.security import Py4JSecurityException
-
     try:
         from dbacademy_gems import dbgems
         dbgems.validate_dependencies("dbacademy-gems")
         dbgems.validate_dependencies("dbacademy-rest")
         dbgems.validate_dependencies("dbacademy-helper")
 
-    except Py4JSecurityException:
+    except Exception as e:
+        print(type(e))
         return False
 
 
