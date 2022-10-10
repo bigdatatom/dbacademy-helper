@@ -70,3 +70,4 @@ class CourseConfig:
                 print(f"** WARNING ** A supported DBR was not defined - this can result in execution errors if a compatible DBR is not selected.")
         except Exception as e:
             print(type(e))
+            print(e)
