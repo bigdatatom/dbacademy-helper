@@ -712,14 +712,15 @@ class DBAcademyHelper:
             "tasks": [
                 {
                     "task_key": "Configure-Permissions",
-                    "description": "Configure all user's permissions for user-specific databases.",
+                    "description": "Configure all users' permissions for user-specific databases.",
                     "libraries": [],
                     "notebook_task": {
                         "notebook_path": notebook_path,
                         "base_parameters": []
                     },
                     "new_cluster": {
-                        "num_workers": "0",
+                        "num_workers": 0,
+                        "cluster_name": "",
                         "spark_conf": {
                             "spark.master": "local[*]",
                             "spark.databricks.acl.dfAclsEnabled": "true",
