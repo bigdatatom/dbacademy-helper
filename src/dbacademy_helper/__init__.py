@@ -11,14 +11,15 @@ from .paths_class import Paths
 
 
 def validate_dependencies():
+    from py4j.protocol import Py4JError
+
     try:
         from dbacademy_gems import dbgems
         dbgems.validate_dependencies("dbacademy-gems")
         dbgems.validate_dependencies("dbacademy-rest")
         dbgems.validate_dependencies("dbacademy-helper")
 
-    except Exception as e:
-        print(type(e))
+    except Py4JError:
         return False
 
 
