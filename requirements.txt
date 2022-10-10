@@ -1,4 +1,5 @@
 dbx
+py4j
 mlflow
 pyspark==3.3.*
 
