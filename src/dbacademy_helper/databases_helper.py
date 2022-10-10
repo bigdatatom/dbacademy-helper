@@ -55,7 +55,7 @@ class DatabasesHelper:
 
         return f"Created database {db_name}"
 
-    def configure_permissions(self, notebook_name):
+    def configure_permissions(self, notebook_name, spark_version="10.4.x-scala2.12"):
 
         job_name = f"""DA-{self.da.course_config.course_code.upper()}-{notebook_name.split("/")[-1]}"""
         print(f"Starting job \"{job_name}\" to update catalog and schema specific permissions")
@@ -77,7 +77,7 @@ class DatabasesHelper:
             "tasks": [
                 {
                     "task_key": "Configure-Permissions",
-                    "description": "Configure all users's permissions for user-specific databases.",
+                    "description": "Configure all users' permissions for user-specific databases.",
                     "libraries": [],
                     "notebook_task": {
                         "notebook_path": notebook_path,
@@ -99,8 +99,8 @@ class DatabasesHelper:
                 },
             ],
         }
-        cluster_params = params.get("tasks")[0].get("new_cluster")  # Photon currently is not supported on these cluster types
-        cluster_params["spark_version"] = "10.4.x-scala2.12"  # self.client.clusters().get_current_spark_version().replace("-photon-", "-")
+        cluster_params = params.get("tasks")[0].get("new_cluster")
+        cluster_params["spark_version"] = spark_version
 
         if self.client.clusters().get_current_instance_pool_id() is not None:
             cluster_params["instance_pool_id"] = self.client.clusters().get_current_instance_pool_id()
