@@ -65,5 +65,8 @@ class CourseConfig:
         assert type(supported_dbrs) == list, f"Expected the parameter \"supported_dbrs\" to be of type \"list\", found \"{type(supported_dbrs)}\"."
         self.__supported_dbrs = supported_dbrs
 
-        if dbgems.is_curriculum_workspace() and len(self.supported_dbrs) == 0:
-            print(f"** WARNING ** A supported DBR was not defined - this can result in execution errors if a compatible DBR is not selected.")
+        try:
+            if dbgems.is_curriculum_workspace() and len(self.supported_dbrs) == 0:
+                print(f"** WARNING ** A supported DBR was not defined - this can result in execution errors if a compatible DBR is not selected.")
+        except Exception as e:
+            print(type(e))
