@@ -106,11 +106,6 @@ class DBAcademyHelper:
         # This is where the datasets will be downloaded to and should be treated as read-only for all practical purposes
         datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
 
-        if self.lesson_config.created_catalog:
-            self.schema_name_prefix = "default"
-        else:
-            self.schema_name_prefix = self.to_schema_name(username=self.username)
-
         self.paths = Paths(lesson_config=self.lesson_config,
                            working_dir_root=self.working_dir_root,
                            datasets=datasets_path,
@@ -154,47 +149,53 @@ class DBAcademyHelper:
 
     @property
     def catalog_name(self):
+
         if not self.lesson_config.is_uc_enabled_workspace:
             # If this is not a UC workspace, then we use the default for spark
             return DBAcademyHelper.CATALOG_SPARK_DEFAULT
 
-        elif self.lesson_config.created_catalog:
+        elif not self.lesson_config.created_catalog:
+            # We are not creating a catalog, use teh default value
+            return DBAcademyHelper.CATALOG_UC_DEFAULT
+
+        else:
             # If we are creating a catalog, we will use a user-specific catalog
             return self.to_catalog_name(self.username)
-        else:
-            # By default, the catalog name will be the same as the default.
-            return DBAcademyHelper.CATALOG_UC_DEFAULT
 
     def to_catalog_name(self, username: str) -> str:
         local_part = username.split("@")[0]
         username_hash = dbgems.stable_hash(username, length=4)
         course_code = self.course_config.course_code
-        return DBAcademyHelper.clean_string(f"{local_part}-{username_hash}-dbacademy-{course_code}").lower()
+
+        if self.lesson_config.name is None:
+            return DBAcademyHelper.clean_string(f"{local_part}-{username_hash}-dbacademy-{course_code}").lower()
+        else:
+            return DBAcademyHelper.clean_string(f"{local_part}-{username_hash}-dbacademy-{course_code}-{self.lesson_config.clean_name}").lower()
 
     @property
-    def schema_name(self):
-        if self.lesson_config.name is None:
-            # No lesson, database name is the same as prefix
-            return self.schema_name_prefix
+    def schema_name_prefix(self):
+        if self.lesson_config.created_catalog:
+            return "default"
         else:
-            # Schema name includes the lesson name
-            return f"{self.schema_name_prefix}_{self.lesson_config.clean_name}"
+            return self.to_schema_name(username=self.username)
 
-    def to_schema_name(self, username: str) -> str:
+    def to_schema_name_prefix(self, username: str) -> str:
         local_part = username.split("@")[0]
         username_hash = dbgems.stable_hash(username, length=4)
         course_code = self.course_config.course_code
         return DBAcademyHelper.clean_string(f"da-{local_part}-{username_hash}-{course_code}").lower()
 
     @property
-    @dbgems.deprecated(reason="Use DBAcademyHelper.schema_name_prefix instead")
-    def db_name_prefix(self):
-        return self.schema_name_prefix
+    def schema_name(self):
+        return self.to_schema_name(self.username)
 
-    @property
-    @dbgems.deprecated(reason="Use DBAcademyHelper.schema_name instead")
-    def db_name(self):
-        return self.schema_name
+    def to_schema_name(self, username: str) -> str:
+        if self.lesson_config.name is None:
+            # No lesson, database name is the same as prefix
+            return self.to_schema_name_prefix(username)
+        else:
+            # Schema name includes the lesson name
+            return f"{self.to_schema_name_prefix(username)}_{self.lesson_config.clean_name}"
 
     @staticmethod
     def is_smoke_test():
