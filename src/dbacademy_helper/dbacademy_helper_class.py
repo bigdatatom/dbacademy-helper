@@ -81,7 +81,7 @@ class DBAcademyHelper:
         self.lesson_config.name = None if self.lesson_config.name is None else self.lesson_config.name.lower()
 
         # Define username using the hive function (cleaner than notebooks API)
-        self.username = self.__lesson_config.username
+        self.username = self.lesson_config.username
 
         # This is the location in our Azure data repository of the datasets for this lesson
         self.staging_source_uri = f"dbfs:/mnt/dbacademy-datasets-staging/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
@@ -112,11 +112,11 @@ class DBAcademyHelper:
         # This is where the datasets will be downloaded to and should be treated as read-only for all practical purposes
         datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
 
-        if self.__lesson_config.created_catalog:
+        if self.lesson_config.created_catalog:
             self.schema_name_prefix = "default"
         else:
             self.schema_name_prefix = LessonConfig.to_schema_name(username=self.username,
-                                                                  course=self.__course_config)
+                                                                  course=self.course_config)
         if self.lesson_config.name is None:
             self.clean_lesson = None
             working_dir = working_dir_root                                       # No lesson, working dir is same as root
@@ -126,7 +126,7 @@ class DBAcademyHelper:
             working_dir = f"{working_dir_root}/{self.lesson_config.name}"        # Working directory now includes the lesson name
             self.schema_name = f"{self.schema_name_prefix}_{self.clean_lesson}"  # Schema name includes the lesson name
 
-        if self.__lesson_config.created_catalog:
+        if self.lesson_config.created_catalog:
             # A little hacky, but if we created the catalog, we don't have a user_db_path
             # because UC will be managing the database location for us
             user_db_path = None
@@ -160,7 +160,7 @@ class DBAcademyHelper:
 
     @property
     def catalog_name(self):
-        return self.__lesson_config.catalog_name
+        return self.lesson_config.catalog_name
 
     @staticmethod
     def to_catalog_name(username):
@@ -200,7 +200,7 @@ class DBAcademyHelper:
 
     @property
     def __requires_uc(self):
-        return self.__lesson_config is not None and self.__lesson_config.requires_uc
+        return self.lesson_config is not None and self.lesson_config.requires_uc
         # return DBAcademyHelper.REQUIREMENTS_UC in self.requirements
 
     @property
@@ -275,9 +275,9 @@ class DBAcademyHelper:
         if self.lesson_config.installing_datasets:
             self.install_datasets()               # Install the data
 
-        if self.__lesson_config.created_catalog:
+        if self.lesson_config.created_catalog:
             self.__create_catalog()               # Create the UC catalog
-        if self.__lesson_config.created_schema:
+        if self.lesson_config.created_schema:
             self.__create_schema()                # Create the Schema (is not a catalog)
 
         self.__initialized = True                 # Set the all-done flag.
@@ -285,9 +285,9 @@ class DBAcademyHelper:
     def __create_catalog(self):
         try:
             start = self.clock_start()
-            print(f"Creating & using the catalog \"{self.__lesson_config.catalog_name}\"", end="...")
-            dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.__lesson_config.catalog_name}")
-            dbgems.sql(f"USE CATALOG {self.__lesson_config.catalog_name}")
+            print(f"Creating & using the catalog \"{self.lesson_config.catalog_name}\"", end="...")
+            dbgems.sql(f"CREATE CATALOG IF NOT EXISTS {self.lesson_config.catalog_name}")
+            dbgems.sql(f"USE CATALOG {self.lesson_config.catalog_name}")
 
             dbgems.sql(f"CREATE DATABASE IF NOT EXISTS default")
             dbgems.sql(f"USE default")
@@ -295,7 +295,7 @@ class DBAcademyHelper:
             print(self.clock_stopped(start))
 
         except Exception as e:
-            raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.__lesson_config.catalog_name}\".", "Cannot Create Catalog")) from e
+            raise AssertionError(self.__troubleshoot_error(f"Failed to create the catalog \"{self.lesson_config.catalog_name}\".", "Cannot Create Catalog")) from e
 
     def __create_schema(self):
         start = self.clock_start()
@@ -328,7 +328,7 @@ class DBAcademyHelper:
         active_streams = len(self.__spark.streams.active) > 0  # Test to see if there are any active streams
         remove_wd = self.paths.exists(self.paths.working_dir)  # Test to see if the working directory exists
 
-        if self.__lesson_config.created_catalog:
+        if self.lesson_config.created_catalog:
             clean_catalog = True    # If we created it, we clean it
             drop_schema = False     # But don't the schema
         else:
@@ -371,25 +371,25 @@ class DBAcademyHelper:
     def __cleanup_catalog(self):
 
         catalogs = [c[0] for c in dbgems.sql("SHOW CATALOGS").collect()]
-        if self.__lesson_config.catalog_name not in catalogs:
+        if self.lesson_config.catalog_name not in catalogs:
             return  # The catalog no longer exists
 
-        if self.__lesson_config.created_catalog:
-            schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.__lesson_config.catalog_name}").collect()]
+        if self.lesson_config.created_catalog:
+            schemas = [d[0] for d in dbgems.spark.sql(f"SHOW DATABASES IN {self.lesson_config.catalog_name}").collect()]
 
             for ignored in DBAcademyHelper.SPECIAL_SCHEMAS:
                 if ignored in schemas:
                     del schemas[schemas.index(ignored)]
 
             s = "" if len(schemas) == 1 else "s"
-            print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.__lesson_config.catalog_name}\"")
+            print(f"...dropping {len(schemas)} schema{s} from the catalog \"{self.lesson_config.catalog_name}\"")
             for schema_name in schemas:
                 if schema_name.startswith("_") or schema_name in DBAcademyHelper.SPECIAL_SCHEMAS:
                     print(f"......skipping the schema \"{schema_name}\"")
                 else:
                     start = self.clock_start()
                     print(f"......dropping the schema \"{schema_name}\"", end="...")
-                    dbgems.spark.sql(f"DROP SCHEMA IF EXISTS {self.__lesson_config.catalog_name}.{schema_name} CASCADE")
+                    dbgems.spark.sql(f"DROP SCHEMA IF EXISTS {self.lesson_config.catalog_name}.{schema_name} CASCADE")
                     print(self.clock_stopped(start))
 
     def __cleanup_stop_all_streams(self):
@@ -410,7 +410,7 @@ class DBAcademyHelper:
         print(f"\nThe learning environment was successfully reset {self.clock_stopped(start)}.")
 
     def __reset_databases(self):
-        if self.__lesson_config.created_catalog is not None:
+        if self.lesson_config.created_catalog is not None:
             self.__cleanup_catalog()
         else:
             # This is a "classic" setup, drop all user-specific databases.
@@ -487,8 +487,8 @@ class DBAcademyHelper:
         self.__spark.conf.set("da.username", self.username)
         self.__spark.conf.set("DA.username", self.username)
 
-        self.__spark.conf.set("da.catalog_name", self.__lesson_config.catalog_name or "")
-        self.__spark.conf.set("DA.catalog_name", self.__lesson_config.catalog_name or "")
+        self.__spark.conf.set("da.catalog_name", self.lesson_config.catalog_name or "")
+        self.__spark.conf.set("DA.catalog_name", self.lesson_config.catalog_name or "")
 
         self.__spark.conf.set("da.schema_name", self.schema_name)
         self.__spark.conf.set("DA.schema_name", self.schema_name)
@@ -505,9 +505,9 @@ class DBAcademyHelper:
                     self.__spark.conf.set(f"da.paths.{key.lower()}", value)
                     self.__spark.conf.set(f"DA.paths.{key.lower()}", value)
 
-        if self.__lesson_config.created_catalog:
+        if self.lesson_config.created_catalog:
             # Get the list of schemas from the prescribed catalog
-            schemas = [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.__lesson_config.catalog_name}").collect()]
+            schemas = [s[0] for s in dbgems.sql(f"SHOW SCHEMAS IN {self.lesson_config.catalog_name}").collect()]
         elif self.__requires_uc:
             # No telling how many schemas there may be, we would only care about the default
             schemas = ["default"]
@@ -521,18 +521,18 @@ class DBAcademyHelper:
         for i, schema in enumerate(schemas):
             if i > 0: print()
 
-            if self.__lesson_config.created_catalog:
+            if self.lesson_config.created_catalog:
                 # We have a catalog and presumably a default schema
-                print(f"Predefined tables in \"{self.__lesson_config.catalog_name}.{schema}\":")
-                tables = self.__spark.sql(f"SHOW TABLES IN {self.__lesson_config.catalog_name}.{schema}").filter("isTemporary == false").select("tableName").collect()
+                print(f"Predefined tables in \"{self.lesson_config.catalog_name}.{schema}\":")
+                tables = self.__spark.sql(f"SHOW TABLES IN {self.lesson_config.catalog_name}.{schema}").filter("isTemporary == false").select("tableName").collect()
                 if len(tables) == 0: print("  -none-")
                 for row in tables: print(f"  {row[0]}")
 
             elif self.__requires_uc:
                 # We require UC, but we didn't create the catalog.
-                print(f"Using the catalog \"{self.__lesson_config.initial_catalog}\" and the schema \"{self.__lesson_config.initial_schema}\".")
+                print(f"Using the catalog \"{self.lesson_config.initial_catalog}\" and the schema \"{self.lesson_config.initial_schema}\".")
 
-            elif self.__lesson_config.created_schema:
+            elif self.lesson_config.created_schema:
                 # Not UC, but we created a schema so there should be tables in it
                 # catalog_table = schema if self.env.initial_catalog == DBAcademyHelper.CATALOG_SPARK_DEFAULT else f"{self.env.initial_catalog}.{schema}"
 
@@ -543,7 +543,7 @@ class DBAcademyHelper:
 
             else:
                 # Not UC, didn't create the database
-                print(f"Using the \"{self.__lesson_config.initial_schema}\" schema.")
+                print(f"Using the \"{self.lesson_config.initial_schema}\" schema.")
 
         print("\nPredefined paths variables:")
         self.paths.print(self_name="DA.")
