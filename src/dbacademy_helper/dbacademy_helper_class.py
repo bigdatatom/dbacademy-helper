@@ -343,7 +343,7 @@ class DBAcademyHelper:
 
         try: location = dbgems.sql(f"DESCRIBE TABLE EXTENDED {schema_name}").filter("col_name == 'Location'").first()["data_type"]
         except Exception: location = None  # Ignore this concurrency error
-        
+
         try: dbgems.sql(f"DROP DATABASE IF EXISTS {schema_name} CASCADE")
         except AnalysisException: pass  # Ignore this concurrency error
 
