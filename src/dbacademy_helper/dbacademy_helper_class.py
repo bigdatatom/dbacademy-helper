@@ -338,18 +338,24 @@ class DBAcademyHelper:
         print(self.clock_stopped(start))
 
     def __cleanup_schema(self):
+        from pyspark.sql.utils import AnalysisException
+
         start = self.clock_start()
         print(f"...dropping the schema \"{self.schema_name}\"", end="...")
 
-        self.__spark.sql(f"DROP DATABASE IF EXISTS {self.schema_name} CASCADE")
+        try: self.__spark.sql(f"DROP DATABASE IF EXISTS {self.schema_name} CASCADE")
+        except AnalysisException: pass  # Ignore this concurrency error
 
         print(self.clock_stopped(start))
 
     def __cleanup_catalog(self):
+        from pyspark.sql.utils import AnalysisException
+
         start = self.clock_start()
         print(f"...dropping the catalog \"{self.catalog_name}\"", end="...")
 
-        self.__spark.sql(f"DROP CATALOG IF EXISTS {self.catalog_name} CASCADE")
+        try: self.__spark.sql(f"DROP CATALOG IF EXISTS {self.catalog_name} CASCADE")
+        except AnalysisException: pass  # Ignore this concurrency error
 
         print(self.clock_stopped(start))
 
@@ -371,12 +377,15 @@ class DBAcademyHelper:
         print(f"\nThe learning environment was successfully reset {self.clock_stopped(start)}.")
 
     def __reset_databases(self):
+        from pyspark.sql.utils import AnalysisException
+
         # Drop all user-specific catalogs
         catalog_names = [c.catalog for c in dbgems.spark.sql(f"SHOW CATALOGS").collect()]
         for catalog_name in catalog_names:
             if catalog_name.startswith(self.catalog_name_prefix):
                 print(f"Dropping the catalog \"{catalog_name}\"")
-                dbgems.spark.sql(f"DROP CATALOG IF EXISTS {catalog_name} CASCADE")
+                try: dbgems.spark.sql(f"DROP CATALOG IF EXISTS {catalog_name} CASCADE")
+                except AnalysisException: pass  # Ignore this concurrency error
 
         # Refresh the list of catalogs
         catalog_names = [c.catalog for c in dbgems.spark.sql(f"SHOW CATALOGS").collect()]
@@ -387,7 +396,8 @@ class DBAcademyHelper:
                 for schema_name in schema_names:
                     if schema_name.startswith(self.schema_name_prefix) and schema_name != "default":
                         print(f"Dropping the schema \"{catalog_name}.{schema_name}\"")
-                        dbgems.spark.sql(f"DROP DATABASE IF EXISTS {catalog_name}.{schema_name} CASCADE")
+                        try: dbgems.spark.sql(f"DROP DATABASE IF EXISTS {catalog_name}.{schema_name} CASCADE")
+                        except AnalysisException: pass  # Ignore this concurrency error
 
     def __reset_working_dir(self):
         from dbacademy_helper.paths_class import Paths
