@@ -42,7 +42,7 @@ class DatabasesHelper:
             # The database already exists.
 
             if drop_existing: dbgems.spark.sql(f"DROP DATABASE IF EXISTS {db_name} CASCADE;")
-            else: return f"Skipping existing schema \"{db_name}\" for {username}"
+            else: return print(f"Skipping existing schema \"{db_name}\" for {username}")
 
         dbgems.sql(f"CREATE DATABASE IF NOT EXISTS {db_name} LOCATION '{db_path}';")
 
@@ -50,7 +50,7 @@ class DatabasesHelper:
             # Call the post-create init function if defined
             post_create(db_name)
 
-        return f"Created schema \"{db_name}\" for {username}, dropped existing: {drop_existing}"
+        return print(f"Created schema \"{db_name}\" for {username}, dropped existing: {drop_existing}")
 
     def configure_permissions(self, notebook_name, spark_version="10.4.x-scala2.12"):
 
