@@ -83,7 +83,7 @@ class DBAcademyHelper:
         self.username = self.lesson_config.username
 
         # This is the location in our Azure data repository of the datasets for this lesson
-        self.staging_source_uri = f"dbfs:/mnt/dbacademy-datasets-staging/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
+        self.staging_source_uri = f"dbfs:/FileStore/shared_uploads/tt4938@att.com/dbacademy-datasets-staging/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
         self.data_source_uri = f"wasbs://courseware@dbacademy.blob.core.windows.net/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
         try:
             files = dbgems.dbutils.fs.ls(self.staging_source_uri)
@@ -104,7 +104,7 @@ class DBAcademyHelper:
         ###########################################################################################
 
         # This is where the datasets will be downloaded to and should be treated as read-only for all practical purposes
-        datasets_path = f"dbfs:/mnt/dbacademy-datasets/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
+        datasets_path = f"dbfs:/FileStore/shared_uploads/tt4938@att.com/dbacademy-datasets/{self.course_config.data_source_name}/{self.course_config.data_source_version}"
 
         self.paths = Paths(lesson_config=self.lesson_config,
                            working_dir_root=self.working_dir_root,
@@ -135,7 +135,7 @@ class DBAcademyHelper:
         # This is the common super-directory for each lesson, removal of which is designed to ensure
         # that all assets created by students is removed. As such, it is not attached to the path
         # object to hide it from students. Used almost exclusively in the Rest notebook.
-        return f"dbfs:/mnt/dbacademy-users/{self.username}/{self.course_config.course_name}"
+        return f"dbfs:/FileStore/shared_uploads/tt4938@att.com/dbacademy-users/{self.username}/{self.course_config.course_name}"
 
     @property
     def unique_name(self) -> str:
